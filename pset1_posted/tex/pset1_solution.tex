@@ -6,49 +6,58 @@
   \item
     \begin{enumerate}[1]
       \item
+        First, we find the partials:
         \begin{align*}
-          \text{First, we find the partials: } \\
-            \frac{\partial x_i}{\partial u_j} &= \frac{1}{u_{d+1}} \\
-            \frac{\partial x_i}{\partial j_i} &= \frac{1}{u_i} + \frac{1}{u_{d+1}} \\
-          \\ \text{Which gives us the Jacobian: }
-          \\ J &=
-            \begin{bmatrix}
-              \frac{\partial x_1}{\partial u_1} & \ldots & \frac{\partial x_1}{\partial u_d} \\
-              \vdots & \ddots & \vdots \\
-              \frac{\partial x_d}{\partial u_1} & \ldots & \frac{\partial x_n}{\partial u_d}
-            \end{bmatrix} =
-            \begin{bmatrix}
-              \frac{1}{u_1} + \frac{1}{u_{d+1}} & & \frac{1}{u_{d+1}} \\
-              & \ddots & \\
-              \frac{1}{u_{d+1}} & & \frac{1}{u_d} + \frac{1}{u_{d+1}} \\
-            \end{bmatrix}
-          \\ \\ &=
-            \begin{bmatrix}
-              \frac{1}{u_1} \\
-              \vdots \\
-              \frac{1}{u_d} \\
-            \end{bmatrix}I_d +
-            \begin{bmatrix}
-              \vdots \\
-              \frac{1}{u_{d+1}} \\
-              \vdots
-            \end{bmatrix}
-          \\ \mbox{Letting } X =
-            \begin{bmatrix}
-              \frac{1}{u_1} \\
-              \vdots \\
-              \frac{1}{u_d} \\
-            \end{bmatrix}
-            \mbox{ and } C =
-            \begin{bmatrix}
-              \vdots \\
-              \frac{1}{u_{d+1}} \\
-              \vdots
-            \end{bmatrix}, \\
-            \text{Sylvester's formula gives us that: }
-          \\ \\ \mbox{det(} J \mbox{)} &=
-              det(X) \cdot (1 + CX^{-1}C^{T})
-          \end{align*}
+          \frac{\partial x_i}{\partial u_j} &= \frac{1}{u_{d+1}} \\
+          \frac{\partial x_i}{\partial j_i} &= \frac{1}{u_i} + \frac{1}{u_{d+1}}
+        \end{align*}
+        Which gives us the Jacobian:
+        \begin{align*}
+          J &=
+              \begin{bmatrix}
+                \frac{\partial x_1}{\partial u_1} & \ldots & \frac{\partial x_1}{\partial u_d} \\
+                \vdots & \ddots & \vdots \\
+                \frac{\partial x_d}{\partial u_1} & \ldots & \frac{\partial x_n}{\partial u_d}
+              \end{bmatrix} =
+              \begin{bmatrix}
+                \frac{1}{u_1} + \frac{1}{u_{d+1}} & & \frac{1}{u_{d+1}} \\
+                & \ddots & \\
+                \frac{1}{u_{d+1}} & & \frac{1}{u_d} + \frac{1}{u_{d+1}} \\
+              \end{bmatrix} \\ \\
+            &=
+              \begin{bmatrix}
+                \frac{1}{u_1} \\
+                \vdots \\
+                \frac{1}{u_d} \\
+              \end{bmatrix}I_d +
+              \begin{bmatrix}
+                \vdots \\
+                \frac{1}{u_{d+1}} \\
+                \vdots
+              \end{bmatrix}
+        \end{align*}
+        Letting $X =  \begin{bmatrix}
+                        \frac{1}{u_1} \\
+                        \vdots \\
+                        \frac{1}{u_d} \\
+                      \end{bmatrix}$
+        and $C =  \begin{bmatrix}
+                    \vdots \\
+                    \frac{1}{u_{d+1}} \\
+                    \vdots
+                  \end{bmatrix}$
+        , Sylvester's Formula gives us that:
+        \begin{align*}
+          \mbox{det(} J \mbox{)}
+              &=  \mbox{det(} X\times I_d \mbox{)} \cdot (1 + CX^{-1}\begin{bmatrix} \ldots & 1 & \ldots \end{bmatrix}) \\
+              &=  \left(\prod_{i = 1}^{d}{\frac{1}{u_{i}}} \right)
+                  \left(1 + \left(\frac{\frac{1}{u_{d+1}}}{\frac{1}{u_1}} + \ldots + \frac{\frac{1}{u_{d+1}}}{\frac{1}{u_d}} \right) \right) \\
+              &=  \left(\prod_{i = 1}^{d}{\frac{1}{u_{i}}} \right)
+                  \left( \frac{u_1 + \ldots + u_d}{u_{d+1}} + \frac{u_{d+1}}{u_{d+1}}\right) \\
+              &=  \left(\prod_{i = 1}^{d}{\frac{1}{u_{i}}} \right)
+                  \left( \frac{1 - u_{d+1}}{u_{d+1}} + \frac{u_{d+1}}{u_{d+1}}\right) \\
+              &=  \left(\prod_{i = 1}^{d+1}{u_{i}} \right)^{-1}
+        \end{align*}
     \end{enumerate}
 \end{enumerate}
 \end{document}
