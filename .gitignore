@@ -3,3 +3,6 @@
 .RHistory
 *.gz
 *.aux
+*.fls
+*.fdb_latexmk
+
