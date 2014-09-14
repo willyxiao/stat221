@@ -1,12 +1,54 @@
 \documentclass[paper=a4, fontsize=11pt]{scrartcl}
 \usepackage{enumerate}
+\usepackage{amsmath}
 \begin{document}
 \begin{enumerate}[1.]
   \item
     \begin{enumerate}[1]
       \item
-      	$\frac{\partial x_i}{\partial u_j} = \frac{1}{u_{d+1}}$	\\
-      	$\frac{\partial x_i}{\partial j_i} = \frac{1}{u_i} + \frac{1}{u_{d+1}}$
+        \begin{align*}
+          \text{First, we find the partials: } \\
+            \frac{\partial x_i}{\partial u_j} &= \frac{1}{u_{d+1}} \\
+            \frac{\partial x_i}{\partial j_i} &= \frac{1}{u_i} + \frac{1}{u_{d+1}} \\
+          \\ \text{Which gives us the Jacobian: }
+          \\ J &=
+            \begin{bmatrix}
+              \frac{\partial x_1}{\partial u_1} & \ldots & \frac{\partial x_1}{\partial u_d} \\
+              \vdots & \ddots & \vdots \\
+              \frac{\partial x_d}{\partial u_1} & \ldots & \frac{\partial x_n}{\partial u_d}
+            \end{bmatrix} =
+            \begin{bmatrix}
+              \frac{1}{u_1} + \frac{1}{u_{d+1}} & & \frac{1}{u_{d+1}} \\
+              & \ddots & \\
+              \frac{1}{u_{d+1}} & & \frac{1}{u_d} + \frac{1}{u_{d+1}} \\
+            \end{bmatrix}
+          \\ \\ &=
+            \begin{bmatrix}
+              \frac{1}{u_1} \\
+              \vdots \\
+              \frac{1}{u_d} \\
+            \end{bmatrix}I_d +
+            \begin{bmatrix}
+              \vdots \\
+              \frac{1}{u_{d+1}} \\
+              \vdots
+            \end{bmatrix}
+          \\ \mbox{Letting } X =
+            \begin{bmatrix}
+              \frac{1}{u_1} \\
+              \vdots \\
+              \frac{1}{u_d} \\
+            \end{bmatrix}
+            \mbox{ and } C =
+            \begin{bmatrix}
+              \vdots \\
+              \frac{1}{u_{d+1}} \\
+              \vdots
+            \end{bmatrix}, \\
+            \text{Sylvester's formula gives us that: }
+          \\ \\ \mbox{det(} J \mbox{)} &=
+              det(X) \cdot (1 + CX^{-1}C^{T})
+          \end{align*}
     \end{enumerate}
 \end{enumerate}
 \end{document}
