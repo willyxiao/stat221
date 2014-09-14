@@ -1,6 +1,7 @@
 \documentclass[paper=a4, fontsize=11pt]{scrartcl}
 \usepackage{enumerate}
 \usepackage{amsmath}
+\newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
 \begin{enumerate}[1.]
   \item
@@ -50,13 +51,13 @@
         \begin{align*}
           \mbox{det(} J \mbox{)}
               &=  \mbox{det(} X\times I_d \mbox{)} \cdot (1 + CX^{-1}\begin{bmatrix} \ldots & 1 & \ldots \end{bmatrix}) \\
-              &=  \left(\prod_{i = 1}^{d}{\frac{1}{u_{i}}} \right)
-                  \left(1 + \left(\frac{\frac{1}{u_{d+1}}}{\frac{1}{u_1}} + \ldots + \frac{\frac{1}{u_{d+1}}}{\frac{1}{u_d}} \right) \right) \\
-              &=  \left(\prod_{i = 1}^{d}{\frac{1}{u_{i}}} \right)
-                  \left( \frac{u_1 + \ldots + u_d}{u_{d+1}} + \frac{u_{d+1}}{u_{d+1}}\right) \\
-              &=  \left(\prod_{i = 1}^{d}{\frac{1}{u_{i}}} \right)
-                  \left( \frac{1 - u_{d+1}}{u_{d+1}} + \frac{u_{d+1}}{u_{d+1}}\right) \\
-              &=  \left(\prod_{i = 1}^{d+1}{u_{i}} \right)^{-1}
+              &=  \parens{ \prod_{i = 1}^{d}{\frac{1}{u_{i}}} }
+                  \parens{ 1 + \parens{ \frac{\frac{1}{u_{d+1}}}{\frac{1}{u_1}} + \ldots + \frac{\frac{1}{u_{d+1}}}{\frac{1}{u_d}} } } \\
+              &=  \parens{ \prod_{i = 1}^{d}{\frac{1}{u_{i}}} }
+                  \parens{ \frac{u_1 + \ldots + u_d}{u_{d+1}} + \frac{u_{d+1}}{u_{d+1}} } \\
+              &=  \parens{ \prod_{i = 1}^{d}{\frac{1}{u_{i}}} }
+                  \parens{ \frac{1 - u_{d+1}}{u_{d+1}} + \frac{u_{d+1}}{u_{d+1}}} \\
+              &=  \parens{ \prod_{i = 1}^{d+1}{u_{i}} }^{-1}
         \end{align*}
     \end{enumerate}
 \end{enumerate}
