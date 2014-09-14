@@ -20,7 +20,7 @@ dlogisticnorm = function(u, mu, alpha, beta){
   
   a = abs(det(2*pi*cov_mtrx))^-.5
   b = 1/(prod(u)*(u_d_plus_one))
-  c = t(log(u/u_d_plus_one) - mu) %*% (1/cov_mtrx) %*% (log(u/u_d_plus_one) - mu)
+  c = as.matrix(log(u/u_d_plus_one) - mu) %*% (1/cov_mtrx) %*% t(log(u/u_d_plus_one) - mu)
   return (a*b*exp(-.5*c))
 }
 
@@ -49,4 +49,28 @@ logisticnorm.mle = function(U){
   return(MLEs)  
 }
 
-logisticnorm.mle(data)
+###################
+#Since we took a numerical approach to finding our estimates, let's compare 
+#them with results from optim
+
+#This part is currently Out of Order
+
+run.mle = function(data){
+  y = data
+  n = length(y[,1])
+  
+  log.lik = function(par) {
+    l = 0
+    for (i in 1:n){
+      l = l + log(dlogisticnorm(y[i,], mu=par[1], alpha=par[2], beta=par[3]))
+    }
+    return(l)
+  }
+  
+  out = optim(par=c(c(1,1,1), 1,1), fn = log.lik, control=list(fnscale=-1), 
+              method="L-BFGS-B")
+  return(out$par)
+  
+}
+
+
