@@ -25,9 +25,12 @@ dlogisticnorm = function(u, mu, alpha, beta){
 }
 
 logisticnorm.mle = function(U){
+  
   d = length(U)
   n = length(U[,1])
-  mu.hat = colSums(U) / n
+  mu.hat = colSums(U) / n #note: this is the mle for log points to get mu so we still need
+                          #to tranform back but b/c of invariance property of mle's 
+                          #this is ok
     
   temp = 0
   for (i in 1:d){
@@ -49,6 +52,12 @@ logisticnorm.mle = function(U){
   return(MLEs)  
 }
 
+tranform_data = function(log_points){
+  ### u_dplus_one for each observed point i is 1 - sum(data[i,])
+  #then each coordinate in the row becomes log(point/u_dplus_one)
+  
+}
+
 ###################
 #Since we took a numerical approach to finding our estimates, let's compare 
 #them with results from optim
@@ -59,18 +68,24 @@ run.mle = function(data){
   y = data
   n = length(y[,1])
   
+  contrained_dlogisticnorm = function(u, mu, alpha, transformed_beta){
+    beta = (alpha - transformed_beta)/(length(u) -1)
+    return(dlogisticnorm(u, mu, alpha, beta))
+  }
+  
+  
   log.lik = function(par) {
     l = 0
     for (i in 1:n){
-      l = l + log(dlogisticnorm(y[i,], mu=par[1], alpha=par[2], beta=par[3]))
+      l = l + log(contrained_dlogisticnorm(y[i,], mu=par[1], alpha=par[2], transformed_beta=par[3]))
     }
     return(l)
   }
   
-  out = optim(par=c(c(1,1,1), 1,1), fn = log.lik, control=list(fnscale=-1), 
-              method="L-BFGS-B")
+  out = optim(par=c(c(.1,.1,1), 1,1), fn = log.lik, control=list(fnscale=-1),
+              method="L-BFGS-B", lower=c(c(1e-6,1e-6,1e-6), 1e-6, 1e-6))
   return(out$par)
   
 }
-
+run.mle(data)
 
