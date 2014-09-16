@@ -64,15 +64,15 @@
         \end{align*}
         Thus, $||J|| = \parens{ \prod_{i = 1}^{d+1}{u_{i}} }^{-1}$. We need not worry about the absolute value as each element $u_i \in [0,1]$. \\
 
-        So we know the density to be:
+        So we know the density of $\vec{u}$ to be:
         \begin{align*}
-          f_{\vec{u}} = |2\pi \Sigma|^{-1/2}
+          f_{\vec{u}}(\vec{u}) = |2\pi \Sigma|^{-1/2}
                         \parens{ \prod_{i = 1}^{d+1}{u_{i}} }^{-1}
                         \mbox{exp}
                           \left[
                             -\frac{1}{2}
                             \left\{
-                              log\parens{ \frac{u}{u_{d+1}}}-\mu \right\}^T\Sigma^{-1}\left\{log\parens{ \frac{u}{u_{d+1}} }-\mu 
+                              log\parens{ \frac{u}{u_{d+1}}}-\mu \right\}^T\Sigma^{-1}\left\{log\parens{ \frac{u}{u_{d+1}} }-\mu
                             \right\}
                           \right]
         \end{align*}
