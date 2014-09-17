@@ -3,7 +3,16 @@ data = read.table("dataLogisticNorm3D.txt", header = TRUE)
 covariance_matrix = function(d, alpha, beta){
   return(matrix(-beta, d, d) + diag(alpha + beta, d))
 }
-  
+
+tranform_data = function(U){
+  ### u_dplus_one for each observed point i is 1 - sum(data[i,])
+  #then each coordinate in the row becomes log(point/u_dplus_one)
+  u_d_plus_one = 1 - rowSums(U) 
+  X = U / u_d_plus_one
+  return (log(X))
+}
+
+#1.3
 dlogisticnorm = function(u, mu, alpha, beta){
   cov_mtrx = covariance_matrix(length(u),alpha, beta)
   
@@ -20,16 +29,14 @@ dlogisticnorm = function(u, mu, alpha, beta){
 }
 
 logisticnorm.mle = function(U){
-  
-  d = length(U)
-  n = length(U[,1])
-  mu.hat = colSums(U) / n #note: this is the mle for log points to get mu so we still need
-                          #to tranform back but b/c of invariance property of mle's 
-                          #this is ok
+  X = tranform_data(U)
+  d = length(X[1,])
+  n = length(X[,1])
+  mu.hat = colSums(X) / n 
     
   temp = 0
   for (i in 1:d){
-    temp = temp + var(U[,i])
+    temp = temp + var(X[,i])
   }
   alpha.hat = temp / d
   
@@ -37,7 +44,7 @@ logisticnorm.mle = function(U){
   for (i in 1:d){
     j = i +1
     while(j <= d){
-      temp = temp + cov(U[,i],U[,j])
+      temp = temp + cov(X[,i],X[,j])
       j = j + 1
     }
   }
@@ -47,40 +54,24 @@ logisticnorm.mle = function(U){
   return(MLEs)  
 }
 
-tranform_data = function(log_points){
-  ### u_dplus_one for each observed point i is 1 - sum(data[i,])
-  #then each coordinate in the row becomes log(point/u_dplus_one)
-  
-}
+
+
+#1.4
+logisticnorm.mle(data)
 
 ###################
-#Since we took a numerical approach to finding our estimates, let's compare 
-#them with results from optim
+#Since we took a numerical approach to finding our estimates in 1.2, let's 
+#simulate data and compare MLE's with Parameters
 
-#This part is currently Out of Order
-
-run.mle = function(data){
-  y = data
-  n = length(y[,1])
+library(mvtnorm)
+run.mle_check = function(n, mu, sigma){
+  sim_data = rmvnorm(n, mean = mu, sigma = sigma)
+  sim_data = exp(sim_data)
+  sim_data = sim_data/(1 + rowSums(sim_data))
   
-  contrained_dlogisticnorm = function(u, mu, alpha, transformed_beta){
-    beta = (alpha - transformed_beta)/(length(u) -1)
-    return(dlogisticnorm(u, mu, alpha, beta))
-  }
-  
-  
-  log.lik = function(par) {
-    l = 0
-    for (i in 1:n){
-      l = l + log(contrained_dlogisticnorm(y[i,], mu=par[1], alpha=par[2], transformed_beta=par[3]))
-    }
-    return(l)
-  }
-  
-  out = optim(par=c(c(.1,.1,1), 1,1), fn = log.lik, control=list(fnscale=-1),
-              method="L-BFGS-B", lower=c(c(1e-6,1e-6,1e-6), 1e-6, 1e-6))
-  return(out$par)
+  result = logisticnorm.mle(sim_data)
+  return(result)
   
 }
-run.mle(data)
 
+run.mle_check(250, c(.1,.2,.3), covariance_matrix(3,.8,.3))
