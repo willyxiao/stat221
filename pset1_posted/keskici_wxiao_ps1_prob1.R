@@ -1,12 +1,7 @@
 data = read.table("dataLogisticNorm3D.txt", header = TRUE)
 
 covariance_matrix = function(d, alpha, beta){
-  entries = rep(-beta, d*d)
-  m = matrix(entries,nrow = d, ncol = d)
-  for(i in 1:d) {
-    m[i,i] = alpha
-  }
-  return(m)
+  return(matrix(-beta, d, d) + diag(alpha + beta, d))
 }
   
 dlogisticnorm = function(u, mu, alpha, beta){
