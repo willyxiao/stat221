@@ -77,5 +77,29 @@
                           \right]
         \end{align*}
     \end{enumerate}
+  \item
+    \begin{enumerate}[1]
+      \item The likelihood function is
+        \begin{align*}
+          L(g, \theta_L, \theta_H) &= \prod_{i = 1}^{N}{p(y_{i1},\ldots,y_{iP} | g, \theta_L, \theta_H)}
+        \end{align*}
+        where $N \text{ and } P$ are defined from the data generating process (number of observations and number of features, respectively). Then,
+        \begin{align*}
+          & p(y_{i1},\ldots,y_{iP} | g, \theta_L, \theta_H) = \prod_{j = i}^{P}{p(y_{ij} | g, \theta_L, \theta_H)} \\
+          & p(y_{ij} | g, \theta_L, \theta_H) = g_{H,i} \prod_{k = 1}^{d_j}{(\theta_{H,jk})^{I(y_{ij} = k)}} + g_{L,i} \prod_{k = 1}^{d_j}{(\theta_{L,jk})^{I(y_{ij} = k)}}
+        \end{align*}
+        where $d_j$ is the number of categories of feature $j$. So we can write the entire likelihood to be: 
+        \begin{align*}
+          L(g, \theta_L, \theta_H) &=
+            \prod_{i = 1}^{N}{\prod_{j = 1}^{P}{\parens{
+                g_{H,i} \prod_{k = 1}^{d_j}{(\theta_{H,jk})^{I(y_{ij} = k)}} + g_{L,i} \prod_{k = 1}^{d_j}{(\theta_{L,jk})^{I(y_{ij} = k)}}
+            }}} \\
+          \text{ and the log-likelihood: } \\
+          l(g, \theta_L, \theta_H) &=
+            \sum_{i = 1}^{N} \sum_{j=1}^{P} \parens{\log{ \parens{ 
+              g_{H,i} \prod_{k = 1}^{d_j}{(\theta_{H,jk})^{I(y_{ij} = k)}} + g_{L,i} \prod_{k = 1}^{d_j}{(\theta_{L,jk})^{I(y_{ij} = k)}} 
+            }}}
+        \end{align*}
+    \end{enumerate}
 \end{enumerate}
 \end{document}
