@@ -2,21 +2,16 @@ data_area2_path = 'dat/data1985_area2.csv'
 theta0List_path = 'dat/theta0list.Rdata'
 
 #2.2
+# G should be a vector of G_low
+# theta is a matrix and X is a matrix
 ll = function(G, theta, X){
   n = length(X) - 1
-  # FIXME should g_h be G$high and g_l be G$low?
-  g_h = G[1,]
-  g_l = G[2,]
-#  g_h = rep(.5, n)
-#  g_l = rep(.5, n)
-#  theta_h = theta[1]
-#  theta_l = theta[2]
-
   total_ll = 0
+
   for(i in 1:n) { 
     for(j in 1:length(theta)){
-      g_Hi = g_h[i]
-      g_Li = g_l[i]
+      g_Li = G[i]
+      g_Hi = 1 - g_Li
       
       theta_Hj = theta[[j]]$high
       theta_Lj = theta[[j]]$low
@@ -45,5 +40,6 @@ llOptim = function(par, X){
 
 #2.3
 gomMLE = function(X, G0, theta0){
+  
   return (optim(par=list(G=G0, theta=theta0), fn=llOptim, X=X, control=list(fnscale=-1))$par)
 }
