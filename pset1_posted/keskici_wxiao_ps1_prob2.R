@@ -32,10 +32,13 @@ load(theta0List_path) #Note: variable name is theta0List
 
 g = matrix(.5, 2, length(data_area2) - 1)
 
-llOptim = function(par, X){
-  G = par$G
-  theta = par$theta
-  return (ll(G, theta, X))
+llOptim = function(g, theta_low, theta_high, X){
+  big_negative = -Inf  
+
+  theta = combine(theta_low, theta_high)
+  likelihood = ll(g,theta, X)
+  
+  return (ifelse(likelihood == -Inf, big_negative, likelihood))
 }
 
 #2.3
