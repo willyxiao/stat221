@@ -2,13 +2,20 @@ data_area2_path = 'dat/data1985_area2.csv'
 theta0List_path = 'dat/theta0list.Rdata'
 
 data_area2 = read.table(data_area2_path, header=T)
+
+# fix one of the rows in data
 data_area2[,2] = data_area2[,2] - 1
-load(theta0List_path) #Note: variable name is theta0List
+
+# variable name is theta0List
+load(theta0List_path)
 
 #2.2
-# G should be a vector of G_low
-# theta is a matrix and X is a matrix
 ll = function(G, theta, X){
+  # penalize for not meeting constraint
+  if(all(G < 0 | G > 1)){
+    return (-Inf)
+  }
+
   n = length(X) - 1
   total_ll = 0
 
@@ -20,6 +27,21 @@ ll = function(G, theta, X){
       theta_Hj = theta[[j]]$high
       theta_Lj = theta[[j]]$low
       
+      # penalize for not meeting constraint
+      if(!all(theta_Hj >= 0) | !all(theta_Lj >= 0)){
+        return (-Inf)
+      }
+      
+      sum_H = sum(theta_Hj)
+      sum_L = sum(theta_Lj)
+      
+      # TODO how to penalize?
+      if(sum_H > 1.1 || sum_H < 0.9){
+        return (-Inf)
+      } else if(sum_L > 1.1 || sum_L < 0.9){
+        return (-Inf)
+      }
+
       k = X[i+1,j + 1] + 1
       
       # print (c(as.integer(i), as.integer(j), g_Hi, g_Li, theta_Hj[k], theta_Lj[k]))
@@ -32,21 +54,23 @@ ll = function(G, theta, X){
 
 llNoNegInf = function(G, theta, X){
   likelihood = ll(G, theta, X)
-  return (ifelse(likelihood == -Inf, -.Machine$double.xmax, likelihood))
+  retval = ifelse(likelihood == -Inf, -.Machine$double.xmax / 100, likelihood)
+  return (retval)
 }
 
 
-llOptimG = function(g, theta, X){
-  return (llNoNegInf(g,theta,X))
+llOptimG = function(G, theta, X){
+  return (llNoNegInf(G,theta,X))
 }
 
-llOptimTheta = function(theta_L, theta_H, j, g, theta, X){
+llOptimTheta = function(theta_L, theta_H, j, G, theta, X){
   theta[[j]]$high = theta_H
   theta[[j]]$low = theta_L
-  return (llNoNegInf(g, theta, X))
+  return (llNoNegInf(G, theta, X))
 }
 
 #2.3
+# OPTIMIZE (gomMLE takes like wayyy too long to run)
 gomMLE = function(X, G0, theta0){
   lik = -Inf
   lik1 = 0
@@ -70,24 +94,27 @@ gomMLE = function(X, G0, theta0){
       theta_Hj = theta_j$high
       res = optim(par=c(theta_L=theta_Lj), 
                   fn=llOptimTheta,
-                  X=X, theta=theta, theta_H=theta_Hj, g=G, j=j,
+                  method="Nelder-Mead",
+                  X=X, theta=theta, theta_H=theta_Hj, G=G, j=j,
                   control=list(fnscale=-1))
       theta[[j]]$low = res$par
+      print(res$par)
     }
     
     for(j in 1:J){
       theta_Hj = theta[[j]]$high
       res = optim(par=c(theta_H=theta_Hj), 
                   fn=llOptimTheta,
-                  X=X, theta=theta, theta_H=theta_Hj, j=j, g=G,
+                  method="BFGS",
+                  X=X, theta=theta, theta_H=theta_Hj, j=j, G=G,
                   control=list(fnscale=-1))
       theta[[j]]$high = res$par
-    
+      print(res$par)    
       lik1 = lik
       lik = res$value
     }
     
-
+    print(c(lik=lik,lik1=lik1))
   }
 
   return (list(G.hat=G, theta.hat=theta, maxlik=lik))
