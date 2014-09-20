@@ -32,17 +32,59 @@ load(theta0List_path) #Note: variable name is theta0List
 
 g = matrix(.5, 2, length(data_area2) - 1)
 
-llOptim = function(g, theta_low, theta_high, X){
-  big_negative = -Inf  
-
-  theta = combine(theta_low, theta_high)
-  likelihood = ll(g,theta, X)
-  
+llOptimG = function(g, theta, X){
+  big_negative = -Inf # FIXME 
+  likelihood = ll(g,theta,X)
   return (ifelse(likelihood == -Inf, big_negative, likelihood))
+}
+
+llOptimTheta = function(theta_L, theta_H, j, g, theta, X){
+  
 }
 
 #2.3
 gomMLE = function(X, G0, theta0){
+  lik = -Inf
+  lik1 = 0
+
+  g = G0
+  theta = theta0
+  
+  N = 10
+  J = length(theta)
+  
+  while(lik != lik1) {
+    
+    # g_L,n for n = 1,...,N
+    res = optim(par=c(g=g), fn=llOptimG, X=X, theta=theta, control=list(fnscale=-1))
+    g = res$par
+    
+    # theta_l,j for j = 1,...,J
+    for(j in 1:J){
+      theta_j = theta[[j]]
+      theta_Lj = theta_j$low
+      theta_Hj = theta_h$high
+      res = optim(par=c(theta_L=theta_Lj), 
+                  fn=llOptimTheta, 
+                  X=X, theta=theta, theta_H=theta_Hj, j=j, 
+                  control=list(fnscale=-1))
+      theta[[j]]$low = res$par
+    }
+    
+    for(i in 1:J){
+      theta_Hj = theta[[j]]$high
+      res = optim(par=c(theta_H=theta_Hj), 
+                  fn=llOptimTheta,
+                  X=X, theta=theta, theta_H=theta_Hj, j=j, 
+                  control=list(fnscale=-1))
+      theta[[j]]$high = res$par
+    
+      lik1 = lik
+      lik = res$value
+    }
+    
+    return (list(G.hat=g, theta.hat=theta, maxlik=lik))
+  }
   
   return (optim(par=list(G=G0, theta=theta0), fn=llOptim, X=X, control=list(fnscale=-1))$par)
 }
