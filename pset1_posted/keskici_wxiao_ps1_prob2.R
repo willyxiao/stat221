@@ -54,7 +54,7 @@ ll = function(G, theta, X){
 
 llNoNegInf = function(G, theta, X){
   likelihood = ll(G, theta, X)
-  retval = ifelse(likelihood == -Inf, -.Machine$double.xmax / 100, likelihood)
+  retval = ifelse(likelihood == -Inf, -1000000, likelihood)
   return (retval)
 }
 
@@ -94,7 +94,7 @@ gomMLE = function(X, G0, theta0){
       theta_Hj = theta_j$high
       res = optim(par=c(theta_L=theta_Lj), 
                   fn=llOptimTheta,
-                  method="Nelder-Mead",
+                  method="BFGS",
                   X=X, theta=theta, theta_H=theta_Hj, G=G, j=j,
                   control=list(fnscale=-1))
       theta[[j]]$low = res$par
