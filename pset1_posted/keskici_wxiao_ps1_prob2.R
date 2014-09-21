@@ -128,7 +128,7 @@ llNoNegInf = function(G, theta, X){
   # likelihood = ll(G, theta, X)
 #  print(c(G))
 #  print(lik)
-  retval = ifelse(lik == -Inf, big_negative, lik)
+  retval = ifelse(lik == -Inf || is.na(lik), big_negative, lik)
   return (retval)
 }
 
@@ -183,8 +183,12 @@ gomMLE = function(X, G0, theta0){
   while(lik != lik1) {
     
     # g_L,n for n = 1,...,N
+    print("Running G...")
+    print(list(OldLik=lik))
     res = optim(par=c(g=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
     G = res$par
+    print("Finished G...")
+    print(list(NewLik=res$value))
     
     # theta_l,j for j = 1,...,J
     for(j in 1:J){
@@ -199,7 +203,8 @@ gomMLE = function(X, G0, theta0){
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$low = dummy
-      print(dummy)
+      print("On feature")
+      print(c(j,res$value))
     }
     print("finished lows")
     
@@ -215,7 +220,8 @@ gomMLE = function(X, G0, theta0){
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$high = dummy
-      print(dummy) 
+      print("On feature")
+      print(c(j,res$value))
       lik_holder = res$value
     }
     lik1 = lik
