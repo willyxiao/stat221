@@ -91,6 +91,7 @@ transform = function(v){
 big_negative = -1e200
 
 llNoNegInf = function(G, theta, X){
+  #   likelihood = llV(G, theta, X)
   likelihood = ll(G, theta, X)
   retval = ifelse(likelihood == -Inf, big_negative, likelihood)
   return (retval)
@@ -189,6 +190,7 @@ gomMLE = function(X, G0, theta0){
   return (list(G.hat=G, theta.hat=theta, maxlik=lik))
 }
 
+# run.gomMLE = function(X=data,G0=FALSE,theta0=theta0List) {
 run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
   if(!G0){
     G0 = rep(.5,length(X) - 1)
