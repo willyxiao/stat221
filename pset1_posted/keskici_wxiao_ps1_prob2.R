@@ -10,6 +10,28 @@ data_area2[,2] = data_area2[,2] - 1
 load(theta0List_path)
 
 #2.2
+# G is a N x 1 vector where G[1] is G_Li
+# X is a N x J matrix where X[n,j] is the category of plot 1 feature j
+# theta is a J x 2 matrix where theta[j][i] j is feature, i -> (1=high, 2=low) 
+ll = function(G, theta, X){
+  G_matr = matrix(G, nrow=dim(X)[1], ncol=dim(x)[2], byrow=TRUE)
+  theta_low = sapply(theta, function(lst) {return(lst$low)})
+  theta_high = sapply(theta, function(lst) {return(lst$high)})
+  sum(log(
+    G_matr*matrix(theta[[j]]$low[X], nrow=dim(X)[1],ncol=dim(X)[2]) 
+    + (1 - G_matr)*matrix(theta[[j]]$high[X], nrow=dim(X)[1],ncol=dim(X)[2])
+  ))
+}
+
+data = dataToMatrix(data_area2)
+G = rep(.5, dim(data)[1])
+ll(G, theta, data)
+
+dataToMatrix = function(data){
+  # throw out first column of ids
+  return (data[,2:dim(data_area2)[2]])
+}
+# G should be an 
 ll = function(G, theta, X){
   # penalize for not meeting constraint
   if(all(G < 0 | G > 1)){
