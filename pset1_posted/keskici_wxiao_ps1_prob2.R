@@ -1,3 +1,6 @@
+library(logging)
+addHandler(writeToFile, file="sample.log", level="INFO")
+
 data_area2_path = 'dat/data1985_area2.csv'
 theta0List_path = 'dat/theta0list.Rdata'
 
@@ -8,6 +11,15 @@ data_area2[,2] = data_area2[,2] - 1
 
 # variable name is theta0List
 load(theta0List_path)
+
+makeNonZero = function(theta){
+  for(i in 1:length(theta)){
+    theta[[i]]$high = theta[[i]]$high + .01
+    theta[[i]]$low = theta[[i]]$low + .01
+  }
+  theta
+}
+theta0List = makeNonZero(theta0List)
 
 data = dataToMatrix(data_area2)
 G = rep(.5, dim(data)[1])
@@ -25,12 +37,14 @@ getHighProbability = function(x, theta){
 # theta is a J x 2 matrix where theta[j][i] j is feature, i -> (1=high, 2=low) 
 llV = function(G, theta, X){
   if(all(G < 0 | G > 1)){
+    print("G out of bounds")
     return (-Inf)
   }
   XT = t(X) + 1
   lowProbs = matrix(mapply(getLowProbability,x=XT,theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
   highProbs = matrix(mapply(getHighProbability,x=XT, theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
-  retval = sum(log(G*lowProbs + (1 - G)*highProbs))
+  liks = G*lowProbs + (1-G)*highProbs
+  retval = sum(log(liks))
   return (retval)
 }
 
@@ -45,13 +59,17 @@ data = dataToMatrix(data_area2)
 ll = function(G, theta, X){
   # penalize for not meeting constraint
   if(all(G < 0 | G > 1)){
+    print("ll: G out of bounds")
     return (-Inf)
   }
 
-  n = length(X) - 1
+  n = dim(X)[1]
   total_ll = 0
 
+  # m = matrix(0,n,length(theta))
+  
   for(i in 1:n) { 
+    # res = c()
     for(j in 1:length(theta)){
       g_Li = G[i]
       g_Hi = 1 - g_Li
@@ -61,6 +79,8 @@ ll = function(G, theta, X){
       
       # penalize for not meeting constraint
       if(!all(theta_Hj > 0) | !all(theta_Lj > 0)){
+        browser()
+        print("ll broken range")
         return (-Inf)
       }
       
@@ -69,18 +89,23 @@ ll = function(G, theta, X){
       
       # TODO how to penalize?
       if(sum_H > 1.1 || sum_H < 0.9){
+        print("ll broken range2")
         return (-Inf)
       } else if(sum_L > 1.1 || sum_L < 0.9){
+        print("ll broken range3")
         return (-Inf)
       }
 
-      k = X[i+1,j + 1] + 1
+      k = X[i,j + 1] + 1
       
       # print (c(as.integer(i), as.integer(j), g_Hi, g_Li, theta_Hj[k], theta_Lj[k]))
       p = g_Hi * theta_Hj[k] + g_Li * theta_Lj[k]
+      # res[length(res) + 1] = p
       total_ll = total_ll + log(p)
     }
+    # m[i,] = res
   }
+  # browser()
   return (total_ll)
 }
 
@@ -90,10 +115,20 @@ transform = function(v){
 
 big_negative = -1e200
 
+iters = 0
+
 llNoNegInf = function(G, theta, X){
-  #   likelihood = llV(G, theta, X)
-  likelihood = ll(G, theta, X)
-  retval = ifelse(likelihood == -Inf, big_negative, likelihood)
+#  iters <<- iters + 1
+  lik = llV(G, theta, data)
+#  lik = ll(G, theta, X)
+#  print(c(lik,lik1))
+#  if(lik1 != lik){
+    #browser()
+#  }
+  # likelihood = ll(G, theta, X)
+#  print(c(G))
+#  print(lik)
+  retval = ifelse(lik == -Inf, big_negative, lik)
   return (retval)
 }
 
@@ -141,13 +176,14 @@ gomMLE = function(X, G0, theta0){
   G = G0
   theta = theta0
   
-  N = length(X) - 1
+  #N = length(X) - 1
+  N = length(X)
   J = length(theta)
   
   while(lik != lik1) {
     
     # g_L,n for n = 1,...,N
-    res = optim(par=c(g=G), fn=llOptimG, X=X, theta=theta, control=list(fnscale=-1))
+    res = optim(par=c(g=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
     G = res$par
     
     # theta_l,j for j = 1,...,J
@@ -190,10 +226,10 @@ gomMLE = function(X, G0, theta0){
   return (list(G.hat=G, theta.hat=theta, maxlik=lik))
 }
 
-# run.gomMLE = function(X=data,G0=FALSE,theta0=theta0List) {
 run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
+# run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
   if(!G0){
-    G0 = rep(.5,length(X) - 1)
+    G0 = rep(.5,dim(X)[1])
   }
   return (gomMLE(X,G0,theta0))  
 }
