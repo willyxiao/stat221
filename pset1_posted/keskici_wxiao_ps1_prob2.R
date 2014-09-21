@@ -1,5 +1,11 @@
 library(logging)
-addHandler(writeToFile, file="sample.log", level="INFO")
+basicConfig()
+addHandler(writeToFile, file="gomMLE.log", level="INFO")
+
+sourceMe = function() {
+  source("./keskici_wxiao_ps1_prob2.R")
+}
+
 
 data_area2_path = 'dat/data1985_area2.csv'
 theta0List_path = 'dat/theta0list.Rdata'
@@ -11,6 +17,7 @@ data_area2[,2] = data_area2[,2] - 1
 
 # variable name is theta0List
 load(theta0List_path)
+load("./dat/g0.Rdata")
 
 makeNonZero = function(theta){
   for(i in 1:length(theta)){
@@ -22,7 +29,6 @@ makeNonZero = function(theta){
 theta0List = makeNonZero(theta0List)
 
 data = dataToMatrix(data_area2)
-G = rep(.5, dim(data)[1])
 
 getLowProbability = function(x, theta){
   theta$low[x]
@@ -34,10 +40,8 @@ getHighProbability = function(x, theta){
 #2.2
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot 1 feature j
-# theta is a J x 2 matrix where theta[j][i] j is feature, i -> (1=high, 2=low) 
 llV = function(G, theta, X){
-  if(all(G < 0 | G > 1)){
-    print("G out of bounds")
+  if(!all(0 < G & G < 1)){
     return (-Inf)
   }
   XT = t(X) + 1
@@ -49,8 +53,8 @@ llV = function(G, theta, X){
 }
 
 dataToMatrix = function(data){
-  # throw out first column of ids
-  return (data[,2:dim(data_area2)[2]])
+  noIds = data[,2:dim(data_area2)[2]]
+  t(t(noIds)) # to make it a matrix
 }
 
 data = dataToMatrix(data_area2)
@@ -115,19 +119,8 @@ transform = function(v){
 
 big_negative = -1e200
 
-iters = 0
-
 llNoNegInf = function(G, theta, X){
-#  iters <<- iters + 1
   lik = llV(G, theta, data)
-#  lik = ll(G, theta, X)
-#  print(c(lik,lik1))
-#  if(lik1 != lik){
-    #browser()
-#  }
-  # likelihood = ll(G, theta, X)
-#  print(c(G))
-#  print(lik)
   retval = ifelse(lik == -Inf || is.na(lik), big_negative, lik)
   return (retval)
 }
@@ -135,6 +128,21 @@ llNoNegInf = function(G, theta, X){
 
 llOptimG = function(G, theta, X){
   return (llNoNegInf(G,theta,X))
+}
+
+# G is a N x 1 vector where G[1] is G_Li
+# X is a N x J matrix where X[n,j] is the category of plot i feature j
+llOptimTheta2 = function(theta_L, theta_H, j, G, theta, X, high_flag){
+  k_j = X[,j] + 1
+  
+  if(high_flag){
+    theta_H = transform(theta_H)
+  } else {
+    theta_L = transform(theta_L)
+  }
+  
+  retval = sum(log(G*theta_L[k_j] + (1-G)*theta_H[k_j]))
+  retval
 }
 
 llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
@@ -183,56 +191,55 @@ gomMLE = function(X, G0, theta0){
   while(lik != lik1) {
     
     # g_L,n for n = 1,...,N
-    print("Running G...")
-    print(list(OldLik=lik))
+    loginfo("Running G...")
     res = optim(par=c(g=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
+    loginfo("Distance: %f", sum((G - res$par)**2))
     G = res$par
-    print("Finished G...")
-    print(list(NewLik=res$value))
-    
+#    G <<- res$par
+    loginfo("Result: %f", res$value)
+
+    loginfo("Running lows...")
     # theta_l,j for j = 1,...,J
     for(j in 1:J){
       theta_j = theta[[j]]
       theta_Lj = theta_j$low
       theta_Hj = theta_j$high
       res = optim(par=c(theta_L=theta_Lj), 
-                  fn=llOptimTheta,
+                  fn=llOptimTheta2,
                   method="L-BFGS-B",
-                  X=X, theta=theta, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE, lower = rep(1e-6, length(theta_Lj)),
-                  upper = rep(1, length(theta)),
+                  X=X, theta=theta, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE,
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$low = dummy
-      print("On feature")
-      print(c(j,res$value))
+      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
     }
-    print("finished lows")
-    
+
+    loginfo("Running highs")
     for(j in 1:J){
       theta_j = theta[[j]]
       theta_Lj = theta_j$low
       theta_Hj = theta_j$high  
       res = optim(par=c(theta_H=theta_Hj), 
-                  fn=llOptimTheta,
+                  fn=llOptimTheta2,
                   method="L-BFGS-B",
-                  X=X, theta=theta, theta_L=theta_Lj, j=j, G=G, high_flag = TRUE, lower = rep(1e-6, length(theta_Lj)),
-                  upper = rep(1, length(theta)),
+                  X=X, theta=theta, theta_L=theta_Lj, j=j, G=G, high_flag = TRUE,
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$high = dummy
-      print("On feature")
-      print(c(j,res$value))
-      lik_holder = res$value
+      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
+      lik_holder = llV(G, theta, X)
     }
     lik1 = lik
     lik = lik_holder    
-    print(c(lik=lik,lik1=lik1))
+    loginfo("Old: %f, New: %f", lik1,lik)
+    
+    MLES <<- list(G.hat=G, theta.hat=theta, maxlik=lik)
   }
 
-  return (list(G.hat=G, theta.hat=theta, maxlik=lik))
+  return (MLES)
 }
 
-run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
+run.gomMLE = function(X=data,G0=G,theta0=theta0List) {
 # run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
   if(!G0){
     G0 = rep(.5,dim(X)[1])
