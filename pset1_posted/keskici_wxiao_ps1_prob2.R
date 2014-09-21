@@ -1,6 +1,6 @@
 library(logging)
-basicConfig()
-addHandler(writeToFile, file="gomMLE.log", level="INFO")
+#basicConfig()
+#addHandler(writeToFile, file="gomMLE.log", level="INFO")
 
 sourceMe = function() {
   source("./keskici_wxiao_ps1_prob2.R")
@@ -18,6 +18,11 @@ data_area2[,2] = data_area2[,2] - 1
 # variable name is theta0List
 load(theta0List_path)
 load("./dat/g0.Rdata")
+
+dataToMatrix = function(data){
+  noIds = data[,2:dim(data_area2)[2]]
+  t(t(noIds)) # to make it a matrix
+}
 
 makeNonZero = function(theta){
   for(i in 1:length(theta)){
@@ -41,7 +46,7 @@ getHighProbability = function(x, theta){
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot 1 feature j
 llV = function(G, theta, X){
-  if(!all(0 < G & G < 1)){
+  if(!all(0 <= G & G <= 1)){
     return (-Inf)
   }
   XT = t(X) + 1
@@ -49,15 +54,11 @@ llV = function(G, theta, X){
   highProbs = matrix(mapply(getHighProbability,x=XT, theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
   liks = G*lowProbs + (1-G)*highProbs
   retval = sum(log(liks))
+  if(retval == -Inf){
+    browser()
+  }
   return (retval)
 }
-
-dataToMatrix = function(data){
-  noIds = data[,2:dim(data_area2)[2]]
-  t(t(noIds)) # to make it a matrix
-}
-
-data = dataToMatrix(data_area2)
 
 # G should be an 
 ll = function(G, theta, X){
@@ -175,6 +176,16 @@ llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
   return (llNoNegInf(G, theta, X))
 }
 
+llOptimG2 = function(g, theta, X, i){
+  if(!(0 <= g & g <= 1)){
+    return (big_negative)
+  }
+  lowProbs = mapply(getLowProbability, x=X[i,] + 1,theta=theta)
+  highProbs = mapply(getHighProbability, x=X[i,] + 1,theta=theta)
+  browser()
+  sum(log(g*lowProbs + (1-g)*highProbs))
+}
+
 #2.3
 # OPTIMIZE (gomMLE takes like wayyy too long to run)
 gomMLE = function(X, G0, theta0){
@@ -185,18 +196,31 @@ gomMLE = function(X, G0, theta0){
   theta = theta0
   
   #N = length(X) - 1
-  N = length(X)
+  N = length(G)
   J = length(theta)
   
   while(lik != lik1) {
     
     # g_L,n for n = 1,...,N
     loginfo("Running G...")
-    res = optim(par=c(g=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
-    loginfo("Distance: %f", sum((G - res$par)**2))
-    G = res$par
+    G_old = G
+    for(i in 1:N){
+      res = optim(par=c(g=G[i]), 
+                  fn=llOptimG2, 
+                  method="L-BFGS-B", 
+                  X=X, theta=theta, i=i,
+                  lower=0, 
+                  upper=1, 
+                  control=list(fnscale=-1))
+      G[i] = res$par
+#      loginfo("G_L%d is %f", i, res$par)
+    }
+    
+#    res = optim(par=c(g=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
+    loginfo("Distance: %f", mean(abs(G - G_old)))
+#    G = res$par
 #    G <<- res$par
-    loginfo("Result: %f", res$value)
+    loginfo("Result: %f", llV(G,theta,X))
 
     loginfo("Running lows...")
     # theta_l,j for j = 1,...,J
@@ -211,7 +235,7 @@ gomMLE = function(X, G0, theta0){
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$low = dummy
-      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
+#      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
     }
 
     loginfo("Running highs")
@@ -226,7 +250,7 @@ gomMLE = function(X, G0, theta0){
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$high = dummy
-      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
+#      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
       lik_holder = llV(G, theta, X)
     }
     lik1 = lik
@@ -234,6 +258,7 @@ gomMLE = function(X, G0, theta0){
     loginfo("Old: %f, New: %f", lik1,lik)
     
     MLES <<- list(G.hat=G, theta.hat=theta, maxlik=lik)
+    browser()
   }
 
   return (MLES)
