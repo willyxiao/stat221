@@ -9,28 +9,38 @@ data_area2[,2] = data_area2[,2] - 1
 # variable name is theta0List
 load(theta0List_path)
 
+data = dataToMatrix(data_area2)
+G = rep(.5, dim(data)[1])
+
+getLowProbability = function(x, theta){
+  theta$low[x]
+}
+getHighProbability = function(x, theta){
+  theta$high[x]
+}
+
 #2.2
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot 1 feature j
 # theta is a J x 2 matrix where theta[j][i] j is feature, i -> (1=high, 2=low) 
-ll = function(G, theta, X){
-  G_matr = matrix(G, nrow=dim(X)[1], ncol=dim(x)[2], byrow=TRUE)
-  theta_low = sapply(theta, function(lst) {return(lst$low)})
-  theta_high = sapply(theta, function(lst) {return(lst$high)})
-  sum(log(
-    G_matr*matrix(theta[[j]]$low[X], nrow=dim(X)[1],ncol=dim(X)[2]) 
-    + (1 - G_matr)*matrix(theta[[j]]$high[X], nrow=dim(X)[1],ncol=dim(X)[2])
-  ))
+llV = function(G, theta, X){
+  if(all(G < 0 | G > 1)){
+    return (-Inf)
+  }
+  XT = t(X) + 1
+  lowProbs = matrix(mapply(getLowProbability,x=XT,theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
+  highProbs = matrix(mapply(getHighProbability,x=XT, theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
+  retval = sum(log(G*lowProbs + (1 - G)*highProbs))
+  return (retval)
 }
-
-data = dataToMatrix(data_area2)
-G = rep(.5, dim(data)[1])
-ll(G, theta, data)
 
 dataToMatrix = function(data){
   # throw out first column of ids
   return (data[,2:dim(data_area2)[2]])
 }
+
+data = dataToMatrix(data_area2)
+
 # G should be an 
 ll = function(G, theta, X){
   # penalize for not meeting constraint
@@ -78,9 +88,11 @@ transform = function(v){
   return(exp(v)/sum(exp(v)))
 }
 
+big_negative = -1e200
+
 llNoNegInf = function(G, theta, X){
   likelihood = ll(G, theta, X)
-  retval = ifelse(likelihood == -Inf, -1e200, likelihood)
+  retval = ifelse(likelihood == -Inf, big_negative, likelihood)
   return (retval)
 }
 
@@ -98,6 +110,24 @@ llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
     theta[[j]]$high = theta_H
     theta[[j]]$low = transform(theta_L)
   }
+  
+  theta_Hj = theta[[j]]$high
+  theta_Lj = theta[[j]]$low
+  
+  if(!all(theta_Hj > 0) | !all(theta_Lj > 0)){
+    return (big_negative)
+  }
+  
+  sum_H = sum(theta_Hj)
+  sum_L = sum(theta_Lj)
+  
+  # TODO how to penalize?
+  if(sum_H > 1.1 || sum_H < 0.9){
+    return (big_negative)
+  } else if(sum_L > 1.1 || sum_L < 0.9){
+    return (big_negative)
+  }
+
   return (llNoNegInf(G, theta, X))
 }
 
