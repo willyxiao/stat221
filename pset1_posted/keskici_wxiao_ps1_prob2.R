@@ -77,21 +77,24 @@ llOptimG = function(G, theta, X){
 }
 
 # G should be an N x 1 vector
-llTheta(G, theta_Lj, theta_Hj, Xj){
+llTheta = function(G, theta_Lj, theta_Hj, Xj){
   k_j = Xj + 1
   sum(log(G*theta_Lj[k_j] + (1-G)*theta_Hj[k_j]))
 }
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot i feature j
 optimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
-
+  old_thetas = theta_L
+  
   if(high_flag){
     theta_H = transform(theta_H)
   } else {
     theta_L = transform(theta_L)
   }
 
+#  stopifnot(!all(theta_H > 0 & theta_L > 0))
   if(!all(theta_H > 0) || !all(theta_L > 0)){
+    browser()
     return (big_negative)
   } 
   
@@ -130,6 +133,7 @@ gomMLE = function(X, G0, theta0){
                   fn=optimTheta,
                   method="BFGS",
                   X=X, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE, 
+                  lower = rep(-20,length(theta_Lj)), upper = rep(20, length(theta_Lj)),
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       theta[[j]]$low = dummy
@@ -147,19 +151,20 @@ gomMLE = function(X, G0, theta0){
       old_theta = unlist(theta)
       res = optim(par=c(theta_H=rep(.001, length(theta_Hj))), 
                   fn=optimTheta,
-                  method="BFGS",
+                  method="L-BFGS-B",
                   X=X, theta_L=theta_Lj, G=G, j=j, high_flag = TRUE, 
+                  lower = rep(-20,length(theta_Hj)), upper = rep(20, length(theta_Hj)),
                   control=list(fnscale=-1))
       dummy = transform(res$par)
       
       theta[[j]]$high = dummy
-      if(res$val < old_val){
-        print(old_theta - unlist(theta))
-        print(theta[[j]]$high)
-        print(old_theta_Hj)
+#      if(res$val < old_val){
+#        print(old_theta - unlist(theta))
+#        print(theta[[j]]$high)
+#        print(old_theta_Hj)
         #print(res$par)
-        browser()
-      }
+#        browser()
+#      }
                   
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
       lik_holder = llV(G, theta, X)
