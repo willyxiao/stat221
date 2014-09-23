@@ -59,70 +59,9 @@ dataToMatrix = function(data){
 
 data = dataToMatrix(data_area2)
 
-# G should be an 
-ll = function(G, theta, X){
-  # penalize for not meeting constraint
-  if(all(G < 0 | G > 1)){
-    print("ll: G out of bounds")
-    return (-Inf)
-  }
-
-  n = dim(X)[1]
-  total_ll = 0
-
-  # m = matrix(0,n,length(theta))
-  
-  for(i in 1:n) { 
-    # res = c()
-    for(j in 1:length(theta)){
-      g_Li = G[i]
-      g_Hi = 1 - g_Li
-      
-      theta_Hj = theta[[j]]$high
-      theta_Lj = theta[[j]]$low
-      
-      # penalize for not meeting constraint
-      if(!all(theta_Hj > 0) || !all(theta_Lj > 0)){
-        browser()
-        print("ll broken range")
-        return (-Inf)
-      }
-      
-      sum_H = sum(theta_Hj)
-      sum_L = sum(theta_Lj)
-      
-      # TODO how to penalize?
-      if(sum_H > 1.1 || sum_H < 0.9){
-        print("ll broken range2")
-        return (-Inf)
-      } else if(sum_L > 1.1 || sum_L < 0.9){
-        print("ll broken range3")
-        return (-Inf)
-      }
-
-      k = X[i,j + 1] + 1
-      
-      # print (c(as.integer(i), as.integer(j), g_Hi, g_Li, theta_Hj[k], theta_Lj[k]))
-      p = g_Hi * theta_Hj[k] + g_Li * theta_Lj[k]
-      # res[length(res) + 1] = p
-      total_ll = total_ll + log(p)
-    }
-    # m[i,] = res
-  }
-  # browser()
-  return (total_ll)
-}
-
 transform = function(v){
   return(exp(v)/sum(exp(v)))
 }
-
-#transform = function(v){
-#  d = length(v)
-#  us = exp(v[-d])/(1+ sum(exp(v[-d])))
-#  return (c(us, 1 - sum(us)))
-#}
-
 
 big_negative = -1e200
 
@@ -137,64 +76,26 @@ llOptimG = function(G, theta, X){
   return (llNoNegInf(G,theta,X))
 }
 
+# G should be an N x 1 vector
+llTheta(G, theta_Lj, theta_Hj, Xj){
+  k_j = Xj + 1
+  sum(log(G*theta_Lj[k_j] + (1-G)*theta_Hj[k_j]))
+}
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot i feature j
-llOptimTheta2 = function(theta_L, theta_H, j, G, theta, X, high_flag){
-  k_j = X[,j] + 1
+optimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
+
   if(high_flag){
-    #if (sum(theta_H) != 1){
-      theta_H = transform(theta_H)
-    #}
+    theta_H = transform(theta_H)
   } else {
-    #if (sum(theta_L) != 1){
-      theta_L = transform(theta_L)
-    #}
+    theta_L = transform(theta_L)
   }
 
   if(!all(theta_H > 0) || !all(theta_L > 0)){
     return (big_negative)
   } 
   
-  retval = sum(log(G*theta_L[k_j] + (1-G)*theta_H[k_j]))
-  retval
-}
-
-llOptimTheta2check = function(theta_L, theta_H, j, G, X){
-  k_j = X[,j] + 1
-  
-  retval = sum(log(G*theta_L[k_j] + (1-G)*theta_H[k_j]))
-  return(retval)
-}
-
-llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
-  if (high_flag){
-    theta[[j]]$high = transform(theta_H)
-    theta[[j]]$low = theta_L
-  }
-  else{
-    theta[[j]]$high = theta_H
-    theta[[j]]$low = transform(theta_L)
-  }
-  
-  theta_Hj = theta[[j]]$high
-  theta_Lj = theta[[j]]$low
-  
-  if(!all(theta_Hj > 0) | !all(theta_Lj > 0)){
-    return (big_negative)
-  }
- 
-
-  sum_H = sum(theta_Hj)
-  sum_L = sum(theta_Lj)
-  
-  # TODO how to penalize?
-  if(sum_H > 1.1 || sum_H < 0.9){
-    return (big_negative)
-  } else if(sum_L > 1.1 || sum_L < 0.9){
-    return (big_negative)
-  }
-
-  return (llNoNegInf(G, theta, X))
+  llTheta(G, theta_L, theta_H, X[,j])
 }
 
 #2.3
@@ -206,7 +107,6 @@ gomMLE = function(X, G0, theta0){
   G = G0
   theta = theta0
   
-  #N = length(X) - 1
   N = length(X)
   J = length(theta)
   
@@ -216,17 +116,7 @@ gomMLE = function(X, G0, theta0){
     loginfo("Running G...")
     res = optim(par=c(G=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
     loginfo("Distance: %f", sum((G - res$par)**2))
-    G = res$par
-    
-    #for (i in 1: N){
-    #  res = optim(par=c(val=G[i]), fn=llOptimG2, method="L-BFGS-B", X=X,
-    #              theta=theta,G=G,iter=i, control=list(fnscale=-1))
-    #  print(res$par)
-    #  G[i] = res$par
-    #}
-    
-    
-    
+    G = res$par    
     loginfo("Result: %f", res$value)
     
     loginfo("Running lows...")
@@ -237,17 +127,13 @@ gomMLE = function(X, G0, theta0){
       theta_Hj = theta_j$high
 
       res = optim(par=c(theta_L= rep(.001, length(theta_Lj))), 
-                  fn=llOptimTheta2,
+                  fn=optimTheta,
                   method="BFGS",
                   X=X, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE, 
                   control=list(fnscale=-1))
       dummy = transform(res$par)
-      #if (sum(res$par) != 1){
       theta[[j]]$low = dummy
-      #}
-      #else{
-      #  theta[[j]]$low = res$par
-      #}
+
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
     }
 
@@ -257,10 +143,10 @@ gomMLE = function(X, G0, theta0){
       theta_Lj = theta_j$low
       theta_Hj = theta_j$high 
       old_theta_Hj = theta_Hj
-      old_val = llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
+#      old_val = llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
       old_theta = unlist(theta)
       res = optim(par=c(theta_H=rep(.001, length(theta_Hj))), 
-                  fn=llOptimTheta2,
+                  fn=optimTheta,
                   method="BFGS",
                   X=X, theta_L=theta_Lj, G=G, j=j, high_flag = TRUE, 
                   control=list(fnscale=-1))
@@ -274,10 +160,7 @@ gomMLE = function(X, G0, theta0){
         #print(res$par)
         browser()
       }
-      
-      #theta[[j]]$high = dummy
-      #print(llOptimTheta2check(theta_L=theta_Lj,theta_H=theta[[j]]$high,j=j,G=G,theta=theta,X=X))
-            
+                  
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
       lik_holder = llV(G, theta, X)
     }
@@ -292,7 +175,6 @@ gomMLE = function(X, G0, theta0){
 }
 
 run.gomMLE = function(X=data,G0=FALSE,theta0=theta0List) {
-# run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
   if(!G0){
     G0 = rep(.5,dim(X)[1])
   }
