@@ -21,14 +21,14 @@ load("./dat/g0.Rdata")
 
 makeNonZero = function(theta){
   for(i in 1:length(theta)){
-    theta[[i]]$high = theta[[i]]$high + .01
-    theta[[i]]$low = theta[[i]]$low + .01
+    theta[[i]]$high = theta[[i]]$high + .0001
+    theta[[i]]$low = theta[[i]]$low + .0001
+    theta[[i]]$high = theta[[i]]$high / sum(theta[[i]]$high)
+    theta[[i]]$low = theta[[i]]$low / sum(theta[[i]]$low)
   }
   theta
 }
 theta0List = makeNonZero(theta0List)
-
-data = dataToMatrix(data_area2)
 
 getLowProbability = function(x, theta){
   theta$low[x]
@@ -82,7 +82,7 @@ ll = function(G, theta, X){
       theta_Lj = theta[[j]]$low
       
       # penalize for not meeting constraint
-      if(!all(theta_Hj > 0) | !all(theta_Lj > 0)){
+      if(!all(theta_Hj > 0) || !all(theta_Lj > 0)){
         browser()
         print("ll broken range")
         return (-Inf)
@@ -117,6 +117,13 @@ transform = function(v){
   return(exp(v)/sum(exp(v)))
 }
 
+#transform = function(v){
+#  d = length(v)
+#  us = exp(v[-d])/(1+ sum(exp(v[-d])))
+#  return (c(us, 1 - sum(us)))
+#}
+
+
 big_negative = -1e200
 
 llNoNegInf = function(G, theta, X){
@@ -134,15 +141,29 @@ llOptimG = function(G, theta, X){
 # X is a N x J matrix where X[n,j] is the category of plot i feature j
 llOptimTheta2 = function(theta_L, theta_H, j, G, theta, X, high_flag){
   k_j = X[,j] + 1
-  
   if(high_flag){
-    theta_H = transform(theta_H)
+    #if (sum(theta_H) != 1){
+      theta_H = transform(theta_H)
+    #}
   } else {
-    theta_L = transform(theta_L)
+    #if (sum(theta_L) != 1){
+      theta_L = transform(theta_L)
+    #}
   }
+
+  if(!all(theta_H > 0) || !all(theta_L > 0)){
+    return (big_negative)
+  } 
   
   retval = sum(log(G*theta_L[k_j] + (1-G)*theta_H[k_j]))
   retval
+}
+
+llOptimTheta2check = function(theta_L, theta_H, j, G, X){
+  k_j = X[,j] + 1
+  
+  retval = sum(log(G*theta_L[k_j] + (1-G)*theta_H[k_j]))
+  return(retval)
 }
 
 llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
@@ -161,7 +182,8 @@ llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
   if(!all(theta_Hj > 0) | !all(theta_Lj > 0)){
     return (big_negative)
   }
-  
+ 
+
   sum_H = sum(theta_Hj)
   sum_L = sum(theta_Lj)
   
@@ -180,7 +202,7 @@ llOptimTheta = function(theta_L, theta_H, j, G, theta, X, high_flag){
 gomMLE = function(X, G0, theta0){
   lik = -Inf
   lik1 = 0
-
+  
   G = G0
   theta = theta0
   
@@ -192,25 +214,40 @@ gomMLE = function(X, G0, theta0){
     
     # g_L,n for n = 1,...,N
     loginfo("Running G...")
-    res = optim(par=c(g=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
+    res = optim(par=c(G=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
     loginfo("Distance: %f", sum((G - res$par)**2))
     G = res$par
-#    G <<- res$par
+    
+    #for (i in 1: N){
+    #  res = optim(par=c(val=G[i]), fn=llOptimG2, method="L-BFGS-B", X=X,
+    #              theta=theta,G=G,iter=i, control=list(fnscale=-1))
+    #  print(res$par)
+    #  G[i] = res$par
+    #}
+    
+    
+    
     loginfo("Result: %f", res$value)
-
+    
     loginfo("Running lows...")
     # theta_l,j for j = 1,...,J
     for(j in 1:J){
       theta_j = theta[[j]]
       theta_Lj = theta_j$low
       theta_Hj = theta_j$high
-      res = optim(par=c(theta_L=theta_Lj), 
+
+      res = optim(par=c(theta_L= rep(.001, length(theta_Lj))), 
                   fn=llOptimTheta2,
-                  method="L-BFGS-B",
-                  X=X, theta=theta, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE,
+                  method="BFGS",
+                  X=X, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE, 
                   control=list(fnscale=-1))
       dummy = transform(res$par)
+      #if (sum(res$par) != 1){
       theta[[j]]$low = dummy
+      #}
+      #else{
+      #  theta[[j]]$low = res$par
+      #}
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
     }
 
@@ -218,14 +255,29 @@ gomMLE = function(X, G0, theta0){
     for(j in 1:J){
       theta_j = theta[[j]]
       theta_Lj = theta_j$low
-      theta_Hj = theta_j$high  
-      res = optim(par=c(theta_H=theta_Hj), 
+      theta_Hj = theta_j$high 
+      old_theta_Hj = theta_Hj
+      old_val = llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
+      old_theta = unlist(theta)
+      res = optim(par=c(theta_H=rep(.001, length(theta_Hj))), 
                   fn=llOptimTheta2,
-                  method="L-BFGS-B",
-                  X=X, theta=theta, theta_L=theta_Lj, j=j, G=G, high_flag = TRUE,
+                  method="BFGS",
+                  X=X, theta_L=theta_Lj, G=G, j=j, high_flag = TRUE, 
                   control=list(fnscale=-1))
       dummy = transform(res$par)
+      
       theta[[j]]$high = dummy
+      if(res$val < old_val){
+        print(old_theta - unlist(theta))
+        print(theta[[j]]$high)
+        print(old_theta_Hj)
+        #print(res$par)
+        browser()
+      }
+      
+      #theta[[j]]$high = dummy
+      #print(llOptimTheta2check(theta_L=theta_Lj,theta_H=theta[[j]]$high,j=j,G=G,theta=theta,X=X))
+            
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
       lik_holder = llV(G, theta, X)
     }
@@ -239,28 +291,10 @@ gomMLE = function(X, G0, theta0){
   return (MLES)
 }
 
-run.gomMLE = function(X=data,G0=G,theta0=theta0List) {
+run.gomMLE = function(X=data,G0=FALSE,theta0=theta0List) {
 # run.gomMLE = function(X=data_area2,G0=FALSE,theta0=theta0List) {
   if(!G0){
     G0 = rep(.5,dim(X)[1])
   }
   return (gomMLE(X,G0,theta0))  
 }
-#-2120.93     -Inf 
-#-2090.045 -2120.930 
-#-2086.919 -2090.045 
-#-2083.276 -2086.919
-#-2078.717 -2083.276 
-#-2073.462 -2078.717
-#-2067.277 -2073.462 
-#-2060.340 -2067.277 
-#-2051.935 -2060.340 
-#-2043.091 -2051.935 
-#-2033.181 -2043.091
-#-2021.950 -2033.181 
-#-2011.095 -2021.950 
-#
-#Error in optim(par = c(theta_L = theta_Lj), fn = llOptimTheta, method = "L-BFGS-B",  : 
-#                 L-BFGS-B needs finite values of 'fn'
-#               In addition: Warning message:
-#                 In log(p) : NaNs produced
