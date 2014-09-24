@@ -5,7 +5,7 @@
 \begin{document}
 \begin{enumerate}[1.]
   \item
-    \begin{enumerate}[1]
+    \begin{enumerate}[1.]
       \item
         % We know $\vec{x} \sim N_d(\vec{\mu},\Sigma)$ and the density defined as $f_{\vec{x}}(\vec{x})$. \\
         The density of $\vec{u}$, is $f_{\vec{u}} = f_{\vec{x}}(g^{-1}(\vec{u}))||J||$ \\
@@ -64,7 +64,7 @@
         \end{align*}
         Thus, $||J|| = \parens{ \prod_{i = 1}^{d+1}{u_{i}} }^{-1}$. We need not worry about the absolute value as each element $u_i \in [0,1]$. \\
 
-        So we know the density of $\vec{u}$ to be:
+        So we know the density of $\vec{u}$ to be (for $\vec{u} \in S^d$):
         \begin{align*}
           f_{\vec{u}}(\vec{u}) = |2\pi \Sigma|^{-1/2}
                         \parens{ \prod_{i = 1}^{d+1}{u_{i}} }^{-1}
@@ -76,6 +76,29 @@
                             \right\}
                           \right]
         \end{align*}
+      \item Finding the MLEs: \\
+        First for $\vec{\mu}$: \\
+        \begin{align*}
+          %  TODO
+          something here
+        \end{align*}
+        Rather than solving for $\alpha$ and $\beta$ analytically - we came to a solution numerically. $\alpha$ is the diagonal of the covariance matrix, so we just found the mean of the variance terms of each dimension. So we have that: \\
+        \begin{align*}
+          \alpha &= \frac{\sum_{i=1}^{d}{\frac{1}{n}\sum_{j=1}^{n}{(X_{ij} - \hat{\mu_i})}}}{d}
+        \end{align*}
+        Similarly, $-\beta$ is the mean of the sample covariance between each pair of dimensions:
+        \begin{align*}
+          -\beta &= \frac{
+            \sum_{i=1}^{d}{
+              \sum_{j=i+1}^{d}{
+                \mbox{ Cov}(col_i, col_j) }
+            }
+          }{
+            \binom{d}{2}
+          } \\
+          & \mbox{ where } col_i \mbox{ is the column of data in dimension } i
+        \end{align*}
+        We coded up the numerical solution and compared it to generated data (in attached R)
     \end{enumerate}
   \item
     \begin{enumerate}[1]
@@ -96,7 +119,7 @@
             }}} \\
           \text{ and the log-likelihood: } \\
           l(g, \theta_L, \theta_H) &=
-            \sum_{i = 1}^{N} \sum_{j=1}^{P} \parens{\log{ \parens{ 
+            \sum_{i = 1}^{N} \sum_{j=1}^{P} \parens{\log{ \parens{
               g_{H,i} \prod_{k = 1}^{d_j}{(\theta_{H,jk})^{I(y_{ij} = k)}} + g_{L,i} \prod_{k = 1}^{d_j}{(\theta_{L,jk})^{I(y_{ij} = k)}} 
             }}}
         \end{align*}
