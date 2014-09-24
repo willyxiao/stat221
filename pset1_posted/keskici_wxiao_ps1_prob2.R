@@ -1,3 +1,4 @@
+library(RUnit)
 library(logging)
 basicConfig()
 addHandler(writeToFile, file="gomMLE.log", level="INFO")
@@ -76,10 +77,24 @@ llOptimG = function(G, theta, X){
   return (llNoNegInf(G,theta,X))
 }
 
+optimG = function(g, X, i )
+
 # G should be an N x 1 vector
 llTheta = function(G, theta_Lj, theta_Hj, Xj){
   k_j = Xj + 1
   sum(log(G*theta_Lj[k_j] + (1-G)*theta_Hj[k_j]))
+}
+
+llTheta.check = function(){
+  x = c(0,1,2)
+  theta_Lj = c(.2,.7,.1)
+  theta_Hj = c(.1,.5,.4)
+  G = c(.1,.5,.2)
+
+  #.1 * (.2) + .9 * (.1) = .02 + .09 = .11
+  #.5 * (.7) + .5 * (.5) = .35 + .25 = .60
+  #.2 * (.1) + .8 * (.4) = .02 + .32 = .34
+  checkTrue(round(llTheta(G, theta_Lj, theta_Hj, x), 4) == -3.7969)
 }
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot i feature j
