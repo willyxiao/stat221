@@ -162,6 +162,7 @@ gomMLE = function(X, G0, theta0){
       theta_Lj = theta_j$low
       theta_Hj = theta_j$high 
       old_theta_Hj = theta_Hj
+      old_val = llV(G, theta, X)
 #      old_val = llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
       old_theta = unlist(theta)
       res = optim(par=c(theta_H=rep(.001, length(theta_Hj))), 
@@ -173,13 +174,13 @@ gomMLE = function(X, G0, theta0){
       dummy = transform(res$par)
       
       theta[[j]]$high = dummy
-#      if(res$val < old_val){
+      if(llV(G, theta, X) < old_val){
 #        print(old_theta - unlist(theta))
 #        print(theta[[j]]$high)
 #        print(old_theta_Hj)
         #print(res$par)
-#        browser()
-#      }
+        browser()
+      }
                   
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
       lik_holder = llV(G, theta, X)
