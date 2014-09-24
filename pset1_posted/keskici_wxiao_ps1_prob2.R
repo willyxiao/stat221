@@ -7,7 +7,6 @@ sourceMe <- function() {
   source("./keskici_wxiao_ps1_prob2.R")
 }
 
-
 data_area2_path = 'dat/data1985_area2.csv'
 theta0List_path = 'dat/theta0list.Rdata'
 
@@ -54,6 +53,9 @@ llV2 = function(G, theta, X){
 }
 
 llV = function(G, theta, X){
+  if(!all(0 < G & G < 1)){
+    return (-Inf)
+  }
   log.density = c()
   n = length(G)
   if(n != nrow(X)){
@@ -62,10 +64,11 @@ llV = function(G, theta, X){
   for(j in 1:ncol(X)){
     theta.Lj = theta[[j]]$low
     theta.Hj = theta[[j]]$high
-    log.density = c(log.density, log(G * theta.Lj[X[,j] + 1] + (1 - G) * theta.Hj[X[,j] + 1]))
+    log.density = c(log.density, log(G*theta.Lj[X[,j] + 1] + (1 - G) * theta.Hj[X[,j] + 1]))
   }
   sum(log.density)
 }
+
 dataToMatrix = function(data){
   noIds = data[,2:dim(data_area2)[2]]
   t(t(noIds)) # to make it a matrix
@@ -86,12 +89,8 @@ llNoNegInf = function(G, theta, X){
 }
 
 
-llOptimG <- function(G, theta, X){
-  return (llNoNegInf(G,theta,X))
-}
-
-optimG <- function(g, X, i ){
-    
+llOptimG <- function(G, Theta, X){
+  return (llNoNegInf(G,Theta,X))
 }
 
 # G should be an N x 1 vector
@@ -99,6 +98,18 @@ llTheta <- function(G, theta_Lj, theta_Hj, Xj){
   k_j <- Xj + 1
   sum(log(G*theta_Lj[k_j] + (1-G)*theta_Hj[k_j]))
 }
+
+llTheta2 <- function(G, theta_vec, Xj){
+  k_j <- Xj + 1
+  retval = sum(log(G*theta_vec[k_j]))
+  
+#retval = ifelse(retval == -Inf || is.na(retval), big_negative, retval)  
+#  if (retval == -Inf){
+#    browser()
+#  }
+  return(retval)
+}
+
 
 llTheta.check <- function(){
   x <- c(0,1,2)
@@ -114,21 +125,22 @@ llTheta.check <- function(){
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot i feature j
 optimTheta <- function(theta_L, theta_H, j, G, theta, X, high_flag){
-  old_thetas <- theta_L
-  
+  #ld_thetas <- theta_L
   if(high_flag){
-    theta_H <- logistic(theta_H)
+    #theta_H <- logistic(theta_H)
+    return(llTheta2((1-G), logistic(theta_H), X[,j]))
   } else {
-    theta_L <- logistic(theta_L)
+    #theta_L <- logistic(theta_L)
+    return(llTheta2(G, logistic(theta_L), X[,j]))
   }
 
 #  stopifnot(!all(theta_H > 0 & theta_L > 0))
-  if(!all(theta_H > 0) || !all(theta_L > 0)){
-    browser()
-    return (big_negative)
-  } 
+  #if(!all(theta_H > 0) || !all(theta_L > 0)){
+  #  browser()
+  #  return (big_negative)
+  #} 
   
-  llTheta(G, theta_L, theta_H, X[,j])
+  #llTheta(G, theta_L, theta_H, X[,j])
 }
 
 #2.3
@@ -137,7 +149,7 @@ gomMLE <- function(X, G0, theta0){
   lik <- -Inf
   lik1 <- 0
   
-  G <- G0
+  G = G0
   theta <- theta0
   
   N <- length(X)
@@ -147,10 +159,12 @@ gomMLE <- function(X, G0, theta0){
     
     # g_L,n for n = 1,...,N
     loginfo("Running G...")
-    res <- optim(par=c(G=G), fn=llOptimG, method="L-BFGS-B", X=X, theta=theta, control=list(fnscale=-1))
+    print(G)
+    res = optim(par=G, fn=llOptimG, method="L-BFGS-B", X=X, Theta=theta, control=list(fnscale=-1))
     loginfo("Distance: %f", sum((G - res$par)**2))
     G <- res$par    
     loginfo("Result: %f", res$value)
+    print(G)
     
     loginfo("Running lows...")
     # theta_l,j for j = 1,...,J
@@ -159,13 +173,13 @@ gomMLE <- function(X, G0, theta0){
       theta_Lj <- theta_j$low
       theta_Hj <- theta_j$high
 
-      res <- optim(par=c(theta_L= rep(.001, length(theta_Lj))), 
+      res = optim(par=rep(.001, length(theta_Lj)), 
                   fn=optimTheta,
                   method="L-BFGS-B",
                   X=X, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE, 
-                  lower = rep(-20,length(theta_Lj)), upper = rep(20, length(theta_Lj)),
+                  lower = rep(-10,length(theta_Lj)), upper = rep(10, length(theta_Lj)),
                   control=list(fnscale=-1))
-      dummy <- logistic(res$par)
+      dummy = logistic(res$par)
       theta[[j]]$low <- dummy
 
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
@@ -179,23 +193,23 @@ gomMLE <- function(X, G0, theta0){
       old_theta_Hj <- theta_Hj
       old_val <- llV(G, theta, X)
 #      old_val <- llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
-      old_theta <- unlist(theta)
-      res <- optim(par=c(theta_H=rep(.001, length(theta_Hj))), 
+      #old_theta <- unlist(theta)
+      res <- optim(par=rep(.001, length(theta_Hj)), 
                   fn=optimTheta,
                   method="L-BFGS-B",
                   X=X, theta_L=theta_Lj, G=G, j=j, high_flag = TRUE, 
-                  lower = rep(-20,length(theta_Hj)), upper = rep(20, length(theta_Hj)),
+                  lower = rep(-10,length(theta_Hj)), upper = rep(10, length(theta_Hj)),
                   control=list(fnscale=-1))
       dummy <- logistic(res$par)
       
       theta[[j]]$high <- dummy
-      if(llV(G, theta, X) < old_val){
+      #if(llV(G, theta, X) < old_val){
 #        print(old_theta - unlist(theta))
 #        print(theta[[j]]$high)
 #        print(old_theta_Hj)
         #print(res$par)
-        browser()
-      }
+      #  browser()
+      #}
                   
       loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
       lik_holder <- llV(G, theta, X)
@@ -212,7 +226,9 @@ gomMLE <- function(X, G0, theta0){
 
 run.gomMLE <- function(X=data,G0=FALSE,theta0=theta0List) {
   if(!G0){
-    G0 <- rep(.5,dim(X)[1])
+    
+    G0 <- rbeta(dim(X)[1],100,100)
+    #G0 <- rep(.5,dim(X)[1])
   }
   return (gomMLE(X,G0,theta0))  
 }
