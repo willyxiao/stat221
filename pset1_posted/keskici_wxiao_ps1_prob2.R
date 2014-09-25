@@ -93,7 +93,7 @@ ll.theta <- function(G, theta.vec, Xj){
 #2.3
 gomMLE <- function(X, G0, theta0){
   G = G0
-  theta <- theta0
+  theta = theta0
 
   lik = -Inf
   lik1 = 0
@@ -121,9 +121,9 @@ gomMLE <- function(X, G0, theta0){
     # OPTIMIZE THETA LOWS
     loginfo("Running lows...")
     for(j in 1:J){
-      theta.j <- theta[[j]]
-      theta.Lj <- theta.j$low
-      theta.Hj <- theta.j$high
+      theta.j = theta[[j]]
+      theta.Lj = theta.j$low
+      theta.Hj = theta.j$high
 
       res = optim(par=rep(.001, length(theta.Lj)), 
                   fn=optim.theta,
@@ -140,11 +140,11 @@ gomMLE <- function(X, G0, theta0){
     # OPTIMIZE THETA HIGHS
     loginfo("Running highs")
     for(j in 1:J){
-      theta.j <- theta[[j]]
-      theta.Lj <- theta.j$low
-      theta.Hj <- theta.j$high
+      theta.j = theta[[j]]
+      theta.Lj = theta.j$low
+      theta.Hj = theta.j$high
     
-      res <- optim(par=rep(.001, length(theta.Hj)), 
+      res = optim(par=rep(.001, length(theta.Hj)), 
                   fn=optim.theta,
                   method="L-BFGS-B",
                   X=X, theta.L=theta.Lj, G=G, j=j, high_flag = TRUE, 
@@ -155,10 +155,10 @@ gomMLE <- function(X, G0, theta0){
       theta[[j]]$high = logistic(res$par)
 
       loginfo("On feature: %2d, loglik: %f", j, ll(G, theta, X))
-      lik_holder <- ll(G, theta, X)
+      lik_holder = ll(G, theta, X)
     }
-    lik1 <- lik
-    lik <- lik_holder    
+    lik1 = lik
+    lik = lik_holder    
     loginfo("Old: %f, New: %f", lik1,lik)
         
     MLES = list(G.hat=G, theta.hat=theta, maxlik=lik)
