@@ -70,8 +70,23 @@ run.mle_check = function(n, mu, sigma){
   sim_data = sim_data/(1 + rowSums(sim_data))
   
   result = logisticnorm.mle(sim_data)
+  print("Difference between mu and mu.hat:")
+  print(result$mu.hat - mu)
+  print("Difference between alpha and alpha.hat:")
+  print(result$alpha.hat - sigma[1,1])
+  print("Difference between beta and beta.hat:")
+  print(result$beta.hat + sigma[1,2])
   return(result)
   
 }
+####
+# As seen here our estimates for mu, alpha, and beta get closer
+# to the true parameters as n increases
+# if we had more time we would explore the mean and variance
+# of our estimates for a fixed n
 
-run.mle_check(250, c(.1,.2,.3), covariance_matrix(3,.8,.3))
+run.mle_check(250, c(.1,.2,.3), covariance_matrix(3,.1,.03))
+run.mle_check(2500, c(.1,.2,.3), covariance_matrix(3,.1,.03))
+run.mle_check(25000, c(.1,.2,.3), covariance_matrix(3,.1,.03))
+
+
