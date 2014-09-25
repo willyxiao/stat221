@@ -68,33 +68,16 @@ logistic <- function(v){
   return(exp(v)/sum(exp(v)))
 }
 
-
-
-llNoNegInf = function(G, theta, X){
+# computes the log likelihood but replaces an NA or -Inf with BIG.NEGATIVE
+optim.G <- function(G, Theta, X){
   lik = ll(G, theta, data)
   ifelse(lik == -Inf || is.na(lik), BIG.NEGATIVE, lik)
 }
 
-
-optim.G <- function(G, Theta, X){
-  return (llNoNegInf(G,Theta,X))
-}
-
-# G should be an N x 1 vector
-llTheta <- function(G, theta_Lj, theta_Hj, Xj){
-  k_j <- Xj + 1
-  sum(log(G*theta_Lj[k_j] + (1-G)*theta_Hj[k_j]))
-}
-
-llTheta2 <- function(G, theta_vec, Xj){
-  k_j <- Xj + 1
-  retval = sum(log(G*theta_vec[k_j]))
-  
-#retval = ifelse(retval == -Inf || is.na(retval), BIG.NEGATIVE, retval)  
-#  if (retval == -Inf){
-#    browser()
-#  }
-  return(retval)
+# computes the log-likelihood over a single feature j
+ll.theta <- function(G, theta_vec, Xj){
+  k.j <- Xj + 1
+  sum(log(G*theta_vec[k.j]))
 }
 
 
@@ -115,10 +98,10 @@ optim.theta <- function(theta_L, theta_H, j, G, theta, X, high_flag){
   #ld_thetas <- theta_L
   if(high_flag){
     #theta_H <- logistic(theta_H)
-    return(llTheta2((1-G), logistic(theta_H), X[,j]))
+    return(ll.theta((1-G), logistic(theta_H), X[,j]))
   } else {
     #theta_L <- logistic(theta_L)
-    return(llTheta2(G, logistic(theta_L), X[,j]))
+    return(ll.theta(G, logistic(theta_L), X[,j]))
   }
 
 #  stopifnot(!all(theta_H > 0 & theta_L > 0))
