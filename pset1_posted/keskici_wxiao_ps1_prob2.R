@@ -84,10 +84,9 @@ optim.theta <- function(theta.L, theta.H, j, G, theta, X, high_flag){
   }
 }
 
-# computes the log-likelihood over a single feature j as a high plot or a low-plot
+# computes the log-likelihood over a single feature j in the high plot or low plot
 ll.theta <- function(G, theta.vec, Xj){
-  k.j <- Xj + 1
-  sum(log(G*theta.vec[k.j]))
+  sum(log(G*theta.vec[Xj + 1]))
 }
 
 #2.3
@@ -130,33 +129,30 @@ gomMLE <- function(X, G0, theta0){
                   fn=optim.theta,
                   method="L-BFGS-B",
                   X=X, theta.H=theta.Hj, G=G, j=j, high_flag = FALSE, 
-                  lower = rep(-10,length(theta.Lj)), upper = rep(10, length(theta.Lj)),
+                  lower = rep(-10,length(theta.Lj)), 
+                  upper = rep(10, length(theta.Lj)),
                   control=list(fnscale=-1))
-      dummy = logistic(res$par)
-      theta[[j]]$low <- dummy
-
+      
+      theta[[j]]$low = logistic(res$par)
       loginfo("On feature: %2d, loglik: %f", j, ll(G, theta, X))
     }
 
     # OPTIMIZE THETA HIGHS
     loginfo("Running highs")
     for(j in 1:J){
-      theta_j <- theta[[j]]
-      theta.Lj <- theta_j$low
-      theta.Hj <- theta_j$high 
-      old_theta.Hj <- theta.Hj
-      old_val <- ll(G, theta, X)
-#      old_val <- lloptim.theta2check(theta.L=theta.Lj,theta.H=theta.Hj,j=j,G=G,X=X)
-      #old_theta <- unlist(theta)
+      theta.j <- theta[[j]]
+      theta.Lj <- theta.j$low
+      theta.Hj <- theta.j$high
+    
       res <- optim(par=rep(.001, length(theta.Hj)), 
                   fn=optim.theta,
                   method="L-BFGS-B",
                   X=X, theta.L=theta.Lj, G=G, j=j, high_flag = TRUE, 
-                  lower = rep(-10,length(theta.Hj)), upper = rep(10, length(theta.Hj)),
+                  lower = rep(-10,length(theta.Hj)), 
+                  upper = rep(10, length(theta.Hj)),
                   control=list(fnscale=-1))
-      dummy <- logistic(res$par)
-      
-      theta[[j]]$high <- dummy
+
+      theta[[j]]$high = logistic(res$par)
 
       loginfo("On feature: %2d, loglik: %f", j, ll(G, theta, X))
       lik_holder <- ll(G, theta, X)
@@ -164,7 +160,6 @@ gomMLE <- function(X, G0, theta0){
     lik1 <- lik
     lik <- lik_holder    
     loginfo("Old: %f, New: %f", lik1,lik)
-
         
     MLES = list(G.hat=G, theta.hat=theta, maxlik=lik)
   }
