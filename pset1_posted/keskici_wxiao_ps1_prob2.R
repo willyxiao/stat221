@@ -59,6 +59,7 @@ ll = function(G, theta, X){
   sum(log.density)
 }
 
+# not used
 simplex <- function(v){
   u.vector = exp(v) / (1 + sum(exp(v)))
   c(u.vector, 1 - sum(u.vector))
@@ -90,7 +91,6 @@ ll.theta <- function(G, theta.vec, Xj){
 }
 
 #2.3
-# OPTIMIZE (gomMLE takes like wayyy too long to run)
 gomMLE <- function(X, G0, theta0){
   G = G0
   theta <- theta0
