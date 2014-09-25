@@ -3,21 +3,16 @@ library(logging)
 basicConfig()
 addHandler(writeToFile, file="gomMLE.log", level="INFO")
 
-sourceMe <- function() {
-  source("./keskici_wxiao_ps1_prob2.R")
-}
-
 data_area2_path = 'dat/data1985_area2.csv'
 theta0List_path = 'dat/theta0list.Rdata'
+g0_path = 'dat/g0.Rdata'
 
 data_area2 = read.table(data_area2_path, header=T)
-
 # fix one of the rows in data
 data_area2[,2] = data_area2[,2] - 1
 
-# variable name is theta0List
-load(theta0List_path)
-load("./dat/g0.Rdata")
+load(theta0List_path) # theta0List
+load(g0_path) # g0
 
 makeNonZero = function(theta){
   for(i in 1:length(theta)){
