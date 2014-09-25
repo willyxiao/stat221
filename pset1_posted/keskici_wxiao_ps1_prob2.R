@@ -3,15 +3,17 @@ library(logging)
 basicConfig()
 addHandler(writeToFile, file="gomMLE.log", level="INFO")
 
+BIG.NEGATIVE = -1e200
+
 data = NA
 theta0List = NA
 
-dataToMatrix = function(data){
+data.to.matrix = function(data){
   noIds = data[,2:dim(data)[2]]
   t(t(noIds)) # to make it a matrix
 }
 
-makeNonZero = function(theta){
+theta.non.zero = function(theta){
   for(i in 1:length(theta)){
     theta[[i]]$high = theta[[i]]$high + .0001
     theta[[i]]$low = theta[[i]]$low + .0001
@@ -33,18 +35,11 @@ load.defaults = function(){
   load(theta0List_path) # theta0List
   load(g0_path) # g0
   
-  theta0List <<- makeNonZero(theta0List)
-  data <<- dataToMatrix(data_area2)  
+  theta0List <<- theta.non.zero(theta0List)
+  data <<- data.to.matrix(data_area2)  
 }
 
 load.defaults()
-
-getLowProbability = function(x, theta){
-  theta$low[x]
-}
-getHighProbability = function(x, theta){
-  theta$high[x]
-}
 
 #2.2
 ll = function(G, theta, X){
@@ -64,8 +59,6 @@ ll = function(G, theta, X){
   sum(log.density)
 }
 
-
-
 simplex <- function(v){
   u.vector = exp(v) / (1 + sum(exp(v)))
   c(u.vector, 1 - sum(u.vector))
@@ -75,16 +68,15 @@ logistic <- function(v){
   return(exp(v)/sum(exp(v)))
 }
 
-big_negative = -1e200
+
 
 llNoNegInf = function(G, theta, X){
   lik = ll(G, theta, data)
-  retval = ifelse(lik == -Inf || is.na(lik), big_negative, lik)
-  return (retval)
+  ifelse(lik == -Inf || is.na(lik), BIG.NEGATIVE, lik)
 }
 
 
-llOptimG <- function(G, Theta, X){
+optim.G <- function(G, Theta, X){
   return (llNoNegInf(G,Theta,X))
 }
 
@@ -98,7 +90,7 @@ llTheta2 <- function(G, theta_vec, Xj){
   k_j <- Xj + 1
   retval = sum(log(G*theta_vec[k_j]))
   
-#retval = ifelse(retval == -Inf || is.na(retval), big_negative, retval)  
+#retval = ifelse(retval == -Inf || is.na(retval), BIG.NEGATIVE, retval)  
 #  if (retval == -Inf){
 #    browser()
 #  }
@@ -119,7 +111,7 @@ llTheta.check <- function(){
 }
 # G is a N x 1 vector where G[1] is G_Li
 # X is a N x J matrix where X[n,j] is the category of plot i feature j
-optimTheta <- function(theta_L, theta_H, j, G, theta, X, high_flag){
+optim.theta <- function(theta_L, theta_H, j, G, theta, X, high_flag){
   #ld_thetas <- theta_L
   if(high_flag){
     #theta_H <- logistic(theta_H)
@@ -132,7 +124,7 @@ optimTheta <- function(theta_L, theta_H, j, G, theta, X, high_flag){
 #  stopifnot(!all(theta_H > 0 & theta_L > 0))
   #if(!all(theta_H > 0) || !all(theta_L > 0)){
   #  browser()
-  #  return (big_negative)
+  #  return (BIG.NEGATIVE)
   #} 
   
   #llTheta(G, theta_L, theta_H, X[,j])
@@ -155,7 +147,7 @@ gomMLE <- function(X, G0, theta0){
     # g_L,n for n = 1,...,N
     loginfo("Running G...")
     print(G)
-    res = optim(par=G, fn=llOptimG, method="L-BFGS-B", X=X, Theta=theta, control=list(fnscale=-1))
+    res = optim(par=G, fn=optim.G, method="L-BFGS-B", X=X, Theta=theta, control=list(fnscale=-1))
     loginfo("Distance: %f", sum((G - res$par)**2))
     G <- res$par    
     loginfo("Result: %f", res$value)
@@ -169,7 +161,7 @@ gomMLE <- function(X, G0, theta0){
       theta_Hj <- theta_j$high
 
       res = optim(par=rep(.001, length(theta_Lj)), 
-                  fn=optimTheta,
+                  fn=optim.theta,
                   method="L-BFGS-B",
                   X=X, theta_H=theta_Hj, G=G, j=j, high_flag = FALSE, 
                   lower = rep(-10,length(theta_Lj)), upper = rep(10, length(theta_Lj)),
@@ -187,10 +179,10 @@ gomMLE <- function(X, G0, theta0){
       theta_Hj <- theta_j$high 
       old_theta_Hj <- theta_Hj
       old_val <- ll(G, theta, X)
-#      old_val <- llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
+#      old_val <- lloptim.theta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
       #old_theta <- unlist(theta)
       res <- optim(par=rep(.001, length(theta_Hj)), 
-                  fn=optimTheta,
+                  fn=optim.theta,
                   method="L-BFGS-B",
                   X=X, theta_L=theta_Lj, G=G, j=j, high_flag = TRUE, 
                   lower = rep(-10,length(theta_Hj)), upper = rep(10, length(theta_Hj)),
