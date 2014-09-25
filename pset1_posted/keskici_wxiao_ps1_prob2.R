@@ -3,16 +3,13 @@ library(logging)
 basicConfig()
 addHandler(writeToFile, file="gomMLE.log", level="INFO")
 
-data_area2_path = 'dat/data1985_area2.csv'
-theta0List_path = 'dat/theta0list.Rdata'
-g0_path = 'dat/g0.Rdata'
+data = NA
+theta0List = NA
 
-data_area2 = read.table(data_area2_path, header=T)
-# fix one of the rows in data
-data_area2[,2] = data_area2[,2] - 1
-
-load(theta0List_path) # theta0List
-load(g0_path) # g0
+dataToMatrix = function(data){
+  noIds = data[,2:dim(data)[2]]
+  t(t(noIds)) # to make it a matrix
+}
 
 makeNonZero = function(theta){
   for(i in 1:length(theta)){
@@ -23,7 +20,24 @@ makeNonZero = function(theta){
   }
   theta
 }
-theta0List = makeNonZero(theta0List)
+
+load.defaults = function(){
+  data_area2_path = 'dat/data1985_area2.csv'
+  theta0List_path = 'dat/theta0list.Rdata'
+  g0_path = 'dat/g0.Rdata'
+  
+  data_area2 = read.table(data_area2_path, header=T)
+  # fix one of the rows in data
+  data_area2[,2] = data_area2[,2] - 1
+  
+  load(theta0List_path) # theta0List
+  load(g0_path) # g0
+  
+  theta0List <<- makeNonZero(theta0List)
+  data <<- dataToMatrix(data_area2)  
+}
+
+load.defaults()
 
 getLowProbability = function(x, theta){
   theta$low[x]
@@ -33,20 +47,6 @@ getHighProbability = function(x, theta){
 }
 
 #2.2
-# G is a N x 1 vector where G[1] is G_Li
-# X is a N x J matrix where X[n,j] is the category of plot 1 feature j
-llV2 = function(G, theta, X){
-  if(!all(0 < G & G < 1)){
-    return (-Inf)
-  }
-  XT = t(X) + 1
-  lowProbs = matrix(mapply(getLowProbability,x=XT,theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
-  highProbs = matrix(mapply(getHighProbability,x=XT, theta=theta), nrow=dim(XT)[1], ncol=dim(XT)[2])
-  liks = G*lowProbs + (1-G)*highProbs
-  retval = sum(log(liks))
-  return (retval)
-}
-
 llV = function(G, theta, X){
   if(!all(0 < G & G < 1)){
     return (-Inf)
@@ -64,12 +64,7 @@ llV = function(G, theta, X){
   sum(log.density)
 }
 
-dataToMatrix = function(data){
-  noIds = data[,2:dim(data_area2)[2]]
-  t(t(noIds)) # to make it a matrix
-}
 
-data = dataToMatrix(data_area2)
 
 simplex <- function(v){
   u.vector = exp(v) / (1 + sum(exp(v)))
