@@ -47,7 +47,7 @@ getHighProbability = function(x, theta){
 }
 
 #2.2
-llV = function(G, theta, X){
+ll = function(G, theta, X){
   if(!all(0 < G & G < 1)){
     return (-Inf)
   }
@@ -78,7 +78,7 @@ logistic <- function(v){
 big_negative = -1e200
 
 llNoNegInf = function(G, theta, X){
-  lik = llV(G, theta, data)
+  lik = ll(G, theta, data)
   retval = ifelse(lik == -Inf || is.na(lik), big_negative, lik)
   return (retval)
 }
@@ -177,7 +177,7 @@ gomMLE <- function(X, G0, theta0){
       dummy = logistic(res$par)
       theta[[j]]$low <- dummy
 
-      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
+      loginfo("On feature: %2d, loglik: %f", j, ll(G, theta, X))
     }
 
     loginfo("Running highs")
@@ -186,7 +186,7 @@ gomMLE <- function(X, G0, theta0){
       theta_Lj <- theta_j$low
       theta_Hj <- theta_j$high 
       old_theta_Hj <- theta_Hj
-      old_val <- llV(G, theta, X)
+      old_val <- ll(G, theta, X)
 #      old_val <- llOptimTheta2check(theta_L=theta_Lj,theta_H=theta_Hj,j=j,G=G,X=X)
       #old_theta <- unlist(theta)
       res <- optim(par=rep(.001, length(theta_Hj)), 
@@ -198,7 +198,7 @@ gomMLE <- function(X, G0, theta0){
       dummy <- logistic(res$par)
       
       theta[[j]]$high <- dummy
-      #if(llV(G, theta, X) < old_val){
+      #if(ll(G, theta, X) < old_val){
 #        print(old_theta - unlist(theta))
 #        print(theta[[j]]$high)
 #        print(old_theta_Hj)
@@ -206,8 +206,8 @@ gomMLE <- function(X, G0, theta0){
       #  browser()
       #}
                   
-      loginfo("On feature: %2d, loglik: %f", j, llV(G, theta, X))
-      lik_holder <- llV(G, theta, X)
+      loginfo("On feature: %2d, loglik: %f", j, ll(G, theta, X))
+      lik_holder <- ll(G, theta, X)
     }
     lik1 <- lik
     lik <- lik_holder    
