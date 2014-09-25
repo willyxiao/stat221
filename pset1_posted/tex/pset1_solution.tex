@@ -77,11 +77,22 @@
                           \right]
         \end{align*}
       \item Finding the MLEs: \\
-        First for $\vec{\mu}$: \\
+        First for $\vec{\mu}$, we find $\frac{\partial{f_{\vec{u}}(\vec{u})}}{\partial{\vec{\mu}}} = 0$, which becomes: \\
         \begin{align*}
-          %  TODO
-          something here
+          0 &= \frac{\partial{(-\frac{1}{2}
+                            \left\{
+                              log\parens{ \frac{u}{u_{d+1}}}-\mu \right\}^T\Sigma^{-1}\left\{log\parens{ \frac{u}{u_{d+1}} }-\mu
+                            \right\}
+                )}}{\partial{\vec{\mu}}} \\
+            &= -\frac{1}{2}\parens{
+              -2\Sigma^{-1}\parens{
+                log\parens{ \frac{u}{ u_{d+1} } } - \mu
+              }
+            } \\
+          \mu &= log\parens{ \frac{u}{ u_{d+1} } } \\
+          \hat{\vec{\mu}}_{mle} &= \frac{\sum_{i=1}^n{log \parens{ \frac{\vec{u}_i}{(u_{d+1})_i}}}}{n}
         \end{align*}
+        This makes a lot of sense intuitively. The MLE of $\vec{\mu}$, which is the mean of each $u$, is just the emperical mean of each $u$ over all of our observations. \\ \\
         Rather than solving for $\alpha$ and $\beta$ analytically - we came to a solution numerically. $\alpha$ is the diagonal of the covariance matrix, so we just found the mean of the variance terms of each dimension. So we have that: \\
         \begin{align*}
           \alpha &= \frac{\sum_{i=1}^{d}{\frac{1}{n}\sum_{j=1}^{n}{(X_{ij} - \hat{\mu_i})}}}{d}
