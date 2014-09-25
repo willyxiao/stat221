@@ -76,6 +76,11 @@ dataToMatrix = function(data){
 
 data = dataToMatrix(data_area2)
 
+simplex <- function(v){
+  u.vector = exp(v) / (1 + sum(exp(v)))
+  c(u.vector, 1 - sum(u.vector))
+}
+
 logistic <- function(v){
   return(exp(v)/sum(exp(v)))
 }
