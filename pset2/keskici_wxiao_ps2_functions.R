@@ -1,4 +1,6 @@
 
+
+
 # theta is length J
 # w is length J
 # N is scaler
@@ -9,6 +11,7 @@ simYgivenTheta <- function(theta, w, N) {
 }
 
 # all scalars
-simThetaGivenMuSigma <- function(mu, sigma, J) {
+simThetagivenMuSigma <- function(mu, sigma, J) {
   rnorm(J, mu, sigma)
 }
+
