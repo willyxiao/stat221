@@ -3,11 +3,11 @@
 #FIXME How do we request 12 machines? Is it based on number of tasks per job?
 
 #SBATCH -n 1                            # (Max) number of tasks per job, for R usually 1
-#SBATCH -t MINUTES
-#SBATCH -o out.txt                      # File for the standard output
-#SBATCH -e err.txt                      # File for the standard error
+#SBATCH -t 3
+#SBATCH -o %A_%a.out                     # File for the standard output
+#SBATCH -e %A_%a.err                    # File for the standard error
 #SBATCH --open-mode=append              # Append to standard output and error files
-#SBATCH -p serial_requeue               # Partition to use
+#SBATCH -p stats               # Partition to use
 #SBATCH --mem-per-cpu=4096              # Memory required per CPU, in MegaBytes
 #SBATCH --mail-user=willy@chenxiao.us   # Where to send mail
 #SBATCH --mail-type=ALL                 # When to send mail
