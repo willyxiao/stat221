@@ -1,5 +1,9 @@
 #! /usr/bin/env Rscript
+
+#FIXME How do we request 12 machines? Is it based on number of tasks per job?
+
 #SBATCH -n 1                            # (Max) number of tasks per job, for R usually 1
+#SBATCH -t MINUTES
 #SBATCH -o out.txt                      # File for the standard output
 #SBATCH -e err.txt                      # File for the standard error
 #SBATCH --open-mode=append              # Append to standard output and error files
@@ -8,4 +12,9 @@
 #SBATCH --mail-user=willy@chenxiao.us   # Where to send mail
 #SBATCH --mail-type=ALL                 # When to send mail
 
+#
+# theta.nsims = # of unique thetas we want to simulate
+#
 
+mu <-     c(1,6, 2.5, 5.2, 4.9)
+sigma <-  c(0.7, 1.3, 1.3, 1.6)

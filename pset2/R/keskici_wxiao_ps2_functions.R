@@ -8,3 +8,7 @@ simYgivenTheta <- function(theta, w, N) {
   matrix(rpois(N*J, w*theta), nrow=J,ncol=N)
 }
 
+# all scalars
+simThetaGivenMuSigma <- function(mu, sigma, J) {
+  rnorm(J, mu, sigma)
+}
