@@ -13,9 +13,6 @@
 #SBATCH --mail-type=ALL                 # When to send mail
 #SBATCH -a 1-4                          # Test
 
-#
-# theta.nsims = # of unique thetas we want to simulate
-#
 if(Sys.getenv("SLURM_JOB_ID") != ""){
   library(pset2)
 
