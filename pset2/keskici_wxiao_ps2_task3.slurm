@@ -16,7 +16,7 @@
 if(Sys.getenv("SLURM_JOB_ID") != ""){
   library(pset2)
 
-  mu <-     c(1,6, 2.5, 5.2, 4.9)
+  mu <-     c(1.6, 2.5, 5.2, 4.9)
   sigma <-  c(0.7, 1.3, 1.3, 1.6)
 
   id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
