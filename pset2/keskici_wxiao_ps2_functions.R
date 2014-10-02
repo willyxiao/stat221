@@ -33,3 +33,15 @@ getFileName <- function(i,j){
   sprintf(file.name.str, i, j)
 }
 
+# same as getObjectName but for sim
+getOutObjectName <- function(i,j){
+  object.name.str <- "out.%d.%d"
+  sprintf(object.name.str, i, j)
+}
+
+# same as getFileName but in the out file ad called "out"
+getOutFileName <- function(i,j){
+  file.name.str <- "out/out_%d_%d.RData"
+  sprintf(file.name.str, i, j)
+}
+

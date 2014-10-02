@@ -35,7 +35,8 @@ if(Sys.getenv("SLURM_JOB_ID") != ""){
     load(getFileName(pair.num, theta.num))
     Y = get(getObjectName(pair.num, theta.num))
     res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
-    
+    assign(getOutObjecName(pair.num, theta.num), res)
+    save(list=c(getOutObjecName(pair.num, theta.num)), file=getFileName(pair.num,theta.num))
   }
 
 } else { # local testing
