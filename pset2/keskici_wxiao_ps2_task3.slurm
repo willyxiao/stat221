@@ -13,14 +13,21 @@
 #SBATCH --mail-type=ALL                 # When to send mail
 #SBATCH -a 1-4                          # Test
 
+source("keskici_wxiao_ps2_functions.R")
+
+mcmc.NSIMS = 2
+
+stopif(length(mu) != length(sigma))
+
 if(Sys.getenv("SLURM_JOB_ID") != ""){
-  library(pset2)
 
-  mu <-     c(1.6, 2.5, 5.2, 4.9)
-  sigma <-  c(0.7, 1.3, 1.3, 1.6)
-
-  id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-  
-  hello.world(mu[id], sigma[id])
+} else { # local testing
+  for(i in 1:length(mu)){
+    for(j in 1:theta.NSIMS) {
+      load(getFileName(i,j))
+      res = poisson.logn.mcmc(getObjectName(i,j), w, mu0=mu[i], sigmasq0=sigma[i]**2)
+      browser()  
+  }
+  }  
 }
 
