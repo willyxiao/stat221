@@ -28,7 +28,7 @@ if(Sys.getenv("SLURM_JOB_ID") != ""){
   num.groups = (JOB_ARRAYS / length(mu))
   size.groups = (theta.NSIMS / num.groups)
 
-  theta.group.num = ((id - 1) %% num.groups)) + 1
+  theta.group.num = ((id - 1) %% num.groups) + 1
 
   for(theta.group.offset in 1:size.groups){
     theta.num = (theta.NSIMS / size.groups) * theta.group.num + theta.group.offset
