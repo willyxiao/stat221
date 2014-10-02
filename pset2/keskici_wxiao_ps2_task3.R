@@ -9,7 +9,7 @@ mu          <- c(1.6, 2.5, 5.2, 4.9)
 sigma       <- c(0.7, 1.3, 1.3, 1.6)
 
 object.name.str <- "Y.%d.%d"
-file.name.str <- "Y/Y_%d_%d"
+file.name.str   <- "Y/Y_%d_%d"
 
 for(i in 1:length(mu)){
   for(j in 1:theta.NSIMS) {
