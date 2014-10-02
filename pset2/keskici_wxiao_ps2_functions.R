@@ -1,6 +1,6 @@
 N           <- 2    # number of draws
 J           <- 1000 # length of theta and w vector
-theta.NSIMS <- 2    # theta.nsims * N is the # of total simulations we'll run
+theta.NSIMS <- 360    # theta.nsims * N is the # of total simulations we'll run
 
 w           <- rep(1, J) # weights are all set to 1
 mu          <- c(1.6, 2.5, 5.2, 4.9)
