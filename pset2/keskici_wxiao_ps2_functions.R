@@ -41,7 +41,7 @@ getOutObjectName <- function(i,j){
 
 # same as getFileName but in the out file ad called "out"
 getOutFileName <- function(i,j){
-  file.name.str <- "out/out_%d_%d.RData"
+  file.name.str <- "/n/regal/stats/kevin_willy/out/out_%d_%d.RData"
   sprintf(file.name.str, i, j)
 }
 
