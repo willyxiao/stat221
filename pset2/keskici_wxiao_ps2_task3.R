@@ -19,7 +19,7 @@ runSimulation <- function(job.id, num.jobs){
     res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
 
     theta.num = num.groups * (theta.group.num - 1) + theta.group.offset
-    assign(getOutObjectName(pair.num, theta.num), res)
-    save(list=c(getOutObjectName(pair.num, theta.num)), file=getOutFileName(pair.num,theta.num))
+    save(res, file=getOutFileName(pair.num,theta.num))
+    gc()
   }
 }
