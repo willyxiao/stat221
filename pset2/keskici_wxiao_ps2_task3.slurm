@@ -11,41 +11,9 @@
 #SBATCH --mail-type=ALL                 # When to send mail
 #SBATCH -a 1-12                          # Test
 
-source("keskici_wxiao_ps2_functions.R")
-source("poissonLogN_MCMC.R")
-
-# roughly 15 seconds per simulations (ndraws=1000) ==> 2880 total simulations on 12 nodes for 1 hour
-
-stopifnot(length(mu) == length(sigma))
-
-JOB_ARRAYS = 12
+source("keskici_wxiao_ps2_task3.R")
 
 if(Sys.getenv("SLURM_JOB_ID") != ""){
-  id = as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-
-  pair.num = ceiling(id / (JOB_ARRAYS / length(mu)))
-
-  num.groups = (JOB_ARRAYS / length(mu))
-  size.groups = (theta.NSIMS / num.groups)
-
-  theta.group.num = ((id - 1) %% num.groups) + 1
-
-  for(theta.group.offset in 1:size.groups){
-    log.theta = simThetagivenMuSigma(mu[pair.num], sigma[pair.num], J)
-    Y = simYgivenTheta(exp(log.theta), w, N)
-    theta.num = (theta.NSIMS / size.groups) * theta.group.num + theta.group.offset
-    res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
-    assign(getOutObjectName(pair.num, theta.num), res)
-    save(list=c(getOutObjectName(pair.num, theta.num)), file=getFileName(pair.num,theta.num))
-  }
-
-} else { # local testing
-  for(i in 1:length(mu)){
-    for(j in 1:theta.NSIMS) {
-      load(getFileName(i,j))
-      Y = get(getObjectName(i,j))
-      res = poisson.logn.mcmc(Y, w, mu0=mu[i], sigmasq0=sigma[i]**2)
-    }
-  }  
+  job.id = as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+  runSimulation(job.id)
 }
-
