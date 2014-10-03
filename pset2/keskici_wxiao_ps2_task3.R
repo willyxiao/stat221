@@ -5,12 +5,10 @@ source("poissonLogN_MCMC.R")
 
 stopifnot(length(mu) == length(sigma))
 
-JOB_ARRAYS = 12
-
-runSimulation <- function(job.id){
-  pair.num = ceiling(job.id / (JOB_ARRAYS / length(mu)))
+runSimulation <- function(job.id, num.jobs){
+  pair.num = ceiling(job.id / (num.jobs / length(mu)))
   
-  num.groups = (JOB_ARRAYS / length(mu))
+  num.groups = (num.jobs / length(mu))
   size.groups = (theta.NSIMS / num.groups)
   
   theta.group.num = ((job.id - 1) %% num.groups) + 1

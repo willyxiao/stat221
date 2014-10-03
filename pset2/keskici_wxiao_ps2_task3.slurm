@@ -1,7 +1,7 @@
 #! /usr/bin/env Rscript
 
 #SBATCH -n 1                            # (Max) number of tasks per job, for R usually 1
-#SBATCH -t 3
+#SBATCH -t 43200
 #SBATCH -o %A_%a.out                     # File for the standard output
 #SBATCH -e %A_%a.err                    # File for the standard error
 #SBATCH --open-mode=append              # Append to standard output and error files
@@ -13,7 +13,9 @@
 
 source("keskici_wxiao_ps2_task3.R")
 
+JOB_ARRAYS = 12
+
 if(Sys.getenv("SLURM_JOB_ID") != ""){
   job.id = as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-  runSimulation(job.id)
+  runSimulation(job.id, JOB_ARRAYS)
 }
