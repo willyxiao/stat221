@@ -23,6 +23,7 @@ JOB_ARRAYS = 12
 if(Sys.getenv("SLURM_JOB_ID") != ""){
   id = as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 
+
   pair.num = floor((id - 1) / length(mu)) + 1
 
   num.groups = (JOB_ARRAYS / length(mu))
@@ -31,9 +32,13 @@ if(Sys.getenv("SLURM_JOB_ID") != ""){
   theta.group.num = ((id - 1) %% num.groups) + 1
 
   for(theta.group.offset in 1:size.groups){
+
+    log.theta = simThetagivenMuSigma(mu[pair.num], sigma[pair.num], J)
+    Y = simYgivenTheta(exp(log.theta), w, N)
+
     theta.num = (theta.NSIMS / size.groups) * theta.group.num + theta.group.offset
-    load(getFileName(pair.num, theta.num))
-    Y = get(getObjectName(pair.num, theta.num))
+#    load(getFileName(pair.num, theta.num))
+#    Y = get(getObjectName(pair.num, theta.num))
     res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
     assign(getOutObjectName(pair.num, theta.num), res)
     save(list=c(getOutObjectName(pair.num, theta.num)), file=getFileName(pair.num,theta.num))
