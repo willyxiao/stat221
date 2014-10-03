@@ -18,8 +18,8 @@ runSimulation <- function(job.id, num.jobs){
     Y = simYgivenTheta(exp(log.theta), w, N)
     res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
 
-    theta.num = (theta.NSIMS / size.groups) * theta.group.num + theta.group.offset
+    theta.num = num.groups * (theta.group.num - 1) + theta.group.offset
     assign(getOutObjectName(pair.num, theta.num), res)
-    save(list=c(getOutObjectName(pair.num, theta.num)), file=getFileName(pair.num,theta.num))
+    save(list=c(getOutObjectName(pair.num, theta.num)), file=getOutFileName(pair.num,theta.num))
   }
 }
