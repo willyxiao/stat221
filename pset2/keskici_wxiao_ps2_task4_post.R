@@ -30,7 +30,7 @@ for(pair in 1:length(mu)){
     real.w = NULL
     
     for(Y.draw in 1:Y.draws){
-      load(getOutFileName(pair,theta.draw,Y.draw))
+      load(getOutFileName(pair,theta.draw,Y.draw, TASK.NUM))
       
       CI.95.lower = apply(res$logTheta, 1, quantile, probs=.025, names=FALSE)
       CI.68.lower = apply(res$logTheta, 1, quantile, probs=.16, names=FALSE)
