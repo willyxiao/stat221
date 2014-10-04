@@ -1,8 +1,8 @@
 TASK.NUM = 3
 
 J           <- 1000 # length of theta and w vector
-theta.draws <- 30    # theta.nsims * N is the # of total simulations we'll run
-Y.draws     <- 12
+theta.draws <- 3    # theta.nsims * N is the # of total simulations we'll run
+Y.draws     <- 2
 
 w           <- rep(1, J) # weights are all set to 1
 mu          <- c(1.6, 2.5, 5.2, 4.9)
@@ -10,8 +10,8 @@ sigma       <- c(0.7, 1.3, 1.3, 1.6)
 
 stopifnot(length(mu) == length(sigma))
 
-is.covered <- function(CI, x){
-  as.numeric(CI[1] <= x && x <= CI[2])
+is.covered <- function(lower, higher, x){
+  as.numeric(lower <= x && x <= higher)
 }
 
 for(pair in 1:length(mu)){
@@ -25,12 +25,15 @@ for(pair in 1:length(mu)){
     for(Y.draw in 1:Y.draws){
       load(getOutFileName(pair,theta.draw,Y.draw))
       
-      CI.95 = t(apply(res$logTheta, 1, quantile, probs=c(.025,.0975), names=FALSE))
-      CI.68 = t(apply(res$logTheta, 1, quantile, probs=c(.16,.84), names=FALSE))
-    
-      is.covered.95.i = apply(CI.95, 1, is.covered, x=mu[pair])
-      is.covered.68.i = apply(CI.68, 1, is.covered, x=mu[pair])
+      CI.95.lower = apply(res$logTheta, 1, quantile, probs=.025, names=FALSE)
+      CI.68.lower = apply(res$logTheta, 1, quantile, probs=.16, names=FALSE)
       
+      CI.95.higher = apply(res$logTheta, 1, quantile, probs=.975, names=FALSE)
+      CI.68.higher = apply(res$logTheta, 1, quantile, probs=.84, names=FALSE)
+      
+      is.covered.95.i = mapply(is.covered, CI.95.lower, CI.95.higher, res$real.log.theta)
+      is.covered.68.i = mapply(is.covered, CI.68.lower, CI.68.higher, res$real.log.theta)
+            
       if (is.null(is.covered.95)) {
         stopifnot(is.null(is.covered.68) && is.null(real.log.theta))
         
