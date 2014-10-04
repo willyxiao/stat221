@@ -9,17 +9,19 @@ runSimulation <- function(job.id, num.jobs){
   pair.num = ceiling(job.id / (num.jobs / length(mu)))
   
   num.groups = (num.jobs / length(mu))
-  size.groups = (theta.NSIMS / num.groups)
+  size.groups = (theta.draws / num.groups)
   
   theta.group.num = ((job.id - 1) %% num.groups) + 1
   
-  for(theta.group.offset in 1:size.groups){    
+  for(theta.group.offset in 1:size.groups){
     log.theta = simThetagivenMuSigma(mu[pair.num], sigma[pair.num], J)
-    Y = simYgivenTheta(exp(log.theta), w, N)
-    res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
 
-    theta.num = size.groups * (theta.group.num - 1) + theta.group.offset
-    save(res, file=getOutFileName(pair.num,theta.num))
-    gc()
+    for(Y.offset in 1:Y.draws){
+      Y = simYgivenTheta(exp(log.theta), w, N)
+      res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
+      theta.num = size.groups * (theta.group.num - 1) + theta.group.offset
+      save(res, file=getOutFileName(pair.num,theta.num, Y.offset))
+      gc()      
+    }
   }
 }
