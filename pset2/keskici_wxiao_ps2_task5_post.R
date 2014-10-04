@@ -6,8 +6,8 @@ TASK.NUM = 5
 WEIGHTS.FILE = 'weights.txt'
 
 J           <- 1000 # length of theta and w vector
-theta.draws <- 3    # theta.nsims * N is the # of total simulations we'll run
-Y.draws     <- 2
+theta.draws <- 15    # theta.nsims * N is the # of total simulations we'll run
+Y.draws     <- 24
 
 w           <- read.table(WEIGHTS.FILE)[,1]
 x0          <- c(1.6,1.6,1.6,1.6)
