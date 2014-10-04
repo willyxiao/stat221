@@ -2,24 +2,25 @@
 
 source('keskici_wxiao_ps2_functions.R')
 
-TASK.NUM = 4
+TASK.NUM = 5
 WEIGHTS.FILE = 'weights.txt'
 
 J           <- 1000 # length of theta and w vector
-theta.draws <- 15    # theta.nsims * N is the # of total simulations we'll run
-Y.draws     <- 24
+theta.draws <- 3    # theta.nsims * N is the # of total simulations we'll run
+Y.draws     <- 2
 
 w           <- read.table(WEIGHTS.FILE)[,1]
-mu          <- c(1.6, 2.5, 5.2, 4.9)
-sigma       <- c(0.7, 1.3, 1.3, 1.6)
+x0          <- c(1.6,1.6,1.6,1.6)
+m           <- c(0,-0.7,0.7,0)
+b           <- c(1.3,1.3,1.3,2.6)
 
-stopifnot(length(mu) == length(sigma))
+stopifnot(length(x0) == length(m) && length(x0) == length(b))
 
 is.covered <- function(lower, higher, x){
   as.numeric(lower <= x && x <= higher)
 }
 
-for(pair in 1:length(mu)){
+for(pair in 1:length(x0)){
   for(theta.draw in 1:theta.draws){
     print(sprintf("Writing par%d, theta%d", pair, theta.draw))
    

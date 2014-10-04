@@ -11,7 +11,7 @@
 #SBATCH --mail-type=ALL                 # When to send mail
 #SBATCH -a 1-12                          # Test
 
-source("keskici_wxiao_ps2_task4.R")
+source("keskici_wxiao_ps2_task5.R")
 
 JOB_ARRAYS = 12
 
