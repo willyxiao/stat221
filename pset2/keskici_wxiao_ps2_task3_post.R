@@ -61,4 +61,6 @@ for(pair in 1:length(mu)){
                 row.names=FALSE,
                 col.names=FALSE)
   }
+  plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", TASK.NUM, pair))
+  
 }
