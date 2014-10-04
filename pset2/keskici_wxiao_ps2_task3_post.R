@@ -20,7 +20,8 @@ is.covered <- function(CI, x){
 
 for(pair in 1:length(mu)){
   for(theta.draw in 1:theta.draws){
-    
+    print(sprintf("Writing par%d, theta%d", pair, theta.draw))
+   
     is.covered.95 = NULL
     is.covered.68 = NULL
     
