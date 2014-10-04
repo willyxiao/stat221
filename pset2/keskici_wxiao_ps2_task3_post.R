@@ -5,8 +5,8 @@ source('keskici_wxiao_ps2_functions.R')
 TASK.NUM = 3
 
 J           <- 1000 # length of theta and w vector
-theta.draws <- 3    # theta.nsims * N is the # of total simulations we'll run
-Y.draws     <- 2
+theta.draws <- 30    # theta.nsims * N is the # of total simulations we'll run
+Y.draws     <- 12
 
 w           <- rep(1, J) # weights are all set to 1
 mu          <- c(1.6, 2.5, 5.2, 4.9)
