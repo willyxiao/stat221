@@ -1,3 +1,5 @@
+source('keskici_wxiao_ps2_functions.R')
+
 TASK.NUM = 3
 
 J           <- 1000 # length of theta and w vector
