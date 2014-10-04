@@ -1,5 +1,3 @@
-OUT_FILE_LOCATION = ""
-
 simYgivenTheta <- function(theta, w, N) {
   stopifnot(length(theta) == length(w))  
   J = length(theta)
@@ -15,4 +13,3 @@ getOutFileName <- function(i,j, k){
   file.name.str <- "out/out_%d_%d_%d.RData"
   sprintf(file.name.str, i, j, k)
 }
-

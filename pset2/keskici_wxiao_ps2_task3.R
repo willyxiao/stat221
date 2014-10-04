@@ -3,9 +3,12 @@ source("poissonLogN_MCMC.R")
 
 N           <- 2    # number of draws
 J           <- 1000 # length of theta and w vector
-theta.draws <- 30    # theta.nsims * N is the # of total simulations we'll run
-Y.draws     <- 12
+#theta.draws <- 30    # theta.nsims * N is the # of total simulations we'll run
+#Y.draws     <- 12
 
+theta.draws <- 3
+Y.draws <- 1
+  
 w           <- rep(1, J) # weights are all set to 1
 mu          <- c(1.6, 2.5, 5.2, 4.9)
 sigma       <- c(0.7, 1.3, 1.3, 1.6)
@@ -27,9 +30,12 @@ runSimulation <- function(job.id, num.jobs){
 
     for(Y.offset in 1:Y.draws){
       Y = simYgivenTheta(exp(log.theta), w, N)
+      
       res = poisson.logn.mcmc(Y, w, mu0=mu[pair.num], sigmasq0=sigma[pair.num]**2)
+      res$real.log.theta = log.theta
+
       theta.num = size.groups * (theta.group.num - 1) + theta.group.offset
-      save(res, file=getOutFileName(pair.num,theta.num, Y.offset))
+      save(res, file=getOutFileName(pair.num,theta.num,Y.offset))
       gc()      
     }
   }
