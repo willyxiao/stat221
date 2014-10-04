@@ -2,8 +2,8 @@
 
 #SBATCH -n 1                            # (Max) number of tasks per job, for R usually 1
 #SBATCH -t 43200
-#SBATCH -o %A_%a.out                     # File for the standard output
-#SBATCH -e %A_%a.err                    # File for the standard error
+#SBATCH -o out/%A_%a.out                     # File for the standard output
+#SBATCH -e out/%A_%a.err                    # File for the standard error
 #SBATCH --open-mode=append              # Append to standard output and error files
 #SBATCH -p stats               # Partition to use
 #SBATCH --mem-per-cpu=4096              # Memory required per CPU, in MegaBytes

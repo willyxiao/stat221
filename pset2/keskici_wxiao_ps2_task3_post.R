@@ -1,8 +1,8 @@
 TASK.NUM = 3
 
 J           <- 1000 # length of theta and w vector
-theta.draws <- 3    # theta.nsims * N is the # of total simulations we'll run
-Y.draws     <- 1
+theta.draws <- 30    # theta.nsims * N is the # of total simulations we'll run
+Y.draws     <- 12
 
 w           <- rep(1, J) # weights are all set to 1
 mu          <- c(1.6, 2.5, 5.2, 4.9)
@@ -17,10 +17,10 @@ is.covered <- function(CI, x){
 for(pair in 1:length(mu)){
   for(theta.draw in 1:theta.draws){
     
-    is.covered.95 = NA
-    is.covered.68 = NA
+    is.covered.95 = NULL
+    is.covered.68 = NULL
     
-    real.log.theta = NA
+    real.log.theta = NULL
     
     for(Y.draw in 1:Y.draws){
       load(getOutFileName(pair,theta.draw,Y.draw))
@@ -31,7 +31,9 @@ for(pair in 1:length(mu)){
       is.covered.95.i = apply(CI.95, 1, is.covered, x=mu[pair])
       is.covered.68.i = apply(CI.68, 1, is.covered, x=mu[pair])
       
-      if (is.covered.95 == NA && is.covered.68 == NA) {
+      if (is.null(is.covered.95)) {
+        stopifnot(is.null(is.covered.68) && is.null(real.log.theta))
+        
         real.log.theta = res$real.log.theta
         is.covered.95 = is.covered.95.i
         is.covered.68 = is.covered.68.i
@@ -45,6 +47,10 @@ for(pair in 1:length(mu)){
     cover.68 = apply(is.covered.68, 1, mean)
     
     to.write = cbind(real.log.theta, cover.95, cover.68)
-    write.table(to.write, file=sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", TASK.NUM, pair), append=TRUE)
+    write.table(to.write, 
+                file=sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", TASK.NUM, pair), 
+                append=TRUE,
+                row.names=FALSE,
+                col.names=FALSE)
   }
 }
