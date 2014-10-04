@@ -1,3 +1,5 @@
+#! /usr/bin/env Rscript
+
 source('keskici_wxiao_ps2_functions.R')
 
 TASK.NUM = 3
