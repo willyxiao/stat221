@@ -1,3 +1,7 @@
+#! /usr/bin/env Rscript
+
+source('keskici_wxiao_ps2_functions.R')
+
 TASK.NUM = 3
 
 J           <- 1000 # length of theta and w vector
@@ -16,7 +20,8 @@ is.covered <- function(lower, higher, x){
 
 for(pair in 1:length(mu)){
   for(theta.draw in 1:theta.draws){
-    
+    print(sprintf("Writing par%d, theta%d", pair, theta.draw))
+   
     is.covered.95 = NULL
     is.covered.68 = NULL
     
