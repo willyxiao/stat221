@@ -71,4 +71,9 @@ for(pair in 1:length(mu)){
                 row.names=FALSE,
                 col.names=FALSE)
   }
+  plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", TASK.NUM, pair), TASK.NUM, 2*(pair - 1) + 1)
+  plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", TASK.NUM, pair), TASK.NUM, 2*(pair - 1) + 2, 
+                type = 'log w_j')
+  
+  
 }
