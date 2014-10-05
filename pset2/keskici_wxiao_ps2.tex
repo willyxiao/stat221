@@ -3,7 +3,12 @@
 \usepackage{amsmath}
 \newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
-  \begin{enumerate}[\text{ Task }1:]
+  \begin{center}
+    STAT 221: Problem Set 2 \\
+    Kevin Eskici and Willy Xiao \\
+    Due: Oct 7, 2014
+  \end{center}
+  \begin{enumerate}[\text{Task }1:]
     \item Examine the Posterior \\
 
       Posterior is: $f(\mu, \sigma^2, \log{\vec{\theta}} | Y)$
@@ -70,7 +75,6 @@
     \item Write functions to simulate data from the model \\
       Check keskici\textunderscore wxiao\textunderscore ps2\textunderscore functions.R
     \item Evaluate coverage for a simple case \\
-
       First: Estimate the amount of simulations we can do:
         \begin{enumerate}
           \item The time it took to run one simulation on my Macbook Air was roughly 23 seconds. Accounting for startup costs (copying to multiple machines, however Odyssey decides to manage nodes etc.,), we roughly said that each MCMC simulation would take 25 seconds.
@@ -83,8 +87,9 @@
               \frac{43200}{(4 \text{ parameters})} / (25 \text{ seconds per simulation}) = 432 \text{ simulations per parameter.}
             \end{align*}
 
-          We ultimately decided to go with $360$ simulations per parameter to guarantee that we don't go over the hard one-hour time limit. Also $360$ is a number that is divisible by $12$, which makes writing the .slurm job a little bit easier.
+          We ultimately decided to go with $360$ simulations per parameter to guarantee that we don't go over the hard one-hour time limit. Also $360$ is a number that is divisible by $12$ and easily modeled on our local machines to test (e.g. running 36 simulations rather than 360), which makes writing the .slurm job a little bit easier.
         \end{enumerate}
+
 
       Second: Decide how many theta's to draw and how many Y's to draw: \\
         Ultimately we weren't sure how best to do this. The example on the pset had more theta draws than Y draws, so we decided to do the same.
@@ -92,5 +97,21 @@
           \text{ theta.draws } &= 30 \\
           \text{ Y.draws } &= 12
         \end{align*}
+
+      Third: RUN! :) \\
+
+      Fourth: Results are discussed in Task 6. \\
+
+      Note: One issue we have in our graphs is that the granularity of our y-axis was not very good. Because we only had 12 Y.draws, we could only have y values of $\{\frac{1}{12}, \frac{2}{12}, \ldots \frac{12}{12}\}$. As a result we adjusted our number of Y.draws for Tasks 5 and 6.
+    \item Evaluate coverage with exposure weights \\
+      We ran the same simulation as Task 3, except we added in the exposure weights. As discussed above, we also changed the proportion of theta draws and Y draws so we get better granularity in our graphs. \\
+      Now we have:
+      \begin{align*}
+          \text{ theta.draws } &= 15 \\
+          \text{ Y.draws } &= 24
+      \end{align*}
+    \item Evaluate coverage with model misspecifcation: \\
+      We ran the same simulation as Task 4, substituting in rASL instead of rnorm as our function to generate $\log{\theta_j}$.
+    \item INSERT SHIT HERE
   \end{enumerate}
 \end{document}
