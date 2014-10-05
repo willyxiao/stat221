@@ -3,14 +3,16 @@
 \usepackage{amsmath}
 \newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
-  \begin{enumerate}[1]
-    \item Posterior is: $f(\mu, \sigma^2, \log{\vec{\theta}} | Y)$
+  \begin{enumerate}[\text{ Task }1:]
+    \item Examine the Posterior \\
+
+      Posterior is: $f(\mu, \sigma^2, \log{\vec{\theta}} | Y)$
       \begin{align*}
         f(\mu, \sigma^2, \log{\vec{\theta}} | Y) &\propto f(Y|\log{\vec{\theta}}) * f(\log{\vec{\theta}}|\mu, \sigma^2) * f(\mu, \sigma^2) \\
-        &= \prod_{j=1}^{J}{
+        &\propto \prod_{j=1}^{J}{
           \left[ \parens{
             \prod_{i=1}^N{
-              e^{-w_je^{\log{\theta_j}}}\parens{w_je^{\log{\theta_j}}}^{k_{ji}}
+              e^{-w_je^{\log{\theta_j}}}\parens{w_je^{\log{\theta_j}}}^{Y_{ji}}
             }}
             * \frac{1}{\sigma}e^{
                                   \frac{-(\log{\theta_j}-\mu)^2}{2\sigma^2}
@@ -19,5 +21,76 @@
           \right]
         }
       \end{align*}
+      The Posterior of $\log{\theta}$ conditional on all the other parameters is the same as the previous equation, except we can drop the prior on $\mu$ and $\sigma^2$ because they're given:
+      \begin{align*}
+        f(\log{\theta} | Y, \mu, \sigma^2)
+          &\propto \prod_{j=1}^{J}{
+            \left[ \parens{
+              \prod_{i=1}^N{
+                e^{-w_je^{\log{\theta_j}}}\parens{w_je^{\log{\theta_j}}}^{Y_{ji}}
+              }}
+              * \frac{1}{\sigma}e^{
+                                    \frac{-(\log{\theta_j}-\mu)^2}{2\sigma^2}
+                                  }
+            \right]
+          }
+      \end{align*}
+      To check the shape of the function, we can look at the second derivative of the log-posterior:
+      \begin{align*}
+        \text{ Let } \log{p} &= \log{f(\log{\theta} | Y, \mu, \sigma^2)} \\
+          &= \sum_{j = 1}^J{
+            \parens{
+              \sum_{i = 1}^N{ \parens{
+                -w_je^{ \log{ \theta_j }} + Y_{ji}*\parens{ \log{w_j} + \log{e^{\log{\theta_j}}} }
+              }}
+              - \log{\sigma}
+              - \frac{ \parens{ \log{\theta_j} - \mu}^2}{2\sigma^2}
+            }
+          } \\
+        \frac{\partial{\log{p}}}{\partial{\log{\theta_j}}}
+          &= \sum_{j=1}^J{
+            \parens{
+              \sum_{i=1}^N{ \parens{
+                -w_je^{\log{\theta_j}} + Y_{ji}\log{\theta_j}
+              }}
+              - \frac{\log{\theta_j} - \mu}{\sigma^2}
+            }
+          } \\
+        \frac{\partial^2{\log{p}}}{\partial{\log{\theta_j}}^2}
+          &= \sum_{j=1}^J{
+            \parens{
+              \sum_{i=1}^N{ \parens{
+                -w_je^{\log{\theta_j}} + Y_{ji}
+              }}
+              - \frac{1}{\sigma^2}
+            }
+          }
+      \end{align*}
+      Because the second derivative of the log-posterior is monotonically decreasing with respect to $\log{\vec{\theta}}$, that means our function is unimodal (ie there's a single peak).
+    \item Write functions to simulate data from the model \\
+      Check keskici\textunderscore wxiao\textunderscore ps2\textunderscore functions.R
+    \item Evaluate coverage for a simple case \\
+
+      First: Estimate the amount of simulations we can do:
+        \begin{enumerate}
+          \item The time it took to run one simulation on my Macbook Air was roughly 23 seconds. Accounting for startup costs (copying to multiple machines, however Odyssey decides to manage nodes etc.,), we roughly said that each MCMC simulation would take 25 seconds.
+          \item Calculating, we have
+            \begin{align*}
+              (60 \text{ seconds}) \times (60 \text{ minutes}) \times (12 \text{ nodes}) = 43200 \text{ seconds of runtime.}
+            \end{align*}
+              Then
+            \begin{align*}
+              \frac{43200}{(4 \text{ parameters})} / (25 \text{ seconds per simulation}) = 432 \text{ simulations per parameter.}
+            \end{align*}
+
+          We ultimately decided to go with $360$ simulations per parameter to guarantee that we don't go over the hard one-hour time limit. Also $360$ is a number that is divisible by $12$, which makes writing the .slurm job a little bit easier.
+        \end{enumerate}
+
+      Second: Decide how many theta's to draw and how many Y's to draw: \\
+        Ultimately we weren't sure how best to do this. The example on the pset had more theta draws than Y draws, so we decided to do the same.
+        \begin{align*}
+          \text{ theta.draws } &= 30 \\
+          \text{ Y.draws } &= 12
+        \end{align*}
   \end{enumerate}
 \end{document}
