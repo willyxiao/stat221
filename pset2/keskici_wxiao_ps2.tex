@@ -73,8 +73,10 @@
       \end{align*}
       Because the second derivative of the log-posterior is monotonically decreasing with respect to $\log{\vec{\theta}}$, that means our function is unimodal (ie there's a single peak).
     \item Write functions to simulate data from the model \\
+
       Check keskici\textunderscore wxiao\textunderscore ps2\textunderscore functions.R
     \item Evaluate coverage for a simple case \\
+
       First: Estimate the amount of simulations we can do:
         \begin{enumerate}
           \item The time it took to run one simulation on my Macbook Air was roughly 23 seconds. Accounting for startup costs (copying to multiple machines, however Odyssey decides to manage nodes etc.,), we roughly said that each MCMC simulation would take 25 seconds.
@@ -104,6 +106,7 @@
 
       Note: One issue we have in our graphs is that the granularity of our y-axis was not very good. Because we only had 12 Y.draws, we could only have y values of $\{\frac{1}{12}, \frac{2}{12}, \ldots \frac{12}{12}\}$. As a result we adjusted our number of Y.draws for Tasks 5 and 6.
     \item Evaluate coverage with exposure weights \\
+
       We ran the same simulation as Task 3, except we added in the exposure weights. As discussed above, we also changed the proportion of theta draws and Y draws so we get better granularity in our graphs. \\
       Now we have:
       \begin{align*}
@@ -111,7 +114,8 @@
           \text{ Y.draws } &= 24
       \end{align*}
     \item Evaluate coverage with model misspecifcation: \\
-      We ran the same simulation as Task 4, substituting in rASL instead of rnorm as our function to generate $\log{\theta_j}$.
+
+      We ran the same simulation as Task 4, substituting in rASL instead of rnorm as our function to generate $\log{\theta_j}$. For running the MCMC simulation, we left the parameters mu and sigmasq to be their defaults.
     \item INSERT SHIT HERE
   \end{enumerate}
 \end{document}
