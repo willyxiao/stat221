@@ -1,0 +1,23 @@
+\documentclass[paper=a4, fontsize=11pt]{scrartcl}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\newcommand{\parens}[1]{ \left( #1 \right) }
+\begin{document}
+  \begin{enumerate}[1]
+    \item Posterior is: $f(\mu, \sigma^2, \log{\vec{\theta}} | Y)$
+      \begin{align*}
+        f(\mu, \sigma^2, \log{\vec{\theta}} | Y) &\propto f(Y|\log{\vec{\theta}}) * f(\log{\vec{\theta}}|\mu, \sigma^2) * f(\mu, \sigma^2) \\
+        &= \prod_{j=1}^{J}{
+          \left[ \parens{
+            \prod_{i=1}^N{
+              e^{-w_je^{\log{\theta_j}}}\parens{w_je^{\log{\theta_j}}}^{k_{ji}}
+            }}
+            * \frac{1}{\sigma}e^{
+                                  \frac{-(\log{\theta_j}-\mu)^2}{2\sigma^2}
+                                }
+            * \frac{1}{\sigma^2}
+          \right]
+        }
+      \end{align*}
+  \end{enumerate}
+\end{document}
