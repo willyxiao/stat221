@@ -1,6 +1,7 @@
 \documentclass[paper=a4, fontsize=11pt]{scrartcl}
 \usepackage{enumerate}
 \usepackage{amsmath}
+\usepackage{tikz}
 \newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
   \begin{center}
@@ -118,4 +119,136 @@
       We ran the same simulation as Task 4, substituting in rASL instead of rnorm as our function to generate $\log{\theta_j}$. For running the MCMC simulation, we left the parameters mu and sigmasq to be their defaults.
     \item INSERT SHIT HERE
   \end{enumerate}
+Appendix: \\
+\begin{figure}[h!]
+  \caption{Task 3 coverage plots for $log(\theta_{j}$)'s : $\mu = 1.6$, $\sigma^2 = 0.7^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task3_plot1.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 3 coverage plots for $log(\theta_{j}$)'s : $\mu = 2.5$, $\sigma^2 = 1.3^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task3_plot2.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 3 coverage plots for $log(\theta_{j}$)'s : $\mu = 5.2$, $\sigma^2 = 1.3^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task3_plot3.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 3 coverage plots for $log(\theta_{j}$)'s : $\mu = 4.9$, $\sigma^2 = 1.6^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task3_plot4.png}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(\theta_{j}$)'s : $\mu = 1.6$, $\sigma^2 = 0.7^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot1.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(w_{j}$)'s : $\mu = 1.6$, $\sigma^2 = 0.7^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot2.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(\theta_{j}$)'s : $\mu = 2.5$, $\sigma^2 = 1.3^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot3.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(w_{j}$)'s : $\mu = 2.5$, $\sigma^2 = 1.3^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot4.png}
+\end{figure}
+
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(\theta_{j}$)'s : $\mu = 5.2$, $\sigma^2 = 1.3^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot5.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(w_{j}$)'s : $\mu = 5.2$, $\sigma^2 = 1.3^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot6.png}
+\end{figure}
+
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(\theta_{j}$)'s : $\mu = 4.9$, $\sigma^2 = 1.6^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot7.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 4 coverage plots for $log(w_{j}$)'s : $\mu = 4.9$, $\sigma^2 = 1.6^2$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task4_plot8.png}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(\theta_{j}$)'s : $x_0 = 1.6$, $m = 0, b = 1.3$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot1.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(w_{j}$)'s : $x_0 = 1.6$, $m = 0, b = 1.3$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot2.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(\theta_{j}$)'s : $x_0 = 1.6$, $m = -0.7, b = 1.3$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot3.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(w_{j}$)'s : $x_0 = 1.6$, $m = -0.7, b = 1.3$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot4.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(\theta_{j}$)'s : $x_0 = 1.6$, $m = -.7, b = 1.3$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot5.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(w_{j}$)'s : $x_0 = 1.6$, $m = 0.7, b = 1.3$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot6.png}
+\end{figure}
+\clearpage
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(\theta_{j}$)'s : $x_0 = 1.6$, $m = 0, b = 2.6$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot7.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Task 5 coverage plots for $log(w_{j}$)'s : $x_0 = 1.6$, $m = 0, b = 2.6$}
+  \centering
+	\includegraphics[scale=1, trim = 0 0 200 0]{keskici_wxiao_ps2_task5_plot8.png}
+\end{figure}
+
+
+
+
+
+
+
 \end{document}
