@@ -8,8 +8,8 @@ N           <- 2    # number of draws
 J           <- 1000 # length of theta and w vector
 #theta.draws <- 15    # theta.nsims * N is the # of total simulations we'll run
 #Y.draws     <- 24
-theta.draws <- 15
-Y.draws <- 24
+theta.draws <- 12
+Y.draws <- 18
 
 w           <- read.table(WEIGHTS.FILE)[,1]
 mu          <- c(1.6, 2.5, 5.2, 4.9)
