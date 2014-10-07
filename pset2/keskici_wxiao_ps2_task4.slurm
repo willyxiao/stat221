@@ -17,5 +17,5 @@ JOB_ARRAYS = 12
 
 if(Sys.getenv("SLURM_JOB_ID") != ""){
   job.id = as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
-  runSimulation(job.id, JOB_ARRAYS)
+  run.task4(job.id, JOB_ARRAYS)
 }
