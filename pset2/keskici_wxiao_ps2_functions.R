@@ -105,9 +105,15 @@ aggregate.cover <- function(pair.nums, theta.draws, task.num, write.w = FALSE) {
                     col.names=FALSE)
       }
     }
-    plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", task.num, pair.num), task.num,  2*(pair.num - 1) + 1)
+    plot.num = pair.num
     if(write.w){
-      plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_w.dat", task.num, pair.num), task.num, 2*(pair.num - 1) + 2, 
+      plot.num = 2*(pair.num - 1) + 1
+    }
+    plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", task.num, pair.num), task.num,  plot.num)
+    if(write.w){
+      plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_w.dat", task.num, pair.num), 
+                    task.num, 
+                    plot.num, 
                     type = 'log w_j')      
     }
   }
