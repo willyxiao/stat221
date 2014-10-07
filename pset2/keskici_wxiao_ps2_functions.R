@@ -111,9 +111,9 @@ aggregate.cover <- function(pair.nums, theta.draws, task.num, write.w = FALSE) {
     }
     plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", task.num, pair.num), task.num,  plot.num)
     if(write.w){
-      plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_w.dat", task.num, pair.num), 
+      plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_w.dat", task.num, pair.num),
                     task.num, 
-                    plot.num, 
+                    2*(pair.num -1) + 2, 
                     type = 'log w_j')      
     }
   }
