@@ -1,7 +1,7 @@
 #! /usr/bin/env Rscript
 
 #SBATCH -n 1                            # (Max) number of tasks per job, for R usually 1
-#SBATCH -t 43200
+#SBATCH -t 60
 #SBATCH -o dump/%A_%a.out                     # File for the standard output
 #SBATCH -e dump/%A_%a.err                    # File for the standard error
 #SBATCH --open-mode=append              # Append to standard output and error files
