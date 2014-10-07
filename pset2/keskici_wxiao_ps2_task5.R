@@ -11,7 +11,7 @@ J           <- 1000 # length of theta and w vector
 #Y.draws     <- 24
 
 theta.draws = 12
-Y.draws = 18
+Y.draws = 12
 
 w           <- read.table(WEIGHTS.FILE)[,1]
 x0          <- c(1.6,1.6,1.6,1.6)
