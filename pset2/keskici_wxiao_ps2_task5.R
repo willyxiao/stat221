@@ -10,7 +10,7 @@ J           <- 1000 # length of theta and w vector
 #theta.draws <- 15    # theta.nsims * N is the # of total simulations we'll run
 #Y.draws     <- 24
 
-theta.draws = 12
+theta.draws = 9
 Y.draws = 12
 
 w           <- read.table(WEIGHTS.FILE)[,1]
