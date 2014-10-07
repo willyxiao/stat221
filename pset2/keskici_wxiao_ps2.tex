@@ -103,20 +103,18 @@
 
       Third: RUN! :) \\
 
-      Fourth: Results are discussed in Task 6. \\
+      Unfortunately, the timing was wildly off. It didn't take into account that we had to calculate the coverage after each theta draw which means we had to recalculate how many times simulations we could do! We tried $12 \times 15$ (ie half of what it was before, and it still went too long), $12 \times 12$ was close. Ultimately we ran it for:
+      \begin{align*}
+        \text{ theta.draws } &= 9 \\
+        \text{ Y.draws} &= 12 \\
+      \end{align*}
 
-      Note: One issue we have in our graphs is that the granularity of our y-axis was not very good. Because we only had 12 Y.draws, we could only have y values of $\{\frac{1}{12}, \frac{2}{12}, \ldots \frac{12}{12}\}$. As a result we adjusted our number of Y.draws for Tasks 5 and 6.
     \item Evaluate coverage with exposure weights \\
 
-      We ran the same simulation as Task 3, except we added in the exposure weights. As discussed above, we also changed the proportion of theta draws and Y draws so we get better granularity in our graphs. \\
-      Now we have:
-      \begin{align*}
-          \text{ theta.draws } &= 15 \\
-          \text{ Y.draws } &= 24
-      \end{align*}
+      We ran the same simulation as Task 3, except we added in the exposure weights. Results discussion below, code in relevant file.
     \item Evaluate coverage with model misspecifcation: \\
 
-      We ran the same simulation as Task 4, substituting in rASL instead of rnorm as our function to generate $\log{\theta_j}$. For running the MCMC simulation, we left the parameters mu and sigmasq to be their defaults.
+      We ran the same simulation as Task 4, substituting in rASL instead of rnorm as our function to generate $\log{\theta_j}$. For running the MCMC simulation, we left the parameters mu and sigmasq to be their defaults $0$ and $1$ respectively.
     \item INSERT SHIT HERE
   \end{enumerate}
 Appendix: \\
