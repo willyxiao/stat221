@@ -24,6 +24,10 @@ is.covered <- function(lower, higher, x){
   as.numeric(lower <= x && x <= higher)
 }
 
+print.mean.sd <- function(log.thetas){
+  print(mean(log.thetas), sd(log.thetas))
+}
+
 runSimulation <- function(task.num, job.id, num.jobs, pair.nums, theta.draws, Y.draws, get.mu, get.sigma, simTheta, w, write.w = FALSE){
   pair.num = ceiling(job.id / (num.jobs / pair.nums))
   
@@ -46,6 +50,8 @@ runSimulation <- function(task.num, job.id, num.jobs, pair.nums, theta.draws, Y.
       Y = simYgivenTheta(exp(log.theta), w, N)
       res = poisson.logn.mcmc(Y, w, mu0=get.mu(pair.num), sigmasq0=get.sigma(pair.num))
 
+      apply(res$logTheta, print.mean.sd)
+      
       CI.95.lower = apply(res$logTheta, 1, quantile, probs=.025, names=FALSE)
       CI.68.lower = apply(res$logTheta, 1, quantile, probs=.16, names=FALSE)
 
