@@ -4,7 +4,7 @@ source("poissonLogN_MCMC.R")
 TASK.NUM    <- 3
 N           <- 2    # number of draws
 J           <- 1000 # length of theta and w vector
-theta.draws <- 30    # theta.nsims * N is the # of total simulations we'll run
+theta.draws <- 12    # theta.nsims * N is the # of total simulations we'll run
 Y.draws     <- 12
   
 w           <- rep(1, J) # weights are all set to 1
