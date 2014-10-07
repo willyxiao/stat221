@@ -25,7 +25,7 @@ is.covered <- function(lower, higher, x){
 }
 
 print.mean.sd <- function(log.thetas){
-  print(mean(log.thetas), sd(log.thetas))
+  print(c(mean(log.thetas), sd(log.thetas)))
 }
 
 runSimulation <- function(task.num, job.id, num.jobs, pair.nums, theta.draws, Y.draws, get.mu, get.sigma, simTheta, w, write.w = FALSE){
@@ -50,7 +50,7 @@ runSimulation <- function(task.num, job.id, num.jobs, pair.nums, theta.draws, Y.
       Y = simYgivenTheta(exp(log.theta), w, N)
       res = poisson.logn.mcmc(Y, w, mu0=get.mu(pair.num), sigmasq0=get.sigma(pair.num))
 
-      apply(res$logTheta, print.mean.sd)
+      apply(res$logTheta, 1, print.mean.sd)
       
       CI.95.lower = apply(res$logTheta, 1, quantile, probs=.025, names=FALSE)
       CI.68.lower = apply(res$logTheta, 1, quantile, probs=.16, names=FALSE)
@@ -89,7 +89,7 @@ runSimulation <- function(task.num, job.id, num.jobs, pair.nums, theta.draws, Y.
 aggregate.cover <- function(pair.nums, theta.draws, task.num, write.w = FALSE) {
   for(pair.num in 1:pair.nums){
     for(theta.draw in 1:theta.draws){
-      load(getOutFileName(pair,theta.draw,task.num))
+      load(getOutFileName(pair.num,theta.draw,task.num))
       write.table(theta.cover, 
                   file=sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", task.num, pair.num), 
                   append=TRUE,
@@ -97,7 +97,7 @@ aggregate.cover <- function(pair.nums, theta.draws, task.num, write.w = FALSE) {
                   col.names=FALSE)
       
       if(write.w){
-        load(getOutFileName(pair,theta.draw,task.num,TRUE))
+        load(getOutFileName(pair.num,theta.draw,task.num,TRUE))
         write.table(w.cover,
                     file=sprintf("keskici_wxiao_ps2_task%d_par%d_w.dat", task.num, pair.num), 
                     append=TRUE,
@@ -107,7 +107,7 @@ aggregate.cover <- function(pair.nums, theta.draws, task.num, write.w = FALSE) {
     }
     plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", task.num, pair.num), task.num, pair.num)
     if(write.w){
-      plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_theta.dat", task.num, pair.num), task.num, 2*(pair.num - 1) + 2, 
+      plot.coverage(sprintf("keskici_wxiao_ps2_task%d_par%d_w.dat", task.num, pair.num), task.num, 2*(pair.num - 1) + 2, 
                     type = 'log w_j')      
     }
   }
