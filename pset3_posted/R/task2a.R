@@ -1,11 +1,14 @@
+source('functions.R')
 library(MASS)
 
 # Questions
 # For implicit, what learning rate should we use? same as SGD?
 # What should we use as theta.0
+# Unit covariance?
+# what is \lambda ? 
 
 DIMS = 100
-NSIMS = 2e3
+NSIMS = 2e4
 
 eigen.values = c(1,1,1, rep(.02, 97))
 A = diag(eigen.values)
@@ -23,25 +26,15 @@ find.risk = function(theta.t){
   t(theta.t)%*%A%*%theta.t
 }
 
-solve.gradient = function(x, theta){
+log.lik.gradient = function(x, theta){
   sigma.inverse%*%(x - theta)
 }
 
 sgd = function(t, theta.t){
-  theta.t + (1 + .02*t)^(-1)*(solve.gradient(gen.x(), theta.t))
+  theta.t + (1 + .02*t)^(-1)*(log.lik.gradient(gen.x(), theta.t))
 }
 
-sim.alg = function(alg){
-  risk.list = c()
-  theta.t = theta.0
-  
-  for(t in 1:NSIMS){
-    theta.t.1 = alg(t, theta.t)
-    theta.t = theta.t.1
-    risk = find.risk(theta.t.1)
-    risk.list = c(risk.list, risk)    
-  }
-  
-  risk.list
+implicit = function(t, theta.t){
+  (1 + (1 + .02*t)^(-1))^(-1)*(theta.t + (1 + .02*t)^(-1)*gen.x())
 }
 
