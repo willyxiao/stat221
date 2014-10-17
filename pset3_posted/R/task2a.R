@@ -5,7 +5,11 @@ library(MASS)
 # For implicit, what learning rate should we use? same as SGD?
 # What should we use as theta.0
 # Unit covariance?
-# what is \lambda ? 
+# what is \lambda ? Need ASGD
+
+# part (c), what is n?, is theta a matrix of dimensions and iteration?
+
+
 
 DIMS = 100
 NSIMS = 2e4
