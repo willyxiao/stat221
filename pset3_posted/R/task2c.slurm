@@ -11,7 +11,7 @@
 #SBATCH --mail-type=ALL                 # When to send mail
 #SBATCH -a 1-30                         # Test
 
-source('task2b_runner.R')
+source('task2c_runner.R')
 
 JOB_ARRAYS = 30
 

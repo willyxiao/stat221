@@ -1,4 +1,4 @@
-source('task2b.R')
+source('distro2b.R')
 
 NSIMS = 1e4
 DIMS = 100
