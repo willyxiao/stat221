@@ -1,32 +1,58 @@
 source('task2b.R')
 
-methods = list(sgd, implicit, asgd)
+NSIMS = 1e4
+DIMS = 100
 
 a.length = 10
 amin = .05
 amax = 10
 a.tests = seq(amin, amax, length.out=a.length)
 
-m = 120
+jobs.each = 10
 
-run.task = function(job.id, num.ids){
-  if(job.id <= 10){
-    # run.sgd
-    a.id = job.id %% 10
-    
-    run.sgd(m, a)
+m = 80
 
-  } else if(job.id <= 20){
-    # run.asgd
-    a.id = job.id %% 10
-    
-  } else {
-    # run.implicit
-    
+run.test = function(){
+  for(i in 1:15){
+    run.task(i, 15)
   }
 }
 
-run.method = function(method, alpha){
+run.task = function(job.id, num.ids){
+  if(job.id <= jobs.each){
+    # run.sgd
+    a.id = job.id %% jobs.each + 1
+    
+    run.job(m, a.id, sgd, 'sgd')
+  } else if(job.id <= 2*jobs.each){
+    # run.asgd
+    a.id = job.id %% jobs.each + 1
+    run.job(m, a.id, asgd, 'asgd')
+  
+  } else {
+    # run.implicit
+    a.id = job.id %% jobs.each + 1
+    run.job(m, a.id, implicit, 'implicit')
+  }
+}
+
+run.job = function(m, a.id, alg, alg.name){
+  theta.list = as.list(rep(NA, m))
+  
+  for(i in 1:m){
+    d = sample.data(NSIMS, DIMS)
+    theta = run.method(alg, a.tests[a.id], d)
+    theta.list[[i]] = theta
+  }
+  
+  save(theta.list, file=file.name(alg.name, a.id))
+}
+
+file.name = function(alg.name, a.id){
+  sprintf("out/theta_%s_%d.RData", alg.name, a.id)  
+}
+
+run.method = function(method, alpha, data){
   # check.data(data)
   n = nrow(data$X)
   p = ncol(data$X)
