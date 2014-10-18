@@ -72,7 +72,27 @@ lr <- function(alpha, n) {
   alpha / (alpha + n)
 }
 
-sgd <- function(data, alpha, plot=T) {
+alg.implicit = function(ai, xi, yi, i, theta.old){
+  xi.norm = sum(xi^2)
+  lpred = sum(theta.old * xi)
+  fi = 1 / (1 + ai * sum(xi^2))
+  yi = data$Y[i]
+  
+  (theta.old  - ai * fi * lpred * xi) +  
+    (ai * yi * xi - ai^2 * fi * yi * xi.norm * xi)
+}
+
+alg.sgd = function(ai, xi, yi, i, theta.old){
+  lpred = sum(theta.old * xi)
+  yi = data$Y[i]
+  (theta.old - ai * lpred * xi) + ai * yi * xi      
+}
+
+alg.asgd = function(ai, xi, yi, i, theta.old){
+  (1 - 1/i)*theta.old + (1/i)*sgd(ai, xi, yi, i, theta.old)
+}
+
+base.method <- function(data, alpha, alg, plot=T) {
   # check.data(data)
   # Implements implicit
   n = nrow(data$X)
@@ -97,12 +117,8 @@ sgd <- function(data, alpha, plot=T) {
     fi = 1 / (1 + ai * sum(xi^2))
     yi = data$Y[i]
     # Implicit SGD
-    theta.new = (theta.old  - ai * fi * lpred * xi) +  
-      (ai * yi * xi - ai^2 * fi * yi * xi.norm * xi)
-    # Standard SGD
-    # Uncomment this line for standard SGD.
-    # theta.new = (theta.old - ai * lpred * xi) + ai * yi * xi
-    
+    theta.new = alg(ai, xi, yi, i, theta.old)
+      
     theta.sgd = cbind(theta.sgd, theta.new)
   }
   
@@ -113,6 +129,18 @@ sgd <- function(data, alpha, plot=T) {
   } else {
     return(theta.sgd)
   }
+}
+
+sgd = function(data, alpha, plot=T){
+  base.method(data, alpha, alg.sgd, plot)  
+}
+
+asgd = function(data, alpha, plot=T){
+  base.method(data, alpha, alg.asgd, plot)  
+}
+
+implicit = function(data, alpha, plot=T){
+  base.method(data, alpha, alg.implicit, plot)
 }
 
 sqrt.norm <- function(X) {
