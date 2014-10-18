@@ -9,7 +9,7 @@
 #SBATCH --mem-per-cpu=4096              # Memory required per CPU, in MegaBytes
 #SBATCH --mail-user=willy@chenxiao.us   # Where to send mail
 #SBATCH --mail-type=ALL                 # When to send mail
-#SBATCH -a 1-40                         # Test
+#SBATCH -a 1-30                         # Test
 
 source('task2c_runner.R')
 

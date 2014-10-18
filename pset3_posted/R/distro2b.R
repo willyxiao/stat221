@@ -76,7 +76,6 @@ alg.implicit = function(ai, xi, yi, i, theta.old){
   xi.norm = sum(xi^2)
   lpred = sum(theta.old * xi)
   fi = 1 / (1 + ai * sum(xi^2))
-  yi = data$Y[i]
   
   (theta.old  - ai * fi * lpred * xi) +  
     (ai * yi * xi - ai^2 * fi * yi * xi.norm * xi)
@@ -84,12 +83,11 @@ alg.implicit = function(ai, xi, yi, i, theta.old){
 
 alg.sgd = function(ai, xi, yi, i, theta.old){
   lpred = sum(theta.old * xi)
-  yi = data$Y[i]
   (theta.old - ai * lpred * xi) + ai * yi * xi      
 }
 
 alg.asgd = function(ai, xi, yi, i, theta.old){
-  (1 - 1/i)*theta.old + (1/i)*sgd(ai, xi, yi, i, theta.old)
+  (1 - 1/i)*theta.old + (1/i)*alg.sgd(ai, xi, yi, i, theta.old)
 }
 
 base.method <- function(data, alpha, alg, plot=T) {
@@ -147,12 +145,14 @@ sqrt.norm <- function(X) {
   sqrt(mean(X^2)  )
 }
 
-
 # Replicate this code on Odyssey
 # to get the frequentist variance of SGD.
-run.sgd.many <- function(nreps, alpha, 
-                         nlist=as.integer(seq(100, 1e5, length.out=10)),
-                         p=10, verbose=F) {
+run.alg.many = function(nreps, 
+                        alpha, 
+                        alg, 
+                        nlist=as.integer(seq(100, 1e5, length.out=10)), 
+                        p=100, 
+                        verbose=F) {
   ## Run SGD (implicit) with multiple n(=SGD iterations)
   #
   # Example:
@@ -174,7 +174,7 @@ run.sgd.many <- function(nreps, alpha,
     # Get many replications for each n
     for(j in 1:nreps) {
       data = sample.data(n, A)
-      out = sgd(data, alpha, plot=F)
+      out = alg(data, alpha, plot=F)
       # Every replication stores the last theta_n
       last.theta <- rbind(last.theta, out[, n])
     }
@@ -195,4 +195,5 @@ run.sgd.many <- function(nreps, alpha,
     print("Vector of ||empirical var.  - theoretical var.||")
     print(dist.list)
   }
+  dist.list
 }
