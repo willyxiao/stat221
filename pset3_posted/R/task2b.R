@@ -13,8 +13,10 @@ batch = function(data, plot=T){
     left = matrix(0, nrow=p, ncol=p)
     right = rep(0, p)
     for(j in 1:i){
-      left = left + matrix(data$X[j, ])%*%t(data$X[j,])
-      right = right + data$X[j,]*data$Y[j,]
+      xi = data$X[j,]
+      yi = data$Y[j,]
+      left = left + (xi)%*%t(xi)
+      right = right + xi*yi
     }
     theta.new = solve(left)*right
     theta.batch = cbind(theta.batch, theta.new)    

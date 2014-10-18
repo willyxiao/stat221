@@ -10,6 +10,8 @@ a.tests = seq(amin, amax, length.out=a.length)
 
 jobs.each = 10
 
+theta.run = 2
+
 m = 80
 
 run.test = function(){
@@ -32,11 +34,18 @@ run.task = function(job.id, num.ids){
   } else {
     # run.implicit
     a.id = job.id %% jobs.each + 1
-    run.job(m, a.id, implicit, 'implicit')
+    
+    if(job.id <= 3*jobs.each){
+      m.group = 1
+    } else{
+      m.group = 2
+    }
+
+    run.job(m/2, a.id, implicit, 'implicit', m.group)
   }
 }
 
-run.job = function(m, a.id, alg, alg.name){
+run.job = function(m, a.id, alg, alg.name, m.group = 1){
   theta.list = as.list(rep(NA, m))
   
   for(i in 1:m){
@@ -45,11 +54,11 @@ run.job = function(m, a.id, alg, alg.name){
     theta.list[[i]] = theta
   }
   
-  save(theta.list, file=file.name(alg.name, a.id))
+  save(theta.list, file=file.name(alg.name, a.id, m.group))
 }
 
-file.name = function(alg.name, a.id){
-  sprintf("out/theta_%s_%d.RData", alg.name, a.id)  
+file.name = function(alg.name, a.id, m.group){
+  sprintf("out/theta%d_%s_%d_%d.RData", theta.run, alg.name, a.id, m.group)  
 }
 
 run.method = function(method, alpha, data){
