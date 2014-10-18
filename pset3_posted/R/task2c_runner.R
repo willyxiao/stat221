@@ -10,7 +10,7 @@ a.tests = seq(amin, amax, length.out=a.length)
 
 theta.run = 2
 
-nreps = 100
+nreps = 10
 
 run.test = function(){
   for(i in 1:15){
@@ -37,7 +37,7 @@ run.task = function(job.id, num.ids){
 }
 
 run.job = function(a.id, alg, alg.name){
-  dist.list = run.alg.many(nreps, a.tests[a.id], alg)  
+  dist.list = run.alg.many(nreps, a.tests[a.id], alg, nlist=c(100, 1e3, 1e4, 1e5))  
   save(dist.list, file=file.name(alg.name, a.id))
 }
 
