@@ -1,21 +1,72 @@
+source('distro2b.R')
 source('functions.R')
-library(MASS)
 
 DIMS = 100
 
-A = diag(1:100/100)
-mu = rep(0, DIMS)
-alpha.0 = 1/sum(diag(A))
+# need batch ??
+batch = function(data, plot=T){  
+  n = nrow(data$X)    
+  p = ncol(data$X)
 
-gen.x = function(){
-  mvrnorm(1, mu, A)
+  theta.batch = matrix(0, nrow=p, ncol=1)
+  for(i in 1:n){
+    left = matrix(0, nrow=p, ncol=p)
+    right = rep(0, p)
+    for(j in 1:i){
+      left = left + matrix(data$X[i, ])%*%t(data$X[i,])
+      right = right + data$X[i,]*data$Y[i,]
+    }
+    browser()
+    theta.new = solve(left)*right
+    theta.batch = cbind(theta.batch, theta.new)    
+  }
+  
+  theta.batch
 }
 
-std.learn.rate = function(t){
-  alpha.0 / t
+implicit <- function(data) {
+  # check.data(data)
+  n = nrow(data$X)
+  p = ncol(data$X)
+  I = diag(p)
+  # matrix of estimates of SGD (p x iters)
+  theta.implicit = matrix(0, nrow=p, ncol=1)
+  # params for the learning rate seq.
+  gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
+  lambda0 = 0.01
+  
+  for(i in 1:n) {
+    xi = data$X[i, ]
+    theta.old = theta.implicit[, i]
+    ai = gamma0 / (1 + gamma0 * lambda0 * i)
+    # make computations easier.
+    theta.new = solve(I + ai*xi%*%t(xi))%*%(theta.old + ai*data$Y[i]*xi)
+    theta.implicit = cbind(theta.implicit, theta.new)
+  }
+  
+  theta.implicit
 }
 
-find.risk = function(theta.t){
-  # TODO
+asgd <- function(data) {
+  # check.data(data)
+  n = nrow(data$X)
+  p = ncol(data$X)
+  I = diag(p)
+  # matrix of estimates of SGD (p x iters)
+  theta.asgd = matrix(0, nrow=p, ncol=1)
+  # params for the learning rate seq.
+  gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
+  lambda0 = 0.01
+  
+  for(i in 1:n) {
+    xi = data$X[i, ]
+    theta.old = theta.asgd[, i]
+    ai = gamma0 / (1 + gamma0 * lambda0 * i)
+    # make computations easier.
+    lpred = sum(theta.old * xi)
+    theta.new = (1 - 1/i)*theta.old + (1/i)*((theta.old - ai * lpred * xi) + ai * data$Y[i] * xi)
+    theta.asgd = cbind(theta.asgd, theta.new)
+  }
+  
+  theta.asgd
 }
-
