@@ -31,8 +31,9 @@ sample.data <- function(dim.n, A,
   return(list(Y=y, X=X, A=A, theta=theta))
 }
 
-find.risk = function(theta.t){
-  t(theta.t - rep(1, DIMS))%*%A%*%(theta.t - rep(1, DIMS))
+find.risk = function(theta.t, data){
+  stopifnot(length(theta.t) == ncol(data$X))
+  t(theta.t - rep(1, ncol(data$X)))%*%data$A%*%(theta.t - rep(1, ncol(data$X)))
 }
 
 batch = function(data, plot=T){
@@ -52,7 +53,7 @@ batch = function(data, plot=T){
     x = data$X[1:i,]
     y = data$Y[1:i,]
     theta.new = lm(y ~ x + 0)$coefficients
-    risk.list = c(risk.list, find.risk(theta.new))
+    risk.list = c(risk.list, find.risk(theta.new, data))
     theta.batch = cbind(theta.batch, theta.new)
     i = i * 10
   }
@@ -71,21 +72,27 @@ implicit <- function(data) {
   # params for the learning rate seq.
   gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
   lambda0 = 0.01
+
+  theta.old = rep(0, p)
+  theta.new = NULL
   
   risk.list = NULL
   
   for(i in 1:n) {
     xi = data$X[i, ]
-    theta.old = theta.implicit[, i]
     ai = gamma0 / (1 + gamma0 * lambda0 * i)
     # make computations easier.
     theta.new = solve(I + ai*xi%*%t(xi))%*%(theta.old + ai*data$Y[i]*xi)
-    risk.list = c(risk.list, find.risk(theta.new))
-    theta.implicit = cbind(theta.implicit, theta.new)
+    risk.list = c(risk.list, find.risk(theta.new, data))
+    theta.old = theta.new
   }
   
-  theta.implicit
   risk.list
+}
+
+sgd.update = function(ai, xi, yi, i, theta.old){
+  lpred = sum(theta.old * xi)
+  (theta.old - ai * lpred * xi) + ai * yi * xi
 }
 
 sgd <- function(data) {
@@ -99,20 +106,21 @@ sgd <- function(data) {
   gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
   lambda0 = 0.01
   
+  
+  theta.old = rep(0, p)
+  theta.new = NULL
+  
   risk.list = NULL
   
   for(i in 1:n) {
     xi = data$X[i, ]
-    theta.old = theta.sgd[, i]
     ai = gamma0 / (1 + gamma0 * lambda0 * i)
     # make computations easier.
-    lpred = sum(theta.old * xi)
-    theta.new = (theta.old - ai * lpred * xi) + ai * data$Y[i] * xi
-    risk.list = c(risk.list, find.risk(theta.new))
-    theta.sgd = cbind(theta.sgd, theta.new)
+    theta.new = sgd.update(ai, xi, data$Y[i], i, theta.old)
+    risk.list = c(risk.list, find.risk(theta.new, data))
+    theta.old = theta.new
   }
   
-  theta.sgd
   risk.list
 }
 
@@ -122,24 +130,38 @@ asgd <- function(data) {
   p = ncol(data$X)
   I = diag(p)
   # matrix of estimates of SGD (p x iters)
-  theta.asgd = matrix(0, nrow=p, ncol=1)
+  #theta.asgd = matrix(0, nrow=p, ncol=1)
   # params for the learning rate seq.
   gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
   lambda0 = 0.01
   
+  theta.old = rep(0, p)
+  theta.new = NULL
+  
   risk.list = NULL
+  
+  start.avg = FALSE
+  
   for(i in 1:n) {
     xi = data$X[i, ]
-    theta.old = theta.asgd[, i]
-    ai = (gamma0 / (1 + gamma0 * lambda0 * i))^(2/3)
+    ai = gamma0 * (1 + gamma0 * lambda0 * i)^(-2/3)
     # make computations easier.
-    lpred = sum(theta.old * xi)
-    theta.new = (1 - 1/i)*theta.old + (1/i)*((theta.old - ai * lpred * xi) + ai * data$Y[i] * xi)
-    risk.list = c(risk.list, find.risk(theta.new))
-    theta.asgd = cbind(theta.asgd, theta.new)
+    theta.sgd.new = sgd.update(ai, xi, data$Y[i], i, theta.old)
+   
+#    if(!start.avg && i > 1000){
+#      theta.new = (.99)*theta.old + (.01)*theta.sgd.new
+#      if(find.risk(theta.new, data) < find.risk(theta.sgd.new, data)){
+#        start.avg = TRUE
+#        print(i)
+#      }
+#    } else {
+      theta.new = (1 - 1/i)*theta.old + (1/i)*theta.sgd.new
+#    }
+  
+    risk.list = c(risk.list, find.risk(theta.new, data))
+    theta.old = theta.new
   }
   
-  theta.asgd
   risk.list
 }
 
@@ -153,7 +175,7 @@ plot.all = function() {
   plot(x, log10(sgd(d)), "l", ylim = c(-2.5, 1), col="blue", xaxt='n', ann=FALSE)
   lines(x, log10(asgd(d)), col="green")
   lines(x.batch, log10(batch(d)), col="yellow", lwd=2)
-  lines(x, log10(implicit(d)))
+#  lines(x, log10(implicit(d)))
   
   axis(1, at=0:log10(NSIMS), lab=0:log10(NSIMS))
   title(main="question 2(b)", xlab="Data Points (1e^x)", ylab="Excess Risk (1e^y)")
