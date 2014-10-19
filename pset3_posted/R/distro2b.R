@@ -96,17 +96,18 @@ base.method <- function(data, alpha, alg, plot=T) {
   n = nrow(data$X)
   p = ncol(data$X)
   # matrix of estimates of SGD (p x iters)
-  theta.sgd = matrix(0, nrow=p, ncol=1)
+  # theta.sgd = matrix(0, nrow=p, ncol=1)
   # params for the learning rate seq.
   # gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
   trace = sum(diag(data$A))  # NOTE: data snooping.
   I = diag(p)
   
+  theta.old = rep(0, p)
+  theta.new = NULL
+  
   for(i in 1:n) {
     xi = data$X[i, ]
-    theta.old = theta.sgd[, i]
     # NOTE: This is assuming implicit. Use rate 
-    #  an = alpha / (alpha * trace(A) + n)  if standard.
     ai = lr(alpha, i)
     
     # make computations easier.
@@ -114,19 +115,11 @@ base.method <- function(data, alpha, alg, plot=T) {
     lpred = sum(theta.old * xi)
     fi = 1 / (1 + ai * sum(xi^2))
     yi = data$Y[i]
-    # Implicit SGD
+    
     theta.new = alg(ai, xi, yi, i, theta.old)
-      
-    theta.sgd = cbind(theta.sgd, theta.new)
   }
-  
-  if(plot) {
-    print("Last estimate")
-    print(theta.sgd[, ncol(theta.sgd)])
-    plot.risk(data, theta.sgd)
-  } else {
-    return(theta.sgd)
-  }
+
+  theta.new
 }
 
 sgd = function(data, alpha, plot=T){
@@ -176,7 +169,7 @@ run.alg.many = function(nreps,
       data = sample.data(n, A)
       out = alg(data, alpha, plot=F)
       # Every replication stores the last theta_n
-      last.theta <- rbind(last.theta, out[, n])
+      last.theta <- rbind(last.theta, out)
     }
     
     print(sprintf("n = %d", n))
@@ -184,14 +177,7 @@ run.alg.many = function(nreps,
     print(colMeans(last.theta))
     # Store the distance.
     empirical.var = (1 / lr(alpha, n)) * cov(last.theta)
-    if(verbose) {
-      print("Empirical variance")
-      print(round(empirical.var, 4))
-      print("Theoretical ")
-      print(round(Sigma.theoretical,4))
-    }
     dist.list <- c(dist.list, sqrt.norm(empirical.var - Sigma.theoretical))
-#    plot(dist.list, type="l")
     print("Vector of ||empirical var.  - theoretical var.||")
     print(dist.list)
   }

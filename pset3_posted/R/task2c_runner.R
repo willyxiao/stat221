@@ -1,8 +1,5 @@
 source('distro2b.R')
 
-NSIMS = 1e4
-DIMS = 10
-
 a.length = 10
 amin = 50
 amax = 200
