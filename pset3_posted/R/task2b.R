@@ -17,6 +17,20 @@ generate.A <- function(p) {
   return(A)
 }
 
+sample.data <- function(dim.n, A, 
+                        model="gaussian") {
+  # Samples the dataset. Returns a list with (Y, X, A ,true theta)
+  dim.p = nrow(A)
+  # This call will make the appropriate checks on A.
+  X = rmvnorm(dim.n, mean=rep(0, dim.p), sigma=A)
+  theta = matrix(1, ncol=1, nrow=dim.p)
+  epsilon = rnorm(dim.n, mean=0, sd=1)
+  # Data generation
+  y = X %*% theta  + epsilon
+  
+  return(list(Y=y, X=X, A=A, theta=theta))
+}
+
 find.risk = function(theta.t){
   t(theta.t - rep(1, DIMS))%*%A%*%(theta.t - rep(1, DIMS))
 }
