@@ -1,20 +1,20 @@
 source('distro2b.R')
 
 NSIMS = 1e4
-DIMS = 100
+DIMS = 10
 
 a.length = 10
-amin = 100
-amax = 1000
+amin = 50
+amax = 200
 a.tests = seq(amin, amax, length.out=a.length)
 
 theta.run = 2
 
-nreps = 10
+nreps = 2
 
 run.test = function(){
-  for(i in 1:15){
-    run.task(i, 15)
+  for(i in 1:30){
+    run.task(i, 30)
   }
 }
 
@@ -37,7 +37,7 @@ run.task = function(job.id, num.ids){
 }
 
 run.job = function(a.id, alg, alg.name){
-  dist.list = run.alg.many(nreps, a.tests[a.id], alg, nlist=c(100, 1e3, 1e4, 1e5))  
+  dist.list = run.alg.many(nreps, a.tests[a.id], alg, nlist=c(1e2, 1e3, 1e4, 1e5))  
   save(dist.list, file=file.name(alg.name, a.id))
 }
 

@@ -60,8 +60,8 @@ plot.risk <- function(data, est) {
   est.bias = apply(est, 2, function(colum) 
     log(t(colum-data$theta) %*% data$A %*% (colum-data$theta)))
   
-  est.bias = apply(est, 2, function(colum) 
-    t(colum-data$theta) %*% data$A %*% (colum-data$theta))
+#  est.bias = apply(est, 2, function(colum) 
+#    t(colum-data$theta) %*% data$A %*% (colum-data$theta))
   print(sprintf("Risk of first estimate = %.3f Risk of last estimate %.3f", 
                 head(est.bias, 1), tail(est.bias, 1)))
   plot(est.bias, type="l", lty=3)
@@ -191,7 +191,7 @@ run.alg.many = function(nreps,
       print(round(Sigma.theoretical,4))
     }
     dist.list <- c(dist.list, sqrt.norm(empirical.var - Sigma.theoretical))
-    plot(dist.list, type="l")
+#    plot(dist.list, type="l")
     print("Vector of ||empirical var.  - theoretical var.||")
     print(dist.list)
   }

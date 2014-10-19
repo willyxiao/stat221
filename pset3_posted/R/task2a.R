@@ -2,7 +2,7 @@ source('functions.R')
 library(MASS)
 
 DIMS = 100
-NSIMS = 1e3
+NSIMS = 1e4
 
 eigen.values = c(1,1,1, rep(.02, 97))
 A = diag(eigen.values)
