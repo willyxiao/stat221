@@ -117,29 +117,41 @@ run.glmnet <- function(dim.n, dim.p, method = "naive",
   return(timings)
 }
 #use to get desired data
-run.glmnet(1000,100, "naive")
-run.glmnet(1000,100, "cov")
-run.glmnet(1000,100, "lars")
+means = function(timings, cors){
+  means = rep(0, cors)
+  for (i in 1:length(timings[,1])){
+    bucket = ((i -1) %% cors) + 1
+    means[bucket] = means[bucket] + as.numeric(timings[i,][4])
+  }
+  means/(length(timings[,1])/cors)
+}
 
-run.glmnet(5000,100, "naive")
-run.glmnet(5000,100, "cov")
-run.glmnet(5000,100, "lars")
+#Use stargzer to generate latex tables
+get_table = function(c1,c2,c3, title){
+  c1 = rbind(c1,c2)
+  c1 = rbind(c1,c3)
+  colnames(c1) <- c("0", "0.1", "0.2", "0.5", "0.9", "0.95")
+  rownames(c1) <- c("glmnet (type = \"naive\")", "glmnet (type = \"cov\")", "lars")
+  stargazer(c1, title = title)
+}
 
-run.glmnet(100,1000, "naive")
-run.glmnet(100,1000, "cov")
-run.glmnet(100,1000, "lars")
+get_table(means(run.glmnet(1000,100, "naive"), 6), means(run.glmnet(1000,100, "cov"),6), 
+          means(run.glmnet(1000,100, "lars"),6), "N = 1000, p = 100")
 
-run.glmnet(100,5000, "naive")
-run.glmnet(100,5000, "cov")
-run.glmnet(100,5000, "lars")
+get_table(means(run.glmnet(5000,100, "naive"), 6), means(run.glmnet(5000,100, "cov"),6), 
+          means(run.glmnet(5000,100, "lars"),6), "N = 5000, p = 100")
 
-run.glmnet(100,20000, "naive")
-run.glmnet(100,20000, "cov")
-run.glmnet(100,20000, "lars")
+get_table(means(run.glmnet(100,1000, "naive"), 6), means(run.glmnet(100,1000, "cov"),6), 
+          means(run.glmnet(100,1000, "lars"),6), "N = 100, p = 1000")
 
-run.glmnet(100,50000, "naive")
-run.glmnet(100,50000, "cov")
-run.glmnet(100,50000, "lars")
+get_table(means(run.glmnet(100,5000, "naive"), 6), means(run.glmnet(100,5000, "cov"),6), 
+          means(run.glmnet(100,5000, "lars"),6), "N = 100, p = 5000")
+
+get_table(means(run.glmnet(100,20000, "naive"), 6), means(run.glmnet(100,20000, "cov"),6), 
+          means(run.glmnet(100,20000, "lars"),6), "N = 100, p = 20000")
+
+get_table(means(run.glmnet(100,50000, "naive"), 6), means(run.glmnet(100,50000, "cov"),6), 
+          means(run.glmnet(100,50000, "lars"),6), "N = 100, p = 50000")
 
 #3.c
 
