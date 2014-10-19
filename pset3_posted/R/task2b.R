@@ -13,10 +13,11 @@ batch = function(data, plot=T){
     left = matrix(0, nrow=p, ncol=p)
     right = rep(0, p)
     for(j in 1:i){
-      left = left + matrix(data$X[i, ])%*%t(data$X[i,])
-      right = right + data$X[i,]*data$Y[i,]
+      xi = data$X[j,]
+      yi = data$Y[j,]
+      left = left + (xi)%*%t(xi)
+      right = right + xi*yi
     }
-    browser()
     theta.new = solve(left)*right
     theta.batch = cbind(theta.batch, theta.new)    
   }
@@ -70,3 +71,4 @@ asgd <- function(data) {
   
   theta.asgd
 }
+
