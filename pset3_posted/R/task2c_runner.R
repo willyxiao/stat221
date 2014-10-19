@@ -1,13 +1,13 @@
 source('distro2b.R')
 
 a.length = 10
-amin = 50
+amin = 51
 amax = 200
 a.tests = seq(amin, amax, length.out=a.length)
 
-theta.run = 2
+theta.run = 3
 
-nreps = 2
+nreps = 5
 
 run.test = function(){
   for(i in 1:30){
@@ -20,15 +20,15 @@ run.task = function(job.id, num.ids){
   
   if(job.id <= jobs.each){
     # run.sgd
-    a.id = job.id %% jobs.each + 1
+    a.id = (job.id - 1) %% jobs.each + 1
     run.job(a.id, sgd, 'sgd')
   } else if(job.id <= 2*jobs.each){
     # run.asgd
-    a.id = job.id %% jobs.each + 1
+    a.id = (job.id - 1) %% jobs.each + 1
     run.job(a.id, asgd, 'asgd')
   } else {
     # run.implicit
-    a.id = job.id %% jobs.each + 1
+    a.id = (job.id - 1) %% jobs.each + 1
     run.job(a.id, implicit, 'implicit')
   }
 }
