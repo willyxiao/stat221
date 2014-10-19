@@ -2,12 +2,12 @@ source('distro2b.R')
 
 a.length = 10
 amin = 51
-amax = 200
+amax = 100
 a.tests = seq(amin, amax, length.out=a.length)
 
 theta.run = 3
 
-nreps = 5
+nreps = 10
 
 run.test = function(){
   for(i in 1:30){
@@ -34,7 +34,7 @@ run.task = function(job.id, num.ids){
 }
 
 run.job = function(a.id, alg, alg.name){
-  dist.list = run.alg.many(nreps, a.tests[a.id], alg, nlist=c(1e2, 1e3, 1e4, 1e5))  
+  dist.list = run.alg.many(nreps, a.tests[a.id], alg, nlist=c(1e2, 1e3, 1e4, 1e5, 1e6, 5e6))  
   save(dist.list, file=file.name(alg.name, a.id))
 }
 
