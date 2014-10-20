@@ -5,7 +5,9 @@ amin = 51
 amax = 100
 a.tests = seq(amin, amax, length.out=a.length)
 
-theta.run = 3
+theta.run = 4
+
+nlist = c(1e3, 1e4, 1e5, 1e6)
 
 nreps = 10
 
@@ -34,8 +36,8 @@ run.task = function(job.id, num.ids){
 }
 
 run.job = function(a.id, alg, alg.name){
-  dist.list = run.alg.many(nreps, a.tests[a.id], alg, nlist=c(1e2, 1e3, 1e4, 1e5, 1e6, 5e6))  
-  save(dist.list, file=file.name(alg.name, a.id))
+  res = run.alg.many(nreps, a.tests[a.id], alg, nlist=nlis)#, 1e5, 1e6, 5e6))  
+  save(res, file=file.name(alg.name, a.id))
 }
 
 file.name = function(alg.name, a.id){

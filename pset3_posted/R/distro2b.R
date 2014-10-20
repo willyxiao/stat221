@@ -20,6 +20,8 @@ random.orthogonal <- function(p) {
 }
 
 generate.A <- function(p) {
+  return (diag(seq(0.01, 1, length.out=p)))
+  
   # Create A matrix (variance of the covariates xn)
   Q = random.orthogonal(p)
   lambdas = seq(0.01, 1, length.out=p)
@@ -68,7 +70,6 @@ plot.risk <- function(data, est) {
 }
 
 lr <- function(alpha, n) {
-  ## learning rate
   alpha / (alpha + n)
 }
 
@@ -92,13 +93,10 @@ alg.asgd = function(ai, xi, yi, i, theta.old){
 
 base.method <- function(data, alpha, alg, plot=T) {
   # check.data(data)
-  # Implements implicit
+
   n = nrow(data$X)
   p = ncol(data$X)
-  # matrix of estimates of SGD (p x iters)
-  # theta.sgd = matrix(0, nrow=p, ncol=1)
-  # params for the learning rate seq.
-  # gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
+  
   trace = sum(diag(data$A))  # NOTE: data snooping.
   I = diag(p)
   
@@ -107,23 +105,24 @@ base.method <- function(data, alpha, alg, plot=T) {
   
   for(i in 1:n) {
     xi = data$X[i, ]
-    # NOTE: This is assuming implicit. Use rate 
-    ai = lr(alpha, i)
+ 
+    ai = alpha / (alpha * trace + i)
     
-    # make computations easier.
-    xi.norm = sum(xi^2)
-    lpred = sum(theta.old * xi)
-    fi = 1 / (1 + ai * sum(xi^2))
+    if (identical(alg, implicit)){
+      ai = lr(alpha, i)
+    }
+    
     yi = data$Y[i]
     
     theta.new = alg(ai, xi, yi, i, theta.old)
+    theta.old = theta.new
   }
 
   theta.new
 }
 
 sgd = function(data, alpha, plot=T){
-  base.method(data, alpha, alg.sgd, plot)  
+  base.method(data, alpha, alg.sgd, plot)
 }
 
 asgd = function(data, alpha, plot=T){
@@ -155,6 +154,7 @@ run.alg.many = function(nreps,
   #
   A = generate.A(p)
   dist.list = c()  # vector of || . || distances
+  bias.list = c()
   for(n in nlist) {
     # matrix of the last iterate theta_n
     last.theta = matrix(NA, nrow=0, ncol=p)
@@ -171,15 +171,20 @@ run.alg.many = function(nreps,
       # Every replication stores the last theta_n
       last.theta <- rbind(last.theta, out)
     }
-    
+
+    theta.avg = colMeans(last.theta)
     print(sprintf("n = %d", n))
     print("Avg. estimates for theta*")
-    print(colMeans(last.theta))
+    print(theta.avg)
+    print("Bias")
+    bias = sqrt.norm(theta.avg - data$theta)
+    bias.list = c(bias.list, bias)
+    print(bias.list)
     # Store the distance.
     empirical.var = (1 / lr(alpha, n)) * cov(last.theta)
     dist.list <- c(dist.list, sqrt.norm(empirical.var - Sigma.theoretical))
     print("Vector of ||empirical var.  - theoretical var.||")
     print(dist.list)
   }
-  dist.list
+  list(dist=dist.list, bias=bias.list)
 }
