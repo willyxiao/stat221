@@ -36,7 +36,7 @@ run.task = function(job.id, num.ids){
 }
 
 run.job = function(a.id, alg, alg.name){
-  res = run.alg.many(nreps, a.tests[a.id], alg, nlist=nlis)#, 1e5, 1e6, 5e6))  
+  res = run.alg.many(nreps, a.tests[a.id], alg, nlist=nlist)#, 1e5, 1e6, 5e6))  
   save(res, file=file.name(alg.name, a.id))
 }
 
