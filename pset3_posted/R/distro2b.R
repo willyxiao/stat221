@@ -110,6 +110,8 @@ base.method <- function(data, alpha, alg, plot=T) {
     
     if (identical(alg, implicit)){
       ai = lr(alpha, i)
+    } else if(identical(alg, asgd)){
+      ai = alpha / (alpha * trace + i)^(2/3)
     }
     
     yi = data$Y[i]
