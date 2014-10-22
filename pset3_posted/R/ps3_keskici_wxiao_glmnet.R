@@ -134,35 +134,95 @@ get_table = function(c1,c2,c3, title){
   rownames(c1) <- c("glmnet (type = \"naive\")", "glmnet (type = \"cov\")", "lars")
   stargazer(c1, title = title)
 }
+###These output latex tables that are in our writeup
+#Commenting out because the later ones take awhile to run
+#get_table(means(run.glmnet(1000,100, "naive"), 6), means(run.glmnet(1000,100, "cov"),6), 
+#          means(run.glmnet(1000,100, "lars"),6), "N = 1000, p = 100")
 
-get_table(means(run.glmnet(1000,100, "naive"), 6), means(run.glmnet(1000,100, "cov"),6), 
-          means(run.glmnet(1000,100, "lars"),6), "N = 1000, p = 100")
+#get_table(means(run.glmnet(5000,100, "naive"), 6), means(run.glmnet(5000,100, "cov"),6), 
+#          means(run.glmnet(5000,100, "lars"),6), "N = 5000, p = 100")
 
-get_table(means(run.glmnet(5000,100, "naive"), 6), means(run.glmnet(5000,100, "cov"),6), 
-          means(run.glmnet(5000,100, "lars"),6), "N = 5000, p = 100")
+#get_table(means(run.glmnet(100,1000, "naive"), 6), means(run.glmnet(100,1000, "cov"),6), 
+#          means(run.glmnet(100,1000, "lars"),6), "N = 100, p = 1000")
 
-get_table(means(run.glmnet(100,1000, "naive"), 6), means(run.glmnet(100,1000, "cov"),6), 
-          means(run.glmnet(100,1000, "lars"),6), "N = 100, p = 1000")
+#get_table(means(run.glmnet(100,5000, "naive"), 6), means(run.glmnet(100,5000, "cov"),6), 
+#          means(run.glmnet(100,5000, "lars"),6), "N = 100, p = 5000")
 
-get_table(means(run.glmnet(100,5000, "naive"), 6), means(run.glmnet(100,5000, "cov"),6), 
-          means(run.glmnet(100,5000, "lars"),6), "N = 100, p = 5000")
+#get_table(means(run.glmnet(100,20000, "naive"), 6), means(run.glmnet(100,20000, "cov"),6), 
+#          means(run.glmnet(100,20000, "lars"),6), "N = 100, p = 20000")
 
-get_table(means(run.glmnet(100,20000, "naive"), 6), means(run.glmnet(100,20000, "cov"),6), 
-          means(run.glmnet(100,20000, "lars"),6), "N = 100, p = 20000")
-
-get_table(means(run.glmnet(100,50000, "naive"), 6), means(run.glmnet(100,50000, "cov"),6), 
-          means(run.glmnet(100,50000, "lars"),6), "N = 100, p = 50000")
+#get_table(means(run.glmnet(100,50000, "naive"), 6), means(run.glmnet(100,50000, "cov"),6), 
+#          means(run.glmnet(100,50000, "lars"),6), "N = 100, p = 50000")
 
 #3.c
 
+lr <- function(alpha, n) {
+  ## learning rate
+  alpha / (alpha + n)
+}
 
 
+sgd_implicit <- function(data, alpha) {
+  # check.data(data)
+  # Implements implicit
+  n = nrow(data$X)
+  p = ncol(data$X)
+  A = cov(data$X)
+  # matrix of estimates of SGD (p x iters)
+  theta.sgd = matrix(0, nrow=p, ncol=1)
+  I = diag(p)
+  
+  for(i in 1:n) {
+    xi = data$X[i, ]
+    theta.old = theta.sgd[, i]
+    ai = lr(alpha, i)
+    
+    # make computations easier.
+    xi.norm = sum(xi^2)
+    lpred = sum(theta.old * xi)
+    fi = 1 / (1 + ai * sum(xi^2))
+    yi = data$y[i]
+    # Implicit SGD
+    theta.new = (theta.old  - ai * fi * lpred * xi) +  
+      (ai * yi * xi - ai^2 * fi * yi * xi.norm * xi)
+    theta.sgd = cbind(theta.sgd, theta.new)
+  }
+  
+  return(theta.sgd[,length(theta.sgd[1,])])
+}
 
+sgd <- function(data, alpha) {
+  # check.data(data)
+  # Implements implicit
+  n = nrow(data$X)
+  p = ncol(data$X)
+  A = cov(data$X) #this is an estimate for A
+  trace.A = sum(diag(A)) 
+  # matrix of estimates of SGD (p x iters)
+  theta.sgd = matrix(0, nrow=p, ncol=1)
+  # params for the learning rate seq.
+  # gamma0 = 1 / (sum(seq(0.01, 1, length.out=p)))
+  #trace = sum(diag(data$A))  # NOTE: data snooping.
+  I = diag(p)
+  
+  for(i in 1:n) {
+    xi = data$X[i, ]
+    theta.old = theta.sgd[, i]
+    ai = alpha / (alpha * trace.A + i)
+    
+    # make computations easier.
+    xi.norm = sum(xi^2)
+    lpred = sum(theta.old * xi)
+    fi = 1 / (1 + ai * sum(xi^2))
+    yi = data$y[i]
+    # Standard SGD
+    theta.new = (theta.old - ai * lpred * xi) + ai * yi * xi
+    theta.sgd = cbind(theta.sgd, theta.new)
+  }
+  
+  return(theta.sgd[,length(theta.sgd[1,])])
+}
 
-
-
-
-
-
+a = sample.data(10,3,c(0.0, 0.1, 0.2, 0.5, 0.9, 0.95), 3)
 
 
