@@ -1,13 +1,37 @@
 \documentclass[paper=a4, fontsize=11pt]{scrartcl}
 \usepackage{enumerate}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{tikz}
 \newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
+\noindent Willy Xiao and Kevin Eskici \\ STAT 221 \\ Oct 22, 2014
 \begin{enumerate}[\text{question }1.]
   \item Show: \\
     \begin{enumerate}[(a)]
-      \item hello
+      \item \begin{align*}
+        E\left[ \nabla l(\theta; y) \right] &= 0 \text{ at }\theta^* \\
+        \nabla l(\theta; y) &= \frac{(y - b'(x^T\theta^*))*x}{\phi} \\
+        E\left[ \frac{y_n - b'(x^T\theta^*)}{\phi} \right] &= \frac{E(Y) - b'(x^T\theta^*)}{\phi} = 0 \\
+        E(Y) &= b'(x^T\theta^*)
+      \end{align*}
+      \item \begin{align*}
+        \text{ We know that } -E\left[ \nabla \nabla l(\theta; y) \right] &= E\left[ \nabla l(\theta; y) \right]^2 \\
+        \nabla \nabla l(\theta; y) &= \frac{-b''(x^T\theta^*)}{\phi} \\
+        E\left[ \frac{Y - b'(\lambda)}{\phi} \right]^2 &= \frac{E(Y - E(Y))^2}{\phi^2} = \frac{Var(Y)}{\phi^2} \\
+        \phi b''(\lambda_n) = \phi h'(\lambda_n) &= var(y_n|\lambda_n)
+      \end{align*}
+      \item \begin{align*}
+        l(\theta; y) &= \frac{\lambda_ny_n - b(\lambda_n)}{\phi} + \log{y_n, \phi} \\
+        \nabla l(\theta, y) &= \frac{1}{\phi}*(y_n - b'(x^T\theta))x_n \\
+          &= \frac{1}{\phi}*(y_n - h(x^T\theta))x_n
+      \end{align*}
+      \item This is the fisher's information:
+        \begin{align*}
+          - \nabla \frac{1}{\phi}*(y_n - h(x^T\theta))x_n &= \nabla \frac{1}{\phi}*h(x^T\theta)x_n \\
+          I(\theta) &= \frac{1}{\phi} E(h'(x^T\theta)x_nx_n^T)
+        \end{align*}
+      \item Because we know the fisher's information must be positive (it's a variance) and we know that $x_nx_n^T$ is positive-definite, then that means $h'(x^T\theta)$ must also be positive. If this is true then it means $h(\cdot)$ is non-decreasing.
     \end{enumerate}
   \item Experiment: \\
     \begin{enumerate}[(a)]
@@ -15,8 +39,22 @@
         \begin{align*}
           \text{ SGD: } \theta_{t+1} &= \theta_t + (1 + .02*t)^{-1}*(\Sigma^{-1}*(\vec{x_t} - \vec{ \theta_t})) \\
           \text{ ASGD: } \overline{\theta}_{t+1} &= (1 - 1/t)*\overline{ \theta }_t + (1/t)*\theta_{t+1} \\
-          \text{ Implicit: } \theta_{t+1} &= (1 + \gamma_t)^{-1}*(\theta_t + \gamma_t*\vec{x_t}) \text{, where } \gamma_t = (1 + .02*t)^{-1}
+              & \text{ where } \theta_{t+1} = \theta_t + (1 + .02*t)^{-2/3}*(\Sigma^{-1}*(\vec{x_t} - \vec{ \theta_t})) \\
+          \text{ ASGD\_BAD: } & \text{ Same as ASGD, but with learning rate } (1 + t)^{-1} \\
+          \text{ Implicit: } \theta_{t+1} &= (1 + \gamma_t)^{-1}*(\theta_t + \gamma_t*\vec{x_t}) \text{, where } \gamma_t = (1 + .02*t)^{-1} \\
         \end{align*}
+        \includegraphics[width=400px]{2a.png}
+      \item For SGD and implicit, we use a learning rate $a_t$ of $\gamma_0 * (1 + \gamma_0 \lambda_0 t)^{-1}$ and for ASGD we use $\gamma_0 * (1 + \gamma_0 \lambda_0 t)^{-2/3}$. Where $\gamma_0 = tr(A)$ and $\lambda_0 = .01$. \\
+        \begin{align*}
+          \text{ SGD: } \theta_{t+1} &= \theta_t - a_t * x^T\theta_tx + a_t * y * x \\
+          \text{ ASGD: } \overline{\theta}_{t+1} &= (1 - 1/t)*\overline{ \theta }_t + (1/t)*\theta_{t+1} \\
+          \text{ Implicit: } \theta_{t+1} &= \theta_t - a_t f_t x^T \theta_t x + a_t y x - a_t^2 f_t y \Sigma(x^2) x\\
+            & \text{ where: } f_t = 1 / (1 + a_t \Sigma(x^2) ) \\
+            & \text{ Note: this is taken from Panos' distro code } \\
+          \text{ Batch: } & \text{ We ran the linear regression using R's lm(y } \sim \text{ x + 0) } \\
+        \end{align*}
+        \includegraphics[width=400px]{2b.png}
+        Note: After trying multiple learning rates and averaging rates for ASGD, for some reason we were still unable to produce the correct convergence rate. It may be some misunderstanding on our part or simply a bug in the code, but this will affect also 2(c).
     \end{enumerate}
    \item Part 3
       \begin{table}[!htbp] \centering 
