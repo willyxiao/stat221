@@ -4,7 +4,7 @@ library(glmnet)
 library(lars)
 library(stargazer)
 #####################################
-#Functions from paper provided by Panos
+#Helper Functions from paper provided by Panos below
 
 # genjerry, genx2 are functions taken from the above paper.
 # These functions generate the simulation data.
