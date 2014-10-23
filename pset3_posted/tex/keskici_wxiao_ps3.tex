@@ -61,11 +61,16 @@
         \includegraphics[width=250px]{implicit_7_plot.pdf} \\
         Discussion: Do note that ASGD might be a little off relatively to the other ones because of the learning rate problem we had with 2(b). Regardless, of that looking at the plots of bias over the different $\alpha$ values, we see that it seems that as alpha gets bigger, the bias is relatively smaller. This makes sense because as we have bigger $\alpha$'s we will converge faster because each jump is slightly more powerful.
       \item Trace of the empirical variance plotted on a log scale, from same data as part (c): \\
-        \includegraphics[width=250px, trim=20px 0px 0px 0px, clip=true]{sgd_7_var_plot.pdf} \\
-        \includegraphics[width=250px, trim=20px 0px 0px 0px, clip=true]{asgd_7_var_plot.pdf} \\
-        \includegraphics[width=250px, trim=20px 0px 0px 0px, clip=true]{implicit_7_var_plot.pdf} \\
-        Discussion: Again, ASGD doesn't seem to follow the same trend as the other charts. It seems that while a small $\alpha = 51$ has a very high variance (probably because it's close to the smallest $\alpha$ value possible), the other values don't really follow a clear trend. For SGD and Implicit, it looks like as we get higher, the variance gets lower until some point at which it stops decreasing.
-      \item Yo.
+        \includegraphics[width=250px, clip=true]{sgd_8_var_plot.pdf} \\
+        \includegraphics[width=250px, clip=true]{asgd_8_var_plot.pdf} \\
+        \includegraphics[width=250px, clip=true]{implicit_8_var_plot.pdf} \\
+        Discussion: Again, ASGD doesn't seem to follow the same trend as the other charts. It's clear that while all the variances decrease, the learning rates with greater $\alpha$'s exhibit more variance. This makes sense as it trades off with the bias from before.
+      \item First investigating the asymptotic distances for ASGD and implicit (log-scale): \\
+        \includegraphics[width=250px, clip=true]{sgd_7_dist_plot.pdf} \\
+        \includegraphics[width=250px, clip=true]{implicit_7_dist_plot.pdf} \\
+        It does appear that the limit is correct, as $n \rightarrow \infty$ the distance decreases. Now looking at the distance from $(1/n)*I(\theta^*)^{-1}$ for ASGD: \\
+        \includegraphics[width=250px, clip=true]{asgd_8_dist_plot.pdf} \\
+        Note: This graph is messed up as a result of our ASGD algorithm's mistake from 2(b).
     \end{enumerate}
    \item Part 3
       \begin{table}[!htbp] \centering 
