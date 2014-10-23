@@ -7,7 +7,7 @@ for(alg.name in algs){
   print(plot.name)
   pdf(paste(plot.name, "pdf", sep="."))
   load(file.name(alg.name, 1))
-  plot(nlist, res$dist, "l", lwd=2, col=colors()[25], ann=FALSE)
+  plot(nlist, res$dist, "l", ylim=c(1.0, 2.0), lwd=2, col=colors()[25], ann=FALSE)
   
   for(a.id in 2:length(a.tests)){
     load(file.name(alg.name, a.id))
