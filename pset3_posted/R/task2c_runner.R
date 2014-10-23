@@ -5,7 +5,7 @@ amin = 51
 amax = 100
 a.tests = seq(amin, amax, length.out=a.length)
 
-theta.run = 7
+theta.run = 8
 
 nlist = c(1e2, 1e3, 5e3, 1e4)
 
