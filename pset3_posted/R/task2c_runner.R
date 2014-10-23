@@ -5,11 +5,11 @@ amin = 51
 amax = 100
 a.tests = seq(amin, amax, length.out=a.length)
 
-theta.run = 4
+theta.run = 7
 
-nlist = c(1e3, 1e4, 1e5, 1e6)
+nlist = c(1e2, 1e3, 5e3, 1e4)
 
-nreps = 10
+nreps = 400
 
 run.test = function(){
   for(i in 1:30){
