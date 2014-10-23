@@ -342,12 +342,12 @@ get_table_sgd(means(sgd1), means(sgd_i1), mses(sgd1), mses(sgd_i1), "N = 1000, p
 #get_table_sgd(means(sgd6), means(sgd_i6), mses(sgd6), mses(sgd_i6), "N = 100, p = 50000")
 
 #3.d
-#Code for Part D. Would take too long to run so it's commented out.
+#Code for Part D. SGD parts would take too long to run so it's commented out.
 # Really we'd want to make this a SLURM job.
-#a7 = run.glmnet(100000,1000, "naive")
-#b7 = run.glmnet(100000,1000, "cov")
-#get_table(means(a7), means(b7), means(c6), "Times: N = 100000, p = 1000", FALSE)
-#get_table(mses(a7), mses(b7), mses(c6), "MSEs: N = 100000, p = 1000", FALSE)
+a7 = run.glmnet(100000,1000, "naive")
+b7 = run.glmnet(100000,1000, "cov")
+get_table(means(a7), means(b7), means(c6), "Times: N = 100000, p = 1000", FALSE)
+get_table(mses(a7), mses(b7), mses(c6), "MSEs: N = 100000, p = 1000", FALSE)
 
 #sgd7 = run.sgd(100000, 1000, "Normal SGD")
 #sgd_i7 = run.sgd(100000, 1000, "implicit")
