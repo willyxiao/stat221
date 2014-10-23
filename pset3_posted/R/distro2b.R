@@ -193,7 +193,9 @@ run.alg.many = function(nreps,
     print("Vector of ||empirical var.  - theoretical var.||")
     print(dist.list)
 
+    print("Variance")
     var.list = c(var.list, matrix.trace(empirical.var))
+    print(var.list)
   }
   list(dist=dist.list, bias=bias.list, var=var.list)
 }
