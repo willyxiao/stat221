@@ -68,9 +68,10 @@
       \item First investigating the asymptotic distances for ASGD and implicit (log-scale): \\
         \includegraphics[width=250px, clip=true]{sgd_7_dist_plot.pdf} \\
         \includegraphics[width=250px, clip=true]{implicit_7_dist_plot.pdf} \\
-        It does appear that the limit is correct, as $n \rightarrow \infty$ the distance decreases. Now looking at the distance from $(1/n)*I(\theta^*)^{-1}$ for ASGD: \\
+        It does appear that the limit is correct for SGD and Implicit, as $n \rightarrow \infty$ the distance decreases. Now looking at the distance from $(1/n)*I(\theta^*)^{-1}$ for ASGD: \\
         \includegraphics[width=250px, clip=true]{asgd_8_dist_plot.pdf} \\
-        Note: This graph is messed up as a result of our ASGD algorithm's mistake from 2(b).
+        Note: This graph is messed up as a result of our ASGD algorithm's mistake from 2(b). \\
+        Calculating the ideal optimal value. Because we know that $I(\theta^*)$ is the optimal variance, we simply want to minimize the following: $\alpha^2(2\alpha I(\theta^*) - I)^{-1} - I)I(\theta^*)$. Empirically for our example, we see that we want to find the minimal of $tr(2\alpha I(\theta^*) - I)^{-1} = -|\Sigma_{i=1}^p{1/(2*\alpha + (\lambda_i - 1))} - 1|$. Running this through R's optim function we get: 50.238. Looking at the sgd and implicit plots, we see that our lowest variance is indeed 51 which is the closest $\alpha$ to 50.23. It does make us question, however, the distances plot. While the distances plot was calculated assuming a rate of just $\alpha/n$, we actually used a more complicated rate as explained above in 2(b).
     \end{enumerate}
    \item Part 3
       \begin{table}[!htbp] \centering 
