@@ -12,6 +12,7 @@
 # Frequentist variance (for a quick demo):
 #   run.sgd.many(nreps=500, alpha=100, nlist=c(1e3, 5e3, 1e4), p=5, verbose=T)
 library(mvtnorm)
+library(matrixcalc)
 
 random.orthogonal <- function(p) {
   # Get an orthogonal matrix.
@@ -157,13 +158,16 @@ run.alg.many = function(nreps,
   A = generate.A(p)
   dist.list = c()  # vector of || . || distances
   bias.list = c()
+  var.list = c()
+  
   for(n in nlist) {
     # matrix of the last iterate theta_n
     last.theta = matrix(NA, nrow=0, ncol=p)
     # Compute theoretical variance
     data0 = sample.data(n, A)
     I = diag(p)
-    Sigma.theoretical <- alpha * solve(2 * alpha * A - I) %*% A
+    Sigma.theoretical <- solve(A)
+#    Sigma.theoretical <- alpha * solve(2 * alpha * A - I) %*% A
     stopifnot(all(eigen(Sigma.theoretical)$values > 0))
     
     # Get many replications for each n
@@ -183,10 +187,13 @@ run.alg.many = function(nreps,
     bias.list = c(bias.list, bias)
     print(bias.list)
     # Store the distance.
-    empirical.var = (1 / lr(alpha, n)) * cov(last.theta)
+#    empirical.var = (1 / lr(alpha, n)) * cov(last.theta)
+    empirical.var = cov(last.theta)
     dist.list <- c(dist.list, sqrt.norm(empirical.var - Sigma.theoretical))
     print("Vector of ||empirical var.  - theoretical var.||")
     print(dist.list)
+
+    var.list = c(var.list, matrix.trace(empirical.var))
   }
-  list(dist=dist.list, bias=bias.list)
+  list(dist=dist.list, bias=bias.list, var=var.list)
 }
