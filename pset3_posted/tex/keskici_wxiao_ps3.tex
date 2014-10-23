@@ -5,7 +5,7 @@
 \usepackage{tikz}
 \newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
-\noindent Willy Xiao and Kevin Eskici \\ STAT 221 \\ Oct 22, 2014
+\noindent Willy Xiao and Kevin Eskici \\ STAT 221 \\Pset 3\\ Oct 22, 2014
 \begin{enumerate}[\text{question }1.]
   \item Show: \\
     \begin{enumerate}[(a)]
@@ -87,6 +87,7 @@ lars & $0.210$ & $0.207$ & $0.216$ & $0.214$ & $0.210$ & $0.213$ \\
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table}   
+%MSE table1
 
 	  \begin{table}[!htbp] \centering 
   \caption{N = 5000, p = 100} 
@@ -162,5 +163,158 @@ lars & $22.491$ & $22.561$ & $25.666$ & $25.018$ & $23.115$ & $24.605$ \\
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table}    
+
+
+
+%Part 3.C
+\begin{table}[!htbp] \centering 
+  \caption{N = 1000, p = 100} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+SGD Time & $0.261$ & $0.263$ & $0.258$ & $0.276$ & $0.266$ & $0.268$ \\ 
+Implicit SGD Time & $0.246$ & $0.246$ & $0.245$ & $0.248$ & $0.251$ & $0.250$ \\ 
+SGD MSE & $0.147$ & $0.157$ & $0.148$ & $0.168$ & $0.163$ & $0.154$ \\ 
+Implicit SGD MSE & $0.129$ & $0.132$ & $0.133$ & $0.133$ & $0.142$ & $0.139$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+\begin{table}[!htbp] \centering 
+  \caption{N = 5000, p = 100} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+SGD Time & $5.486$ & $5.540$ & $5.665$ & $5.529$ & $5.539$ & $5.620$ \\ 
+Implicit SGD Time & $5.476$ & $5.516$ & $5.605$ & $5.563$ & $5.617$ & $5.577$ \\ 
+SGD MSE & $4.421$ & $4.342$ & $4.275$ & $4.133$ & $4.150$ & $4.187$ \\ 
+Implicit SGD MSE & $4.399$ & $4.274$ & $4.162$ & $4.136$ & $4.151$ & $4.192$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+\begin{table}[!htbp] \centering 
+  \caption{N = 100, p = 1000} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+SGD Time & $1.643$ & $1.607$ & $1.623$ & $1.617$ & $1.617$ & $1.631$ \\ 
+Implicit SGD Time & $1.602$ & $1.623$ & $1.629$ & $1.622$ & $1.631$ & $1.659$ \\ 
+SGD MSE & $0.037$ & $0.036$ & $0.040$ & $0.039$ & $0.039$ & $0.035$ \\ 
+Implicit SGD MSE & $0.035$ & $0.037$ & $0.043$ & $0.040$ & $0.040$ & $0.035$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+\begin{table}[!htbp] \centering 
+  \caption{N = 100, p = 5000} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+SGD Time & $172.810$ & $172.320$ & $172.874$ & $172.882$ & $172.961$ & $174.794$ \\ 
+Implicit SGD Time & $172.752$ & $175.411$ & $175.180$ & $177.150$ & $175.977$ & $177.233$ \\ 
+SGD MSE & $0.820$ & $0.827$ & $0.881$ & $0.865$ & $0.881$ & $0.831$ \\ 
+Implicit SGD MSE & $0.809$ & $0.867$ & $0.938$ & $0.993$ & $1.004$ & $0.910$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+%MSE Tables for GLMnet
+	\begin{table}[!htbp] \centering 
+  \caption{MSEs: N = 1000, p = 100} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+glmnet (type = "naive") & $0.045$ & $0.045$ & $0.045$ & $0.048$ & $0.057$ & $0.080$ \\ 
+glmnet (type = "cov") & $0.039$ & $0.044$ & $0.040$ & $0.044$ & $0.062$ & $0.072$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+	\begin{table}[!htbp] \centering 
+  \caption{MSEs: N = 5000, p = 100} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+glmnet (type = "naive") & $0.028$ & $0.027$ & $0.028$ & $0.030$ & $0.050$ & $0.070$ \\ 
+glmnet (type = "cov") & $0.027$ & $0.028$ & $0.028$ & $0.029$ & $0.051$ & $0.068$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+	\begin{table}[!htbp] \centering 
+  \caption{MSEs: N = 100, p = 1000} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+glmnet (type = "naive") & $0.064$ & $0.060$ & $0.063$ & $0.060$ & $0.067$ & $0.071$ \\ 
+glmnet (type = "cov") & $0.062$ & $0.064$ & $0.064$ & $0.057$ & $0.064$ & $0.069$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table}
+
+	\begin{table}[!htbp] \centering 
+  \caption{MSEs: N = 100, p = 5000} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+glmnet (type = "naive") & $0.033$ & $0.031$ & $0.032$ & $0.031$ & $0.030$ & $0.032$ \\ 
+glmnet (type = "cov") & $0.030$ & $0.033$ & $0.029$ & $0.030$ & $0.032$ & $0.031$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+	\begin{table}[!htbp] \centering 
+  \caption{MSEs: N = 100, p = 20000} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+glmnet (type = "naive") & $0.016$ & $0.017$ & $0.015$ & $0.016$ & $0.016$ & $0.017$ \\ 
+glmnet (type = "cov") & $0.017$ & $0.017$ & $0.016$ & $0.017$ & $0.017$ & $0.017$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
+	\begin{table}[!htbp] \centering 
+  \caption{MSEs: N = 100, p = 50000} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & 0 & 0.1 & 0.2 & 0.5 & 0.9 & 0.95 \\ 
+\hline \\[-1.8ex] 
+glmnet (type = "naive") & $0.010$ & $0.011$ & $0.011$ & $0.011$ & $0.011$ & $0.010$ \\ 
+glmnet (type = "cov") & $0.010$ & $0.010$ & $0.010$ & $0.011$ & $0.011$ & $0.010$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
+
 \end{enumerate}
 \end{document}
