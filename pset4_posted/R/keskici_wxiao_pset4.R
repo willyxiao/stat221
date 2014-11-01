@@ -77,22 +77,36 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
       mcmc.chain[i, ] <- c(N.old, theta.old)
     }
   }
- 
   # Cut the burnin period.
   print(sprintf("Acceptance ratio %.2f%%", 100 * nacc / mcmc.niters))
-  plot.chain(mcmc.chain)
   mcmc.chain
+}
+
+post.proc = function(job.id, chain){
+  if (job.id <=10){
+    output.format = "keskici_wxiao_ps4_task_impala_plot%d.png"
+    name = sprintf(output.format, job.id)
+  }
+  else{
+    output.format = "keskici_wxiao_ps4_task_waterbuck_plot%d.png"
+    name = sprintf(output.format, job.id - 10)
+  }
+  png(name)
+  plot.chain(chain)
 }
 
 run.impala = function(job.id){
   starting.N = job.id * max(impala)
-  mcmc.mh(impala, starting.N, mean(impala)/starting.N, 1e7)
-  
+  chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, 1e7)
+  chain = chain[1e6:]
+  post.proc(chain)
 }
 
 run.waterbuck = function(job.id){
   start.N = max(waterbuck)* (job.id - 10)
-  mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, 1e7)
+  chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, 1e7)
+  chain = chain[1e6:] #burnin period
+  post.proc(chain)  
 }
 
 run.job = function(job.id){
