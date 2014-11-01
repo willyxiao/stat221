@@ -1,60 +1,82 @@
 kBound = 150
+ 
+plot.chain <- function(mcmc.chain) {
+  mcmc.niters = nrow(mcmc.chain)
+  burnin = 0.1 * mcmc.niters
+  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
+  f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=100)
+  image(f, xlim=c(0, kBound), ylim=c(0, 1))
+}
 
 log.lik <- function(N, theta, Y) {
-  # Log-likelihood of the data
   sum(dpois(Y, lambda=N*theta, log=T))
 }
 
 log.prior <- function(N, theta) {
-  return (1/N)
+  1/N
 }
 
 log.posterior <- function(N, theta, Y) {
   log.lik(N, theta, Y) + log.prior(N, theta)
 }
 
-rgamma.trunc <- function(upper.bound, s, r) {
+rgamma.trunc <- function(upper.bound, shape, rate) {
   # Sample from truncated gamma. 
   # TODO: Find a better implementation.
   x <- upper.bound + 10
   while(x > upper.bound) {
-    x = rgamma(1, shape=s, rate=r)
+    x = rgamma(1, shape=shape, rate=rate)
   }
-  return(x)
+  x
 }
 
-mcmc.mh = function(y, mcmc.iters=10000, N.start, theta.start){
+rnorm.trunc = function(lower.bound, mean){
+  x <- lower.bound - 1
+  while(round(x) < lower.bound){
+    x = rnorm(1, mean=mean, sd=3)
+  }
+  round(x)
+}
+
+mcmc.mh = function(y, N.start, theta.start, mcmc.niters=10000){
   S = sum(y)
   n = length(y)
-  mcmc.chain <- matrix(nrow=mcmc.niters, ncol=2)
+  mcmc.chain <- matrix(0, nrow=mcmc.niters, ncol=2)
   mcmc.chain[1,] = c(N.start, theta.start)
   nacc <- 0
   
   for(i in 2:mcmc.niters) {
-    lambda <- rgamma.trunc(kBound**2, s=S+1, r=n)
+
     # 1. Current state
     N.old = mcmc.chain[i-1, 1]
     theta.old = mcmc.chain[i-1, 2]
+    
     # 2. Propose new state
     #   Respect symmetry in (a,b)
-    alpha.new = runif(1, min=lambda/kBound, max=kBound)
-    beta.new = ldambda / alpha.new
+    # lambda <- rgamma.trunc(kBound**2, shape=S+1, rate=n)
+    
+    # N.new = rgeom.trunc(max(y), 1/N)
+    N.new = rnorm.trunc(lower.bound=max(y), mean=N.old)
+    theta.new = lambda / N.new
+    
+#    N.new = rgeom.shift(shift=max(y), mean=max(1, N.old - lambda))
+#    theta.new = lambda / N.new
+    
     # 3. Ratio
-    mh.ratio = min(0, log.posterior(alpha.new, beta.new, y) - 
-                     log.posterior(alpha.old, beta.old, y))
+    mh.ratio = min(0, log.posterior(N.new, theta.new, y) - 
+                     log.posterior(N.old, theta.old, y))
+
     if(runif(1) < exp(mh.ratio)) {
       # Accept 
-      mcmc.chain[i, ] <- c(alpha.new, beta.new)
+      mcmc.chain[i, ] <- c(N.new, theta.new)
       nacc <- nacc + 1
     } else {
-      mcmc.chain[i, ] <- c(alpha.old, beta.old)
+      mcmc.chain[i, ] <- c(N.old, theta.old)
     }
   }
+ 
   # Cut the burnin period.
   print(sprintf("Acceptance ratio %.2f%%", 100 * nacc / mcmc.niters))
   plot.chain(mcmc.chain)
-  return(mcmc.chain)
-  
-  
-  
+  mcmc.chain
 }
