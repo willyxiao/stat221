@@ -1,72 +1,98 @@
 kBound = 150
+<<<<<<< HEAD
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
+=======
+ 
+plot.chain <- function(mcmc.chain) {
+  mcmc.niters = nrow(mcmc.chain)
+  burnin = 0.1 * mcmc.niters
+  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
+  f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=100)
+  image(f, xlim=c(0, kBound), ylim=c(0, 1))
+}
+>>>>>>> 075f451e9263e669a254c8e13eebb4e096ca445a
 
 log.lik <- function(N, theta, Y) {
-  # Log-likelihood of the data
   sum(dpois(Y, lambda=N*theta, log=T))
 }
 
 log.prior <- function(N, theta) {
-  return (1/N)
+  1/N
 }
 
 log.posterior <- function(N, theta, Y) {
   log.lik(N, theta, Y) + log.prior(N, theta)
 }
 
-rgamma.trunc <- function(upper.bound, s, r) {
+rgamma.trunc <- function(upper.bound, shape, rate) {
   # Sample from truncated gamma. 
   # TODO: Find a better implementation.
   x <- upper.bound + 10
   while(x > upper.bound) {
-    x = rgamma(1, shape=s, rate=r)
+    x = rgamma(1, shape=shape, rate=rate)
   }
-  return(x)
+  x
 }
 
-mcmc.mh = function(y, mcmc.iters=10000, N.start, theta.start){
+rnorm.trunc = function(mean, sd=1, lower.bound, upper.bound=NA){
+  x <- lower.bound - 1
+  condition = TRUE
+  while(condition){
+    x = rnorm(1, mean=mean, sd=sd)
+    condition = x < lower.bound
+    if(!is.na(upper.bound)){
+      condition = condition || upper.bound < x
+    }
+  }
+  x
+}
+
+mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
   S = sum(y)
   n = length(y)
-  mcmc.chain <- matrix(nrow=mcmc.niters, ncol=2)
+  mcmc.chain <- matrix(0, nrow=mcmc.niters, ncol=2)
   mcmc.chain[1,] = c(N.start, theta.start)
   nacc <- 0
   
   for(i in 2:mcmc.niters) {
-    lambda <- rgamma.trunc(kBound**2, s=S+1, r=n)
+
     # 1. Current state
     N.old = mcmc.chain[i-1, 1]
     theta.old = mcmc.chain[i-1, 2]
+    
     # 2. Propose new state
-    #   Respect symmetry in (a,b)
-    alpha.new = runif(1, min=lambda/kBound, max=kBound)
-    beta.new = ldambda / alpha.new
+    N.new = round(rnorm.trunc(mean=N.old, sd=3, lower.bound=max(y)))
+    theta.new = rnorm.trunc(mean=theta.old, sd=.05, lower.bound=0, upper.bound=1)
+    
     # 3. Ratio
-    mh.ratio = min(0, log.posterior(alpha.new, beta.new, y) - 
-                     log.posterior(alpha.old, beta.old, y))
+    mh.ratio = min(0, log.posterior(N.new, theta.new, y) - 
+                     log.posterior(N.old, theta.old, y))
+
     if(runif(1) < exp(mh.ratio)) {
       # Accept 
-      mcmc.chain[i, ] <- c(alpha.new, beta.new)
+      mcmc.chain[i, ] <- c(N.new, theta.new)
       nacc <- nacc + 1
     } else {
-      mcmc.chain[i, ] <- c(alpha.old, beta.old)
+      mcmc.chain[i, ] <- c(N.old, theta.old)
     }
   }
+ 
   # Cut the burnin period.
   print(sprintf("Acceptance ratio %.2f%%", 100 * nacc / mcmc.niters))
   plot.chain(mcmc.chain)
-  return(mcmc.chain)
-  
+  mcmc.chain
 }
 
 run.impala = function(job.id){
   starting.N = job.id * max(impala)
-  mcmc.mh(starting.N, mean(impala)/starting.N, impala)
+  mcmc.mh(impala, starting.N, mean(impala)/starting.N, 1e7)
+  
 }
 
 run.waterbuck = function(job.id){
   start.N = max(waterbuck)* (job.id - 10)
-  mcmc.mh(start.N, mean(waterbuck)/start.N, waterbuck)
+  mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, 1e7)
 }
 
 run.job = function(job.id){
@@ -77,3 +103,4 @@ run.job = function(job.id){
     run.waterbuck(job.id)
   }
 }
+
