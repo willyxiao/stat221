@@ -62,7 +62,7 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
     theta.old = mcmc.chain[i-1, 2]
     
     # 2. Propose new state
-    N.new = round(rnorm.trunc(mean=N.old, sd=3, lower.bound=max(y)))
+    N.new = round(rnorm.trunc(mean=N.old, sd=2, lower.bound=max(y)))
     theta.new = rnorm.trunc(mean=theta.old, sd=.05, lower.bound=0, upper.bound=1)
     
     # 3. Ratio
