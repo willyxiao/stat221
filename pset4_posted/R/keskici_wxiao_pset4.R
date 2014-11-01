@@ -30,15 +30,20 @@ rgamma.trunc <- function(upper.bound, shape, rate) {
   x
 }
 
-rnorm.trunc = function(lower.bound, mean){
+rnorm.trunc = function(mean, sd=1, lower.bound, upper.bound=NA){
   x <- lower.bound - 1
-  while(round(x) < lower.bound){
-    x = rnorm(1, mean=mean, sd=3)
+  condition = TRUE
+  while(condition){
+    x = rnorm(1, mean=mean, sd=sd)
+    condition = x < lower.bound
+    if(!is.na(upper.bound)){
+      condition = condition || upper.bound < x
+    }
   }
-  round(x)
+  x
 }
 
-mcmc.mh = function(y, N.start, theta.start, mcmc.niters=10000){
+mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
   S = sum(y)
   n = length(y)
   mcmc.chain <- matrix(0, nrow=mcmc.niters, ncol=2)
@@ -52,15 +57,8 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=10000){
     theta.old = mcmc.chain[i-1, 2]
     
     # 2. Propose new state
-    #   Respect symmetry in (a,b)
-    # lambda <- rgamma.trunc(kBound**2, shape=S+1, rate=n)
-    
-    # N.new = rgeom.trunc(max(y), 1/N)
-    N.new = rnorm.trunc(lower.bound=max(y), mean=N.old)
-    theta.new = lambda / N.new
-    
-#    N.new = rgeom.shift(shift=max(y), mean=max(1, N.old - lambda))
-#    theta.new = lambda / N.new
+    N.new = round(rnorm.trunc(mean=N.old, sd=3, lower.bound=max(y)))
+    theta.new = rnorm.trunc(mean=theta.old, sd=.05, lower.bound=0, upper.bound=1)
     
     # 3. Ratio
     mh.ratio = min(0, log.posterior(N.new, theta.new, y) - 
