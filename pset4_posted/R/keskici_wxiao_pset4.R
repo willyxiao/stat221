@@ -1,3 +1,4 @@
+library(MASS)
 kBound = 150
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
@@ -93,20 +94,20 @@ post.proc = function(job.id, chain){
   dev.off()
 }
 
-niters = 1e4
+niters = 1e7
 
 run.impala = function(job.id){
   starting.N = job.id * max(impala)
   chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, niters)
   chain = chain[(0.1*niters):niters,]
-  post.proc(chain)
+  post.proc(job.id, chain)
 }
 
 run.waterbuck = function(job.id){
   start.N = max(waterbuck)* (job.id - 10)
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
-  chain = chain[0.1*niters:niters,] #burnin period
-  post.proc(chain)  
+  chain = chain[(0.1*niters):niters,] #burnin period
+  post.proc(job.id, chain)  
 }
 
 run.job = function(job.id){
