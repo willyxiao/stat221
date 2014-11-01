@@ -90,28 +90,36 @@ post.proc = function(job.id, chain){
   }
   png(name)
   plot.chain(chain)
+  dev.off()
 }
+
+niters = 1e4
 
 run.impala = function(job.id){
   starting.N = job.id * max(impala)
-  chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, 1e7)
-  chain = chain[1e6:]
+  chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, niters)
+  chain = chain[(0.1*niters):niters,]
   post.proc(chain)
 }
 
 run.waterbuck = function(job.id){
   start.N = max(waterbuck)* (job.id - 10)
-  chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, 1e7)
-  chain = chain[1e6:] #burnin period
+  chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
+  chain = chain[0.1*niters:niters,] #burnin period
   post.proc(chain)  
 }
 
 run.job = function(job.id){
-  if (job.id <=10){
+  if (job.id <= 10){
     run.impala(job.id)
-  }
-  else{
+  } else{
     run.waterbuck(job.id)
   }
 }
 
+run.test = function(){
+  for(i in 1:20){
+    print(i)
+    run.job(i)
+  }
+}
