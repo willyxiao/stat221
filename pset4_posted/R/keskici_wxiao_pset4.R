@@ -1,4 +1,6 @@
 kBound = 150
+impala = c(15, 20, 21, 23, 26)
+waterbuck = c(53, 57, 66, 67, 72)
 
 log.lik <- function(N, theta, Y) {
   # Log-likelihood of the data
@@ -55,6 +57,23 @@ mcmc.mh = function(y, mcmc.iters=10000, N.start, theta.start){
   plot.chain(mcmc.chain)
   return(mcmc.chain)
   
-  
-  
+}
+
+run.impala = function(job.id){
+  starting.N = job.id * max(impala)
+  mcmc.mh(starting.N, mean(impala)/starting.N, impala)
+}
+
+run.waterbuck = function(job.id){
+  start.N = max(waterbuck)* (job.id - 10)
+  mcmc.mh(start.N, mean(waterbuck)/start.N, waterbuck)
+}
+
+run.job = function(job.id){
+  if (job.id <=10){
+    run.impala(job.id)
+  }
+  else{
+    run.waterbuck(job.id)
+  }
 }
