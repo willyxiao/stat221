@@ -1,8 +1,6 @@
 kBound = 150
-<<<<<<< HEAD
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
-=======
  
 plot.chain <- function(mcmc.chain) {
   mcmc.niters = nrow(mcmc.chain)
@@ -11,7 +9,6 @@ plot.chain <- function(mcmc.chain) {
   f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=100)
   image(f, xlim=c(0, kBound), ylim=c(0, 1))
 }
->>>>>>> 075f451e9263e669a254c8e13eebb4e096ca445a
 
 log.lik <- function(N, theta, Y) {
   sum(dpois(Y, lambda=N*theta, log=T))
