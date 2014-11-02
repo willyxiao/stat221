@@ -89,7 +89,7 @@ post.proc = function(job.id, chain){
   }
   else{
     output.format = "keskici_wxiao_ps4_task_waterbuck_run%d_plot%d.png"
-    name = sprintf(output.format, RUN_NUMBER job.id - 10)
+    name = sprintf(output.format, RUN_NUMBER, job.id - 10)
   }
   png(name)
   plot.chain(chain)
