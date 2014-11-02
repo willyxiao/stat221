@@ -107,7 +107,7 @@ run.impala = function(job.id, niters=1e5){
 }
 
 run.waterbuck = function(job.id, niters=1e5){
-  start.N = max(waterbuck)* (job.id - 10)
+  start.N = max(waterbuck)* (job.id - 10) /2
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
   chain = chain[(BURNIN*niters):niters,] #burnin period
   post.proc(job.id, chain)  
@@ -124,6 +124,6 @@ run.job = function(job.id, niters=3e6){
 run.test = function(){
   for(i in 1:20){
     print(i)
-    run.job(i, 1e4)
+    run.job(i, 1e6)
   }
 }

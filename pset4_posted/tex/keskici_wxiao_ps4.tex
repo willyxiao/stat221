@@ -5,17 +5,31 @@
 \usepackage{tikz}
 \newcommand{\parens}[1]{ \left( #1 \right) }
 \begin{document}
-\noindent Willy Xiao and Kevin Eskici \\ STAT 221 \\Pset 3\\ Nov 4, 2014
+\noindent Willy Xiao and Kevin Eskici \\ STAT 221 \\Pset 4\\ Nov 4, 2014
 \begin{enumerate}[\text{question }1.]
   \item
     \begin{enumerate}[1]
       
-      \item   $p(\lambda, \theta) \propto \lambda^{-1}$\\
-      $\begin{bmatrix} N \\ \theta \end{bmatrix} = f(\begin{bmatrix} \lambda \\ \theta \end{bmatrix})$
+      \item   
+      $p(\lambda, \theta) \propto \lambda^{-1}$\\
+      $\begin{bmatrix} N \\ \theta \end{bmatrix} = f\parens{\begin{bmatrix} \lambda \\ \theta \end{bmatrix}}$\\
+      $p(N, \theta) = p(\lambda, \theta) * \begin{Vmatrix}  \frac{\partial \lambda}{\partial N} &  \frac{\partial \theta}{\partial N} \\ \frac{\partial \lambda}{\partial \theta} &  \frac{\partial \theta}{\partial \theta} \end{Vmatrix}$\\
+      Our Jacobian is $\begin{vmatrix} \theta & {-\lambda N^{-2}} \\N & 1 \end{vmatrix}$\\
+      and its determinant is $\theta + \frac{\lambda}{N}$\\\\
+      $p(N, \theta) \propto \frac{1}{\theta N} * (\theta + \frac{\lambda}{N})$\\
+      $= \frac{1}{\theta N} * (\theta + \frac{\theta N}{N})$\\
+      $= \frac{2}{N}$\\
+      $\propto \frac{1}{N}$
+
+
 
       \item It is an improper prior: $\int_0^\infty{\int_0^1{\lambda^{-1}}}d\theta d\lambda \rightarrow \ln(\infty) - \ln(0)$. This cannot integrate to 1 with any constant factor.
 	
-	\item      
+	\item   
+	
+	\item See R code
+	
+	\item
       
     \end{enumerate}
 \end{enumerate}
