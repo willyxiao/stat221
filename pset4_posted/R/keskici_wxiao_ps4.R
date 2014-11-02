@@ -1,9 +1,12 @@
 library(MASS)
+library(mvtnorm)
+
 kBound = 300
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
 BURNIN = 0.5
-RUN_NUMBER = 2
+RUN_NUMBER = 3
+NUM_JOBS = 20
  
 plot.chain <- function(mcmc.chain) {
   mcmc.niters = nrow(mcmc.chain)
@@ -48,6 +51,17 @@ rnorm.trunc = function(mean, sd=1, lower.bound, upper.bound=NA){
   x
 }
 
+rmvnorm.trunc = function(N, theta, lower.bound, sigma){
+  res = NULL
+  condition = TRUE
+  while(condition){
+    res = rmvnorm(1, mean=c(N, theta), sigma)
+    condition = res[1] < lower.bound
+    condition = condition || (res[2] < 0 || 1 < res[2])    
+  }
+  res
+}
+
 mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
   S = sum(y)
   n = length(y)
@@ -62,8 +76,14 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
     theta.old = mcmc.chain[i-1, 2]
     
     # 2. Propose new state
-    N.new = round(rnorm.trunc(mean=N.old, sd=2, lower.bound=max(y)))
-    theta.new = rnorm.trunc(mean=theta.old, sd=.05, lower.bound=0, upper.bound=1)
+    corr = -0.5
+    sd.N = 2
+    sd.theta = .05
+    sigma=matrix(c(sd.N^2, corr*sd.N*sd.theta, corr*sd.N*sd.theta, sd.theta^2), nrow=2)
+    
+    res = rmvnorm.trunc(N.old, theta.old, lower.bound=max(y), sigma=sigma)
+    N.new = round(res[1])
+    theta.new = res[1]*res[2] / N.new
     
     # 3. Ratio
     mh.ratio = min(0, log.posterior(N.new, theta.new, y) - 
@@ -89,7 +109,7 @@ post.proc = function(job.id, chain){
   }
   else{
     output.format = "keskici_wxiao_ps4_task_waterbuck_run%d_plot%d.png"
-    name = sprintf(output.format, RUN_NUMBER job.id - 10)
+    name = sprintf(output.format, RUN_NUMBER, job.id - 10)
   }
   png(name)
   plot.chain(chain)
