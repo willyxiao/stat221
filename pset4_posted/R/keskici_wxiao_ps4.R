@@ -3,6 +3,7 @@ kBound = 300
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
 BURNIN = 0.5
+RUN_NUMBER = 2
  
 plot.chain <- function(mcmc.chain) {
   mcmc.niters = nrow(mcmc.chain)
@@ -83,18 +84,18 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
 
 post.proc = function(job.id, chain){
   if (job.id <=10){
-    output.format = "keskici_wxiao_ps4_task_impala_plot%d.png"
-    name = sprintf(output.format, job.id)
+    output.format = "keskici_wxiao_ps4_task_impala_run%d_plot%d.png"
+    name = sprintf(output.format, RUN_NUMBER, job.id)
   }
   else{
-    output.format = "keskici_wxiao_ps4_task_waterbuck_plot%d.png"
-    name = sprintf(output.format, job.id - 10)
+    output.format = "keskici_wxiao_ps4_task_waterbuck_run%d_plot%d.png"
+    name = sprintf(output.format, RUN_NUMBER job.id - 10)
   }
   png(name)
   plot.chain(chain)
   dev.off()
-  output.format = "keskici_wxiao_ps4_impala_plot%d.RData"
-  name = sprintf(output.format, job.id)
+  output.format = "keskici_wxiao_ps4_run%d_job%d.RData"
+  name = sprintf(output.format, RUN_NUMBER, job.id)
   
   save(chain, file=name)
 }
