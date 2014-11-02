@@ -9,7 +9,7 @@
 #SBATCH --mem-per-cpu=4096              # Memory required per CPU, in MegaBytes
 #SBATCH --mail-user=willy@chenxiao.us   # Where to send mail
 #SBATCH --mail-type=ALL                 # When to send mail
-#SBATCH -a 20                           # Test
+#SBATCH -a 1-20                           # Test
 
 source("keskici_wxiao_ps4.R")
 
