@@ -12,7 +12,7 @@ plot.chain <- function(mcmc.chain) {
 }
 
 log.lik <- function(N, theta, Y) {
-  sum(dbinom(Y, size=N, prob=theta, log=T))
+  sum(dpois(Y, lambda=N*theta, log=T))
 }
 
 log.prior <- function(N, theta) {
