@@ -113,7 +113,7 @@ run.waterbuck = function(job.id, niters=1e5){
   post.proc(job.id, chain)  
 }
 
-run.job = function(job.id, niters=3e6){
+run.job = function(job.id, niters=1e6){
   if (job.id <= 10){
     run.impala(job.id, niters)
   } else{
