@@ -1,5 +1,5 @@
 library(MASS)
-kBound = 150
+kBound = 300
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
 BURNIN = 0.5
@@ -93,6 +93,10 @@ post.proc = function(job.id, chain){
   png(name)
   plot.chain(chain)
   dev.off()
+  output.format = "keskici_wxiao_ps4_impala_plot%d.RData"
+  name = sprintf(output.format, job.id)
+  
+  save(chain, file=name)
 }
 
 run.impala = function(job.id, niters=1e5){
@@ -120,6 +124,6 @@ run.job = function(job.id, niters=1e7){
 run.test = function(){
   for(i in 1:20){
     print(i)
-    run.job(i)
+    run.job(i, 1e4)
   }
 }
