@@ -2,6 +2,7 @@ library(MASS)
 kBound = 150
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
+BURNIN = 0.5
  
 plot.chain <- function(mcmc.chain) {
   mcmc.niters = nrow(mcmc.chain)
@@ -94,27 +95,25 @@ post.proc = function(job.id, chain){
   dev.off()
 }
 
-niters = 1e7
-
-run.impala = function(job.id){
+run.impala = function(job.id, niters=1e5){
   starting.N = job.id * max(impala)
   chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, niters)
-  chain = chain[(0.1*niters):niters,]
+  chain = chain[(BURNIN*niters):niters,]
   post.proc(job.id, chain)
 }
 
-run.waterbuck = function(job.id){
+run.waterbuck = function(job.id, niters=1e5){
   start.N = max(waterbuck)* (job.id - 10)
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
-  chain = chain[(0.1*niters):niters,] #burnin period
+  chain = chain[(BURNIN*niters):niters,] #burnin period
   post.proc(job.id, chain)  
 }
 
-run.job = function(job.id){
+run.job = function(job.id, niters=1e7){
   if (job.id <= 10){
-    run.impala(job.id)
+    run.impala(job.id, niters)
   } else{
-    run.waterbuck(job.id)
+    run.waterbuck(job.id, niters)
   }
 }
 
