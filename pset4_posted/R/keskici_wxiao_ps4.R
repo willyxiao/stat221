@@ -1,18 +1,19 @@
 library(MASS)
-kBound = 150
+kBound = 300
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
+BURNIN = 0.5
  
 plot.chain <- function(mcmc.chain) {
   mcmc.niters = nrow(mcmc.chain)
-  burnin = 0.1 * mcmc.niters
-  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
+#  burnin = 0.1 * mcmc.niters
+#  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
   f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=100)
   image(f, xlim=c(0, kBound), ylim=c(0, 1))
 }
 
 log.lik <- function(N, theta, Y) {
-  sum(dpois(Y, lambda=N*theta, log=T))
+  sum(dbinom(Y, size=N, prob=theta, log=T))
 }
 
 log.prior <- function(N, theta) {
@@ -92,35 +93,39 @@ post.proc = function(job.id, chain){
   png(name)
   plot.chain(chain)
   dev.off()
+  output.format = "keskici_wxiao_ps4_impala_plot%d.RData"
+  name = sprintf(output.format, job.id)
+  
+  save(chain, file=name)
 }
 
-niters = 1e7
-
-run.impala = function(job.id){
+run.impala = function(job.id, niters=1e5){
   starting.N = job.id * max(impala)
   chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, niters)
-  chain = chain[(0.1*niters):niters,]
+  chain = chain[(BURNIN*niters):niters,]
+  gc()
   post.proc(job.id, chain)
 }
 
-run.waterbuck = function(job.id){
-  start.N = max(waterbuck)* (job.id - 10)
+run.waterbuck = function(job.id, niters=1e5){
+  start.N = ceiling(max(waterbuck)* (job.id - 10) /2)
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
-  chain = chain[(0.1*niters):niters,] #burnin period
+  chain = chain[(BURNIN*niters):niters,] #burnin period
+  gc()
   post.proc(job.id, chain)  
 }
 
-run.job = function(job.id){
+run.job = function(job.id, niters=1e6){
   if (job.id <= 10){
-    run.impala(job.id)
+    run.impala(job.id, niters)
   } else{
-    run.waterbuck(job.id)
+    run.waterbuck(job.id, niters)
   }
 }
 
 run.test = function(){
   for(i in 1:20){
     print(i)
-    run.job(i)
+    run.job(i, 1e6)
   }
 }
