@@ -108,7 +108,7 @@ run.impala = function(job.id, niters=1e5){
 }
 
 run.waterbuck = function(job.id, niters=1e5){
-  start.N = ceiling(max(waterbuck)* (job.id - 10) /2)
+  start.N = ceiling(max(waterbuck)* (job.id - 9) /2)
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
   chain = chain[(BURNIN*niters):niters,] #burnin period
   gc()
