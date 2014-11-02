@@ -6,8 +6,8 @@ BURNIN = 0.5
  
 plot.chain <- function(mcmc.chain) {
   mcmc.niters = nrow(mcmc.chain)
-  burnin = 0.1 * mcmc.niters
-  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
+#  burnin = 0.1 * mcmc.niters
+#  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
   f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=100)
   image(f, xlim=c(0, kBound), ylim=c(0, 1))
 }
@@ -103,6 +103,7 @@ run.impala = function(job.id, niters=1e5){
   starting.N = job.id * max(impala)
   chain = mcmc.mh(impala, starting.N, mean(impala)/starting.N, niters)
   chain = chain[(BURNIN*niters):niters,]
+  gc()
   post.proc(job.id, chain)
 }
 
@@ -110,6 +111,7 @@ run.waterbuck = function(job.id, niters=1e5){
   start.N = max(waterbuck)* (job.id - 10)
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
   chain = chain[(BURNIN*niters):niters,] #burnin period
+  gc()
   post.proc(job.id, chain)  
 }
 
