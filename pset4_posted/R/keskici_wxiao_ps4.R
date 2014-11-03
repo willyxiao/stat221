@@ -5,7 +5,7 @@ kBound = 300
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
 BURNIN = 0.5
-RUN_NUMBER = 3
+RUN_NUMBER = 4
 NUM_JOBS = 20
  
 plot.chain <- function(mcmc.chain) {
@@ -76,14 +76,21 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
     theta.old = mcmc.chain[i-1, 2]
     
     # 2. Propose new state
-    corr = -0.5
-    sd.N = 2
-    sd.theta = .05
-    sigma=matrix(c(sd.N^2, corr*sd.N*sd.theta, corr*sd.N*sd.theta, sd.theta^2), nrow=2)
+#    corr = -0.75
+#    sd.N = 2
+#    sd.theta = .05
+#    sigma=matrix(c(sd.N^2, corr*sd.N*sd.theta, corr*sd.N*sd.theta, sd.theta^2), nrow=2)
     
-    res = rmvnorm.trunc(N.old, theta.old, lower.bound=max(y), sigma=sigma)
-    N.new = round(res[1])
-    theta.new = res[1]*res[2] / N.new
+#    res = rmvnorm.trunc(N.old, theta.old, lower.bound=max(y) + 1, sigma=sigma)
+#    N.new = round(res[1])
+#    theta.new = max(0, min(1, res[1]*res[2] / N.new))
+    lambda = rnorm(1, mean=theta.old*N.old, sd=2)
+    theta.tmp = runif(1)
+    N.new = min(max(max(y), round(lambda / theta.tmp)), kBound**2)
+    theta.new = min(1, max(0, lambda / N.new))
+    
+    stopifnot(0 <= theta.new && theta.new <= 1)
+    stopifnot(N.new >= max(y))
     
     # 3. Ratio
     mh.ratio = min(0, log.posterior(N.new, theta.new, y) - 
@@ -126,6 +133,7 @@ run.impala = function(job.id, niters=1e5){
   chain = chain[(BURNIN*niters):niters,]
   gc()
   post.proc(job.id, chain)
+  chain
 }
 
 run.waterbuck = function(job.id, niters=1e5){
@@ -133,7 +141,8 @@ run.waterbuck = function(job.id, niters=1e5){
   chain = mcmc.mh(waterbuck, start.N, mean(waterbuck)/start.N, niters)
   chain = chain[(BURNIN*niters):niters,] #burnin period
   gc()
-  post.proc(job.id, chain)  
+  post.proc(job.id, chain)
+  chain
 }
 
 run.job = function(job.id, niters=1e6){
