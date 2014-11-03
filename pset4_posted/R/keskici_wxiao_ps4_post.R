@@ -10,17 +10,17 @@ log.posterior.analytic = function(N, Y){
   (numerator - denominator) + sum(log(vapply(Y, choose, 1, n=N)))
 }
 
-optim.fun = function(log.norm.const, log.analytic, log.real){
-  stopifnot(length(log.analytic) == length(log.real))
-  stopifnot(length(log.norm.const) == 1)
-  sum((log.analytic + log.norm.const - log.real)^2)
-}
-
-process.data = function(num.jobs, run.n){
+process.data = function(num.jobs, run.n, is.impala=TRUE){
     tt = NA
     
-    for(i in 11:20){
-      load(sprintf("keskici_wxiao_ps4_run%d_job%d.RData", run.n, i))
+    for(i in 1:10){
+      if(!is.impala){
+        index = i + 10  
+      } else{
+        index = i
+      }
+      
+      load(sprintf("keskici_wxiao_ps4_run%d_job%d.RData", run.n, index))
       r = range(chain[,1])
       tmp = table(chain[,1])
       if(length(tt) == 1 && is.na(tt)){
@@ -37,19 +37,24 @@ process.data = function(num.jobs, run.n){
     tt
 }
 
-CUTOFF = 400
+CUTOFF = 700
 
-run.post = function(){
-  res = process.data(NUM_JOBS, RUN_NUMBER)
+optim.fun = function(log.norm.const, log.analytic, log.real){
+  stopifnot(length(log.analytic) == length(log.real))
+  stopifnot(length(log.norm.const) == 1)
+  sum((log.analytic + log.norm.const - log.real)^2)
+}
+
+run.post = function(is.impala=TRUE){
+  res = process.data(NUM_JOBS, RUN_NUMBER, is.impala)
   res = prop.table(res[vapply(sort(as.numeric(names(res))), toString, "hi")])
   barplot(res)
   res
 }
 
-run.normalizing = function(res, y){
-  tmp = vapply(as.numeric(names(res[1:CUTOFF])), log.posterior.analytic, .5, Y=y)
-  barplot(tmp)
-  optim(20, optim.fun, log.analytic=tmp, log.real=log(res[1:CUTOFF]), method="Brent", lower=0, upper=20)  
+run.normalizing = function(res, y, cutoff=CUTOFF){
+  log.analytic = vapply(as.numeric(names(res[1:cutoff])), log.posterior.analytic, .5, Y=y)
+  optim(20, optim.fun, log.analytic=log.analytic, log.real=log(res[1:cutoff]), method="Brent", lower=0, upper=30)  
 }
 
 
