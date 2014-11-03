@@ -29,7 +29,15 @@
 	
 	\item See R code
 	
-	\item
+	\item Posterior for N\\
+	$\int^1_0 \parens{\prod_{i=1}^n\binom{N}{x_i}\theta^{x_i}(1-\theta)^{N - x_i}}* \frac{1}{N} d\theta$\\
+	$=\int^1_0 \parens{\prod_{i=1}^n\binom{N}{x_i}}\theta^{\Sigma x_i}(1-\theta)^{nN - \Sigma x_i}* \frac{1}{N} d\theta$\\
+	$= \frac{1}{N} \int^1_0 \theta^{\Sigma x_i}(1-\theta)^{nN - \Sigma x_i}\prod_{i=1}^n\binom{N}{x_i} d\theta$\\
+	$= \frac{1}{N} \prod_{i=1}^n\binom{N}{x_i}  \int^1_0 \theta^{\Sigma x_i}(1-\theta)^{nN - \Sigma x_i}d\theta$\\
+	If we define $S = \Sigma x_i$, the integral above has the form of a\\ 
+	Beta($\alpha=S+1, \beta=nN - S + 1$ ) pdf\\
+	Using this we get, $\frac{(S!)(nN-S)!}{(nN + 1)!N)}$, which when $n=1$, $\rightarrow \frac{x_i}{N(N+1)}$
+
       
     \end{enumerate}
 \end{enumerate}
