@@ -1,4 +1,3 @@
-setwd("~/code/stat221/pset4_posted/R")
 load('keskici_wxiao_ps4_run3_job12.Rdata')
 
 
