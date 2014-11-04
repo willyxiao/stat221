@@ -1,4 +1,4 @@
-load('keskici_wxiao_ps4_run3_job12.Rdata')
+load('keskici_wxiao_ps4_run4_job8.Rdata')
 
 
 test.chain <- function(mh.draws, show.diagnostics=F) {  

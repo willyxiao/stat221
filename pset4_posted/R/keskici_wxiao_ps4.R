@@ -2,17 +2,22 @@ library(MASS)
 library(mvtnorm)
 
 kBound = 300
+impala_bound = 300
+waterbuck_bound = 500
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
 BURNIN = 0.5
 RUN_NUMBER = 4
 NUM_JOBS = 20
  
-plot.chain <- function(mcmc.chain) {
+plot.chain <- function(mcmc.chain, is.impala=T) {
   mcmc.niters = nrow(mcmc.chain)
-#  burnin = 0.1 * mcmc.niters
-#  mcmc.chain = mcmc.chain[burnin:mcmc.niters, ]
-  f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=100)
+  if (is.impala){
+    mcmc.chain = mcmc.chain[mcmc.chain[, 1] < impala_bound,]
+  }else{
+    mcmc.chain = mcmc.chain[mcmc.chain[, 1] < waterbuck_bound,]
+  }
+  f = kde2d(x=mcmc.chain[, 1], y=mcmc.chain[, 2], n=200)
   image(f, xlim=c(0, kBound), ylim=c(0, 1))
 }
 
@@ -30,7 +35,6 @@ log.posterior <- function(N, theta, Y) {
 
 rgamma.trunc <- function(upper.bound, shape, rate) {
   # Sample from truncated gamma. 
-  # TODO: Find a better implementation.
   x <- upper.bound + 10
   while(x > upper.bound) {
     x = rgamma(1, shape=shape, rate=rate)
@@ -76,14 +80,6 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
     theta.old = mcmc.chain[i-1, 2]
     
     # 2. Propose new state
-#    corr = -0.75
-#    sd.N = 2
-#    sd.theta = .05
-#    sigma=matrix(c(sd.N^2, corr*sd.N*sd.theta, corr*sd.N*sd.theta, sd.theta^2), nrow=2)
-    
-#    res = rmvnorm.trunc(N.old, theta.old, lower.bound=max(y) + 1, sigma=sigma)
-#    N.new = round(res[1])
-#    theta.new = max(0, min(1, res[1]*res[2] / N.new))
     lambda = rnorm(1, mean=theta.old*N.old, sd=2)
     theta.tmp = runif(1)
     N.new = min(max(max(y), round(lambda / theta.tmp)), kBound**2)
@@ -110,16 +106,20 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
 }
 
 post.proc = function(job.id, chain){
+  png(name)
+  
   if (job.id <=10){
     output.format = "keskici_wxiao_ps4_task_impala_run%d_plot%d.png"
     name = sprintf(output.format, RUN_NUMBER, job.id)
+    plot.chain(chain, T)
+    
   }
   else{
     output.format = "keskici_wxiao_ps4_task_waterbuck_run%d_plot%d.png"
     name = sprintf(output.format, RUN_NUMBER, job.id - 10)
+    plot.chain(chain, F)
+    
   }
-  png(name)
-  plot.chain(chain)
   dev.off()
   output.format = "keskici_wxiao_ps4_run%d_job%d.RData"
   name = sprintf(output.format, RUN_NUMBER, job.id)
