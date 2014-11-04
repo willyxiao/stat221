@@ -7,7 +7,7 @@ waterbuck_bound = 500
 impala = c(15, 20, 21, 23, 26)
 waterbuck = c(53, 57, 66, 67, 72)
 BURNIN = 0.5
-RUN_NUMBER = 4
+RUN_NUMBER = 5
 NUM_JOBS = 20
  
 plot.chain <- function(mcmc.chain, is.impala=T) {
