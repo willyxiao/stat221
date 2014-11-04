@@ -105,18 +105,18 @@ mcmc.mh = function(y, N.start, theta.start, mcmc.niters=1e5){
   mcmc.chain
 }
 
-post.proc = function(job.id, chain){
-  png(name)
-  
+post.proc = function(job.id, chain){  
   if (job.id <=10){
     output.format = "keskici_wxiao_ps4_task_impala_run%d_plot%d.png"
     name = sprintf(output.format, RUN_NUMBER, job.id)
+    png(name)
     plot.chain(chain, T)
     
   }
   else{
     output.format = "keskici_wxiao_ps4_task_waterbuck_run%d_plot%d.png"
     name = sprintf(output.format, RUN_NUMBER, job.id - 10)
+    png(name)
     plot.chain(chain, F)
     
   }
