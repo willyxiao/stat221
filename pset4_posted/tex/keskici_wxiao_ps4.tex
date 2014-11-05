@@ -20,14 +20,25 @@
       $= \frac{1}{\theta N} * (\theta + \frac{\theta N}{N})$\\
       $= \frac{2}{N}$\\
       $\propto \frac{1}{N}$
-
-
+      \\This prior favors smaller values of N.
 
       \item It is an improper prior: $\int_0^\infty{\int_0^1{\lambda^{-1}}}d\theta d\lambda \rightarrow \ln(\infty) - \ln(0)$. This cannot integrate to 1 with any constant factor.
 	
-	\item   
+	\item No $p(\lambda, \theta)$ is not a non-informative prior in the sense of Jeffreys.\\ 
+	$p(y_i| \theta, \mu) = \frac{(\theta \mu)^{y_{i}}}{y_{i}!} e^{-\theta \mu}$\\
+	$y_i log(\theta | \mu ) - log({y_i}!) - \frac{\theta}{\mu}$\\
+	$\frac{\partial I}{\partial \theta} = y_i (\theta \mu)^{-1} \mu - \frac{1}{\mu} = 
+	y_i (\theta)^{-1} - \frac{1}{\mu}$\\
+	$\frac{\partial I}{\partial \mu} = y_i \mu + \theta \mu^{-2}$	\\
+	$\frac{\partial^2 I}{\partial \theta^2} = -{y_i}\theta^{-2}$\\
+	$\frac{\partial^2 I}{\partial \mu^2} = y_i - 2\theta \mu^{-3}$\\
+	$\frac{\partial^2 I}{\partial \mu \partial \theta} = \mu^{-2}$\\
+	$\frac{\partial^2 I}{\partial \theta \partial \mu } = \mu^{-2}$\\
+	This gives us the fisher's information matrix $\begin{pmatrix}-{y_i}\theta^{-2} & \mu^{-2} \\\mu^{-2} & y_i - 2\theta \mu^{-3} \end{pmatrix}$, which has determinant $({y_i}\theta^{-2})^2 - 2\theta \mu^{-3}y_i - \mu^{-4}$, the square root of which is not proportional to $\frac{(\theta \mu)^{y_{i}}}{y_{i}!} e^{-\theta \mu}$.
+
+
 	
-	\item See R code
+	\item See R code and MCMC design note.
 	
 	\item Posterior for N\\
 	$\int^1_0 \parens{\prod_{i=1}^n\binom{N}{x_i}\theta^{x_i}(1-\theta)^{N - x_i}}* \frac{1}{N} d\theta$\\
@@ -36,8 +47,10 @@
 	$= \frac{1}{N} \prod_{i=1}^n\binom{N}{x_i}  \int^1_0 \theta^{\Sigma x_i}(1-\theta)^{nN - \Sigma x_i}d\theta$\\
 	If we define $S = \Sigma x_i$, the integral above has the form of a\\ 
 	Beta($\alpha=S+1, \beta=nN - S + 1$ ) pdf\\
-	Using this we get, $\frac{(S!)(nN-S)!}{(nN + 1)!N)}$, which when $n=1$, $\rightarrow \frac{x_i}{N(N+1)}$
-
+	Using this we get, $\frac{(nN-S)!}{(nN + 1)!N)}$, which when $n=1$, $\rightarrow \frac{x_i}{N(N+1)}$\\\\
+	Using our function $find.norm.log.const$ defined in $keskici\_wxiao\_ps4\_post.R$, we found that the normalizing constant for the impala dataset was $e^{15.63617}$ and the normalizing constant for the waterbuck dataset was $e^{16.83744}$.
+	
+	\item
       
     \end{enumerate}
 \end{enumerate}

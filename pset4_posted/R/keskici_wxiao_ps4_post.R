@@ -88,11 +88,21 @@ find.mcmc.cdfs = function(run.n, is.impala=TRUE){
   cdfs
 }
 
+find.log.norm.const = function(is.impala=TRUE){
+  y = NULL
+  if(is.impala){
+    y = impala
+  } else{
+    y = waterbuck
+  }
+  run.normalizing(run.post(is.impala), y)$par
+}
+
 compute.N.100 = function(run.n){
-  impala.analytic = 1 - analytical.cdf(100, impala, exp(run.normalizing(run.post(), impala)$par))
+  impala.analytic = 1 - analytical.cdf(100, impala, exp(find.log.norm.const()))
   impala.mcmc = 1 - find.mcmc.cdfs(run.n)
   
-  waterbuck.analytic = 1 - analytical.cdf(100, waterbuck, exp(run.normalizing(run.post(is.impala=FALSE), waterbuck)$par))
+  waterbuck.analytic = 1 - analytical.cdf(100, waterbuck, exp(find.log.norm.const(FALSE)))
   waterbuck.mcmc = 1 - find.mcmc.cdfs(run.n, is.impala=FALSE)
   
   list(impala=list(analytic=impala.analytic, mcmc=impala.mcmc), waterbuck=list(analytic=waterbuck.analytic, mcmc=waterbuck.mcmc))
