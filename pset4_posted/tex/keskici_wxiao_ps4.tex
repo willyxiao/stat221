@@ -38,7 +38,7 @@
 
 
 	
-	\item See R code and MCMC design note.
+	\item See R code and MCMC design note. Also figures 1 and 2 show posterior contours for an impala and waterbuck chain (2 were chosen arbitrarily, but they all look similar). Figures 3 and 4 are additional diagnostic plots for one of the impala chains-autocorrelation and mixing look good. To run diagnostics on other chains, just load the corresponding chain in $checkdiagnostics.R$ and run the script (note the R datafiles for chains are not included due to space constraints but will be generated when you run the slurm job).
 	
 	\item Posterior for N\\
 	$\int^1_0 \parens{\prod_{i=1}^n\binom{N}{x_i}\theta^{x_i}(1-\theta)^{N - x_i}}* \frac{1}{N} d\theta$\\
@@ -48,10 +48,51 @@
 	If we define $S = \Sigma x_i$, the integral above has the form of a\\ 
 	Beta($\alpha=S+1, \beta=nN - S + 1$ ) pdf\\
 	Using this we get, $\frac{(nN-S)!}{(nN + 1)!N)}$, which when $n=1$, $\rightarrow \frac{x_i}{N(N+1)}$\\\\
-	Using our function $find.norm.log.const$ defined in $keskici\_wxiao\_ps4\_post.R$, we found that the normalizing constant for the impala dataset was $e^{15.63617}$ and the normalizing constant for the waterbuck dataset was $e^{16.83744}$.
+	Using our function $find.norm.log.const$ defined in $keskici\_wxiao\_ps4\_post.R$, we found that the normalizing constant for the impala dataset was $e^{15.63617}$ and the normalizing constant for the waterbuck dataset was $e^{16.83744}$. Figures 5 and 6 show the posteriors for Impala and Waterbuck respectively.
 	
-	\item
+	\item Give POSTERIOR PROBS N $>$ 100
       
     \end{enumerate}
+    
+    Note about MCMC Design:
 \end{enumerate}
+
+\clearpage
+Appendix: \\
+\begin{figure}[h!]
+  \caption{Countour plot for 8th Impala Chain}
+  \centering
+	\includegraphics[scale=.8]{keskici_wxiao_ps4_task_impala_run5_plot8.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Countour plot for 5th Waterbuck Chain}
+  \centering
+	\includegraphics[scale=.8]{keskici_wxiao_ps4_task_waterbuck_run5_plot5.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Trace plots for 8th Impala Chain}
+  \centering
+	\includegraphics[scale=.8]{Rplot_job8a.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Autocorrelation plot for 8th Impala Chain}
+  \centering
+	\includegraphics[scale=.8]{Rplot_job8b.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Posterior for Impala Dataset}
+  \centering
+	\includegraphics[scale=.8]{impala.png}
+\end{figure}
+
+\begin{figure}[h!]
+  \caption{Posterior for Waterbuck Dataset}
+  \centering
+	\includegraphics[scale=.8]{waterbuck.png}
+\end{figure}
+
 \end{document}

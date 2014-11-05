@@ -1,3 +1,4 @@
+#load chain for job we want to run diagnostics for
 load('keskici_wxiao_ps4_run4_job8.Rdata')
 
 
