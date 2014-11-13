@@ -8,32 +8,36 @@ locally_iid_EM <- function(data, c, A, w=11){
   # do some shit
 }
 
+x.length = 16
+tr = function(M){
+  sum(diag(M))
+}
+
 locally_iid_EM.each = function(data, c, A){
   v = data[,1]
   x = apply(data, 2, sum)
   
-  lambda0 = mean(x/length(data))
+  lambda0 = rep(mean(x/length(data)), x.length)
   phi0 = var(v) / mean(v)
   
   theta.k = c(lambda0, phi0)
   theta.k1 = NULL
-  
-  while(any(theta.k != theta.k1)){
-    Q = function(theta){
-      sigma = theta[2]*diag(theta[1]^c)
-      sigma.k = theta.k[2]*diag(theta.k[1]^c)
-      A.inverse = solve(A)
-      big.multiple = A.inverse%*%solve(A%*%sigma.k%*%A.inverse)
-      r.k = sigma.k - sigma.k%*%big.multiple%*%A%*%sigma.k
+  while(is.null(theta.k1) || any(theta.k != theta.k1)){
+    Q = function(theta, theta.k){
+      sigma = theta[x.length + 1]*diag(theta[1:x.length]^c)
+      sigma.k = theta.k[x.length + 1]*diag(theta.k[1:x.length]^c)
+      big.multiple = t(A)%*%solve(A%*%sigma.k%*%t(A))
+      r.k = sigma.k - (sigma.k%*%big.multiple%*%A)%*%sigma.k
       s = sum(apply(data, 1, function(row){
-        m = theta.k[1] + sigma.k%*%big.multiple%*%(row - A%*%theta.k[1])
-        solve(m - theta[1])%*%sigma%*%(m - theta[1])
+        m = theta.k[1:x.length] + sigma.k%*%big.multiple%*%(row - A%*%theta.k[1:x.length])
+        solve(m - theta[1:x.length])%*%sigma%*%(m - theta[1:x.length])
       }))
       -(length(data)/2)*(log(sigma) + tr(solve(sigma)%*%r.k)) - (1/2)*s
     }
     theta.old = theta.k
     theta.k = theta.k1
-    theta.k1 = optim(theta.old, Q)$par
+    #browser()
+    theta.k1 = optim(theta.old, Q, theta.k=theta.old)$par
   }
   
   theta.k
