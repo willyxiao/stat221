@@ -21,21 +21,21 @@ x6 = (dat[dat[,3] == dst.switch,])[,c('time', 'value')]
 x7 = (dat[dat[,3] == dst.local,])[,c('time', 'value')]
 x8 = (dat[dat[,3] == dst.copr,])[,c('time', 'value')]
 
-pdf("keskici_wxiao_fig2.pdf")
-par(mfrow=c(4,1))
-plot(x4, ylim=c(0,1e6), main="corp", ylab="bytes/sec")
-lines(x4[,1], x4[,2])
-lines(x8[,1], x8[,2])
-plot(x3, ylim=c(0,1e6), main="local", ylab="bytes/sec")
-lines(x3[,1], x3[,2])
-lines(x7[,1], x7[,2])
-plot(x2, ylim=c(0,1e6), main="switch", ylab="bytes/sec")
-lines(x2[,1], x2[,2])
-lines(x6[,1], x6[,2])
-plot(x1, ylim=c(0,1e6), main="fddi", ylab="bytes/sec")
-lines(x1[,1], x1[,2])
-lines(x5[,1], x5[,2])
-dev.off()
+#pdf("keskici_wxiao_fig2.pdf")
+#par(mfrow=c(4,1))
+#plot(x4, ylim=c(0,1e6), main="corp", ylab="bytes/sec")
+#lines(x4[,1], x4[,2])
+#lines(x8[,1], x8[,2])
+#plot(x3, ylim=c(0,1e6), main="local", ylab="bytes/sec")
+#lines(x3[,1], x3[,2])
+#lines(x7[,1], x7[,2])
+#plot(x2, ylim=c(0,1e6), main="switch", ylab="bytes/sec")
+#lines(x2[,1], x2[,2])
+#lines(x6[,1], x6[,2])
+#plot(x1, ylim=c(0,1e6), main="fddi", ylab="bytes/sec")
+#lines(x1[,1], x1[,2])
+#lines(x5[,1], x5[,2])
+#dev.off()
 
 #1.2
 #via inspection we know relevent indices are
@@ -92,5 +92,5 @@ for(i in 1:7){
   
 }
 
-locally_iid_EM(data, 2, A)
+locally_iid_EM.each(data, 2, A)
   
