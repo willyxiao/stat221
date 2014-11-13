@@ -20,9 +20,9 @@ locally_iid_EM.each = function(data, c, A){
   lambda0 = rep(mean(x/length(data)), x.length)
   phi0 = var(v) / mean(v)
   
-  theta.k = c(lambda0, phi0)
-  theta.k1 = NULL
-  while(is.null(theta.k1) || any(theta.k != theta.k1)){
+  theta.k = NULL
+  theta.k1 = c(lambda0, phi0)
+  while(is.null(theta.k) || any(theta.k != theta.k1)){
     Q = function(theta, theta.k){
 #       theta = exp(theta)
       sigma = theta[x.length + 1]*diag(theta[1:x.length]^c)
@@ -43,13 +43,8 @@ locally_iid_EM.each = function(data, c, A){
       }
     }
 
-    theta.old = theta.k
-    if(!any(is.null(theta.k1))){
-      theta.k = theta.k1
-    }
-
-#     theta.k1 = exp(optim(log(theta.k), Q, theta.k=theta.k)$par)
-    theta.k1 = optim(theta.k, Q, theta.k=theta.old, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
+    theta.k = theta.k1
+    theta.k1 = optim(theta.k, Q, theta.k=theta.k, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
     print(sum((theta.k1 - theta.k)^2))
   }
   
