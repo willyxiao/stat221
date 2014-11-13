@@ -38,3 +38,59 @@ lines(x5[,1], x5[,2])
 dev.off()
 
 #1.2
+#via inspection we know relevent indices are
+#134 135 136 137 138 139 140 141 142 143 144
+#for the window around 11:32
+#and   182 183 184 185 186 187 188 189 190 191 192
+#for the window around 15:32
+means1130 = c()
+vars1130 = c()
+means1530 = c()
+vars1530 = c()
+for(i in 1:8){
+  item = get(sprintf("x%d", i))
+  means1130 = c(means1130, log(mean(item[,2][134:144]), base=10))
+  vars1130 = c(vars1130, log(var(item[,2][134:144]), base = 10))
+  
+  means1530 = c(means1530, log(mean(item[,2][182:192]), base=10))
+  vars1530 = c(vars1530, log(var(item[,2][182:192]), base = 10))
+  
+}
+pdf("keskici_wxiao_fig4_1router.pdf")
+par(mfrow=c(1,2))
+plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
+abline(lm(vars1130~means1130))
+
+plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
+abline(lm(vars1530~means1530))
+dev.off()
+
+#1.4
+data = x1[,2]
+for(i in 2:8){
+  item = get(sprintf("x%d", i))
+  data = cbind(data, item[,2])
+}
+
+#generate A matrix
+A = matrix(0, ncol=16, nrow=7)
+#populate A matrix
+for(i in 1:7){
+  if(i <= 4){
+    start = 4*(i - 1)
+    for(j in 1:4){
+      A[i, start + j] = 1
+    }
+  }
+  else{
+    start = i - 4
+    for(j in 1:4){
+      A[i, start + (j-1)*4] = 1
+    }
+    
+  }
+  
+}
+
+locally_iid_EM(data, 2, A)
+  
