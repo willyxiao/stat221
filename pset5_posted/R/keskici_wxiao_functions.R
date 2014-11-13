@@ -1,3 +1,5 @@
+rm(list=ls())
+
 # order is f,s,l,c. 
 # y = src f, src s, ... dst f, dst s, ... 
 # x = f->f, f->s, ... s->f, ... c->l, c->c
@@ -29,9 +31,9 @@ locally_iid_EM.each = function(data, c, A){
       }))
       -(length(data)/2)*(log(sigma) + tr(solve(sigma)%*%r.k)) - (1/2)*s
     }
-    old.theta = theta.k
+    theta.old = theta.k
     theta.k = theta.k1
-    theta.k1 = optim(old.theta, Q)$par
+    theta.k1 = optim(theta.old, Q)$par
   }
   
   theta.k
