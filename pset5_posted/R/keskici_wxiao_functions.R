@@ -49,7 +49,7 @@ locally_iid_EM.each = function(data, c, A){
     }
 
 #     theta.k1 = exp(optim(log(theta.k), Q, theta.k=theta.k)$par)
-    theta.k1 = optim(theta.k, Q, theta.k=theta.k, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
+    theta.k1 = optim(theta.k, Q, theta.k=theta.old, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
     print(sum((theta.k1 - theta.k)^2))
   }
   
