@@ -67,7 +67,7 @@ dev.off()
 
 #1.4
 data = x1[,2]
-for(i in 2:8){
+for(i in 2:7){
   item = get(sprintf("x%d", i))
   data = cbind(data, item[,2])
 }
