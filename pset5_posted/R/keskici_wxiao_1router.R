@@ -1,4 +1,4 @@
-source('keskici_wxaio_functions.R')
+source('keskici_wxiao_functions.R')
 dat = read.csv("1router_allcount.dat")
 
 #1.1
