@@ -1,0 +1,43 @@
+\documentclass[paper=a4, fontsize=11pt]{scrartcl}
+\usepackage{enumerate}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\newcommand{\parens}[1]{ \left( #1 \right) }
+\begin{document}
+\noindent Willy Xiao and Kevin Eskici \\ STAT 221 \\Pset 5\\ Nov 18, 2014
+\begin{enumerate}[\text{question }1.]
+  \item
+    \begin{enumerate}[1]
+      \item INSERT KEVIN's PLOT
+      \item NEED TO DO
+      \item
+        \begin{enumerate}[a.]
+          \item HAVE TO DO DERIVATIONS
+          \item Pseudocode:
+            \begin{enumerate}[I.]
+              \item Set $x = \vec{0}$, $v = \vec{0}$
+              \item For each $y_t$ do \\
+                \indent $v := Concat(v, y_{t,1})$ \\
+                \indent $x := x + y_t$
+              \item Set $\lambda_0 = \overrightarrow{1'(x/w)}$, $\phi_0 = var(v)/mean(v)$.
+              \item Initialize $\theta^{(0)} = \theta_0 = (\lambda_0, \phi_0)$.
+              \item Until $\theta^{(k+1)} = \theta^{(k)}$ do \\
+                \begin{tabbing}
+                  \hspace{1cm} $Q := (\theta, \theta^{(k)})$ do: \\
+                  \hspace{2cm} $\Sigma := \phi*diag(\lambda_1^c, \ldots, \lambda_I^c)$. \\
+                  \hspace{2cm} $\Sigma^{(k)} := \phi^{(k)}*diag((\lambda_1^{(k)})^c, \ldots, (\lambda_I^{(k)})^c)$ \\
+                  \hspace{2cm} $R^{(k)} := \Sigma^{(k)} - \Sigma^{(k)}A'solve(A\Sigma^{(k)}A')A\Sigma^{(k)}$ \\
+                  \hspace{2cm} $S := $ sum for each $t$: \\
+                  \hspace{3cm} $m := \lambda^{(k)} + \Sigma^{(k)}A'solve(A\Sigma^{(k)}A')(y_t - A\lambda^{(k)})$ \\
+                  \hspace{3cm} return $(m - \lambda)'\Sigma(m - \lambda)$. \\
+                  \hspace{2cm} return $-\frac{T}{2}\log{|\Sigma|} + tr(solve(\Sigma)R^{(k)}) - (1/2)S$. \\
+                  \hspace{1cm} $\theta^{k} := \theta^{(k+1)}$ \\
+                  \hspace{1cm} $\theta^{(k+1)} := optim(Q)$
+                \end{tabbing}
+            \end{enumerate}
+        \end{enumerate}
+      \item For the local iid model, instead of initializing with all $y_t$ we initialize with $y_t \in [y_{t - w/2}, y_{t+w/2}]$ and we also sum only over those $t \in [t - w/2, t + w/2]$.
+    \end{enumerate}
+\end{enumerate}
+\end{document}
