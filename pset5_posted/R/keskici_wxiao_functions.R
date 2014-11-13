@@ -24,7 +24,7 @@ locally_iid_EM.each = function(data, c, A){
   theta.k1 = c(lambda0, phi0)
   while(is.null(theta.k) || any(theta.k != theta.k1)){
     theta.k = theta.k1
-    theta.k1 = optim(theta.k, Q, c=c, A=A, theta.k=theta.k)$par #, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
+    theta.k1 = optim(theta.k, Q, c=c, A=A, theta.k=theta.k, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
     print(sum((theta.k1 - theta.k)^2))
   }
   
@@ -47,13 +47,13 @@ Q = function(theta, theta.k, c, A){
     t(m - lambda)%*%sigma.inverse%*%(m - lambda)
   }))
   res = -(length(data)/2)*(log(det(sigma)) + tr(sigma.inverse%*%r.k)) - (1/2)*applied.sum
-#   if(res == Inf){
-#     1e30
-#   } else if (res == -Inf){
-#     -1e30
-#   } else{
-#     res
-#   }
+   if(res == Inf){
+     res = 1e300
+   } else if (res == -Inf){
+     res = -1e300
+   } else{
+     res
+   }
   res
 }
 
