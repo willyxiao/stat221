@@ -56,14 +56,14 @@ for(i in 1:8){
   vars1530 = c(vars1530, log(var(item[,2][182:192]), base = 10))
   
 }
-pdf("keskici_wxiao_fig4_1router.pdf")
-par(mfrow=c(1,2))
-plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
-abline(lm(vars1130~means1130))
-
-plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
-abline(lm(vars1530~means1530))
-dev.off()
+# pdf("keskici_wxiao_fig4_1router.pdf")
+# par(mfrow=c(1,2))
+# plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
+# abline(lm(vars1130~means1130))
+# 
+# plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
+# abline(lm(vars1530~means1530))
+# dev.off()
 
 #1.4
 data = x1[,2]
