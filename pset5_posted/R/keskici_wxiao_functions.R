@@ -32,14 +32,19 @@ locally_iid_EM.each = function(data, c, A){
 }
 
 Q = function(theta, theta.k, c, A){
-  sigma = theta[x.length + 1]*diag(theta[1:x.length]^c)
-  sigma.k = theta.k[x.length + 1]*diag(theta.k[1:x.length]^c)
+  lambda = theta[1:x.length]
+  phi = theta[x.length + 1]
+  lambda.k = theta.k[1:x.length]
+  phi.k = theta.k[x.length + 1]
+  
+  sigma = phi*diag(lambda^c)
+  sigma.k = phi.k*diag(lambda.k^c)
   sigma.inverse = qr.solve(sigma)
-  big.multiple = t(A)%*%qr.solve(A%*%sigma.k%*%t(A))
-  r.k = sigma.k - (sigma.k%*%big.multiple%*%A)%*%sigma.k
+  big.multiple = sigma.k%*%t(A)%*%qr.solve(A%*%sigma.k%*%t(A))
+  r.k = sigma.k - big.multiple%*%A%*%sigma.k
   applied.sum = sum(apply(data, 1, function(row){
-    m = theta.k[1:x.length] + sigma.k%*%big.multiple%*%(row - A%*%theta.k[1:x.length])
-    t(m - theta[1:x.length])%*%sigma.inverse%*%(m - theta[1:x.length])
+    m = lambda.k + big.multiple%*%(row - A%*%lambda.k)
+    t(m - lambda)%*%sigma.inverse%*%(m - lambda)
   }))
   res = -(length(data)/2)*(log(det(sigma)) + tr(sigma.inverse%*%r.k)) - (1/2)*applied.sum
 #   if(res == Inf){
