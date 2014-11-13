@@ -32,7 +32,13 @@ locally_iid_EM.each = function(data, c, A){
         m = theta.k[1:x.length] + sigma.k%*%big.multiple%*%(row - A%*%theta.k[1:x.length])
         t(m - theta[1:x.length])%*%sigma%*%(m - theta[1:x.length])
       }))
-      -(length(data)/2)*(log(det(sigma)) + tr(qr.solve(sigma, r.k))) - (1/2)*applied.sum
+      res = -(length(data)/2)*(log(det(sigma)) + tr(qr.solve(sigma, r.k))) - (1/2)*applied.sum
+      if(res < Inf && res > -Inf){
+        return(res)
+      }
+      else{
+        return(-1e30)
+      }
     }
 
     theta.old = theta.k
@@ -40,7 +46,7 @@ locally_iid_EM.each = function(data, c, A){
       theta.k = theta.k1
     }
 
-    theta.k1 = optim(theta.k, Q, theta.k=theta.k)$par
+    theta.k1 = optim(theta.k, Q, theta.k=theta.k, method="L-BFGS-B", lower = rep(1e6,length(theta.old)))$par
     print(sum((theta.k1 - theta.k)^2))
   }
   
