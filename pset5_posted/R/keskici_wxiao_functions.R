@@ -22,16 +22,38 @@ locally_iid_EM.each = function(data, c, A){
   
   theta.k = NULL
   theta.k1 = c(lambda0, phi0)
-  while(is.null(theta.k) || any(theta.k != theta.k1)){
+  
+  log.lik.k = NULL
+  log.lik.k1 = 0
+  
+  while(is.null(theta.k) || log.lik.k1 - log.lik > 5){
     theta.k = theta.k1
-    theta.k1 = optim(theta.k, Q, c=c, A=A, theta.k=theta.k, method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par
-    print(sum((theta.k1 - theta.k)^2))
+    theta.k1 = optim(theta.k, Q, c=c, A=A, theta.k=theta.k, control=c(fnscale=-1), method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par #, )$par
+    
+    log.lik.k = log.lik(data, theta.k, c, A)
+    log.lik.k1 = log.lik(data, theta.k1, c, A)    
+    print(log.lik.k1 - log.kik.k)
   }
   
   theta.k
 }
 
-Q = function(theta, theta.k, c, A){
+log.lik = function(data, theta, c, A){
+  T = length(data)
+  
+  lambda = theta[1:x.length]
+  phi = theta[x.length + 1]
+  
+  sigma = phi*diag(lambda^c)
+  
+  applied.sum = sum(apply(data, 1, function(y){
+    t(y - A%*%lambda)%*%qr.solve(A%*%sigma%*%t(A))%*%(y - A%*%lambda)
+  }))
+  
+  -(T/2)*log(det(A%*%sigma%*%t(A))) - (1/2)*applied.sum
+}
+
+Q = function(theta, theta.k, c, A){  
   lambda = theta[1:x.length]
   phi = theta[x.length + 1]
   lambda.k = theta.k[1:x.length]
