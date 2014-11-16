@@ -14,8 +14,8 @@ locally_iid_EM = function(data, c, A, w=11){
   
   h = floor(w/2)
   estimates = c()
-  for(i in 1:(dim(data)[1])){
-    subset = data[max(1, i-h):min(dim(data)[1], i+h)]
+  for(i in (h+1):(nrow(data))){
+    subset = data[max(1, i-h):min(nrow(data), i+h),]
     results = locally_iid_EM.each(subset, c, A)
     print(c(i, mean(results[1:x.length])))
     estimates = rbind(estimates, results)
