@@ -5,7 +5,15 @@ rm(list=ls())
 # x = f->f, f->s, ... s->f, ... c->l, c->c
 
 locally_iid_EM <- function(data, c, A, w=11){
-  # do some shit
+  h = floor(w / 2)
+  estimates = c()
+  for(i in 1:(dim(data)[1])){
+    subset = data[max(1, i - h):min(length(data), i + h),]
+    results = locally_iid_EM.each(subset, c, A)
+    print(c(i, mean(results[1:x.length])))
+    estimates = rbind(estimates, results)
+  }
+  estimates
 }
 
 x.length = 16
@@ -13,7 +21,7 @@ tr = function(M){
   sum(diag(M))
 }
 
-locally_iid_EM.each = function(data, c, A){
+locally_iid_EM.each = function(data, c, A, verbose=F){
   v = data[,1]
   x = apply(data, 2, sum)
   
@@ -26,13 +34,17 @@ locally_iid_EM.each = function(data, c, A){
   log.lik.k = NULL
   log.lik.k1 = 0
   
-  while(is.null(theta.k) || log.lik.k1 - log.lik > 5){
+  while(is.null(theta.k) || (log.lik.k1 - log.lik.k) > 2){
     theta.k = theta.k1
-    theta.k1 = optim(theta.k, Q, c=c, A=A, theta.k=theta.k, control=c(fnscale=-1), method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par #, )$par
+#     theta.k1 = optim(theta.k, Q, data=data, c=c, A=A, theta.k=theta.k, control=c(fnscale=-1), method="L-BFGS-B", lower=rep(1e-6, length(theta.k)))$par #, )$par
+    theta.k1 = exp(optim(log(theta.k), Q, data=data, c=c, A=A, theta.k=theta.k, control=c(fnscale=-1))$par) #, )$par
     
     log.lik.k = log.lik(data, theta.k, c, A)
     log.lik.k1 = log.lik(data, theta.k1, c, A)    
-    print(log.lik.k1 - log.kik.k)
+    
+    if(verbose){
+      print(c(log.lik.k, log.lik.k1))
+    }
   }
   
   theta.k
@@ -53,7 +65,9 @@ log.lik = function(data, theta, c, A){
   -(T/2)*log(det(A%*%sigma%*%t(A))) - (1/2)*applied.sum
 }
 
-Q = function(theta, theta.k, c, A){  
+Q = function(theta, theta.k, data, c, A){  
+  theta = exp(theta)
+  
   lambda = theta[1:x.length]
   phi = theta[x.length + 1]
   lambda.k = theta.k[1:x.length]
@@ -69,13 +83,13 @@ Q = function(theta, theta.k, c, A){
     t(m - lambda)%*%sigma.inverse%*%(m - lambda)
   }))
   res = -(length(data)/2)*(log(det(sigma)) + tr(sigma.inverse%*%r.k)) - (1/2)*applied.sum
-   if(res == Inf){
-     res = 1e300
-   } else if (res == -Inf){
-     res = -1e300
-   } else{
-     res
-   }
+#    if(res == Inf){
+#      res = 1e300
+#    } else if (res == -Inf){
+#      res = -1e300
+#    } else{
+#      res
+#    }
   res
 }
 

@@ -92,5 +92,4 @@ for(i in 1:7){
   
 }
 
-locally_iid_EM.each(data, 2, A)
-  
+locally_iid_EM(data, 2, A)
