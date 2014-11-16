@@ -1,14 +1,21 @@
 rm(list=ls())
 
+library(mvtnorm)
+
 # order is f,s,l,c. 
 # y = src f, src s, ... dst f, dst s, ... 
 # x = f->f, f->s, ... s->f, ... c->l, c->c
+tr = function(M){
+  sum(diag(M))
+}
 
-locally_iid_EM <- function(data, c, A, w=11){
-  h = floor(w / 2)
+locally_iid_EM = function(data, c, A, w=11){
+  x.length = ((ncol(data) + 1) / 2)^2
+  
+  h = floor(w/2)
   estimates = c()
   for(i in 1:(dim(data)[1])){
-    subset = data[max(1, i - h):min(length(data), i + h),]
+    subset = data[max(1, i-h):min(dim(data)[1], i+h)]
     results = locally_iid_EM.each(subset, c, A)
     print(c(i, mean(results[1:x.length])))
     estimates = rbind(estimates, results)
@@ -16,12 +23,70 @@ locally_iid_EM <- function(data, c, A, w=11){
   estimates
 }
 
-x.length = 16
-tr = function(M){
-  sum(diag(M))
+smoothed_EM <- function(data, c, A, w=11){
+  h = floor(w/2)
+
+  V = 5*diag(lambda0)
+  
+  eta.t.m1 = log(c(lambda0, phi0))
+  sigma.t.m1 = phi0*diag(lambda0^2)
+  
+  for(t in 1:nrow(data)){
+      subset = data[max(1, t-h):min(nrow(data), i+h)]
+      sigma.t = sigma.t.m1 + V
+      g = function(eta.t){
+        log(dmvnorm(eta.t, eta.k.m1, sigma.t)) + log.lik(subset, exp(eta.t), c, A)
+      }
+      eta.t = optim(eta.t.m1, g, control=c(fnscale=-1))$par
+      eta.t.m1 = eta.t
+  }
+}
+
+smoothed_EM.each = function(data, c, A, verbose=F){
+  x.length = ((ncol(data) + 1) / 2)^2
+  
+  v = data[,1]
+  x = apply(data, 2, sum)
+  
+  lambda0 = rep(mean(x/length(data)), x.length)
+  phi0 = var(v) / mean(v)
+  
+  eta.k = NULL
+  eta.k1 = c(lambda0, phi0)
+  
+  post.k = NULL
+  post.k.k1 = 0
+  
+#  sigma.t.m1 = NULL
+  sigma.t = SOMETHING
+
+  while(is.null(eta.k) || (post.k.k1 - post.k) > 2){
+#    sigma.t.m1 = sigma.t
+    sigma.t1 = sigma.t + V
+    
+    eta.k = eta.k1
+    eta.k1 = optim(eta.k, g, sigma.t=sigma.t1, data=data, c=c, A=A, eta.k.m1=eta.k, control=c(fnscale=-1))$par
+    
+    sigma.t = #upate sigma.t
+    
+    post.k = post.prob.k.k1
+    post.k.k1 = post.prob(eta.k1, eta.k, sigma.t1, data, c, A)
+  }
+
+  eta.k
+}
+
+g = function(eta, eta.k.m1, sigma.t, data, c, A){
+  log(dmvnorm(eta, eta.k.m1, sigma.t)) + Q(eta, exp(eta.k.m1), data, c, A)
+}
+
+post.prob = function(eta.t, eta.t.m1, sigma.t, data, c, A){
+  log(dmvnorm(eta.t, eta.t.m1, sigma.t)) + log.lik(data, exp(eta.t), c, A)
 }
 
 locally_iid_EM.each = function(data, c, A, verbose=F){
+  x.length = ((ncol(data) + 1) / 2)^2
+  
   v = data[,1]
   x = apply(data, 2, sum)
   
@@ -51,6 +116,8 @@ locally_iid_EM.each = function(data, c, A, verbose=F){
 }
 
 log.lik = function(data, theta, c, A){
+  x.length = length(theta) - 1
+  
   T = length(data)
   
   lambda = theta[1:x.length]
@@ -67,6 +134,7 @@ log.lik = function(data, theta, c, A){
 
 Q = function(theta, theta.k, data, c, A){  
   theta = exp(theta)
+  x.length = length(theta) - 1
   
   lambda = theta[1:x.length]
   phi = theta[x.length + 1]
@@ -93,7 +161,3 @@ Q = function(theta, theta.k, data, c, A){
   res
 }
 
-smoothed_EM <- function(data, c, A){
-  
-  
-}
