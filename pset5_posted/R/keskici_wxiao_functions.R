@@ -48,7 +48,7 @@ smoothed_EM <- function(data, c, A, w=11){
       eta.t = smoothed_EM.each(sigma.t, subset, c, A)
       
       print(c(t, mean(exp(eta.t[1:x.length]))))
-      estimates = rbind(estimates, eta.t)
+      estimates = rbind(estimates, exp(eta.t))
 
       sigma.t.m1 = (-1)*hessian(function(eta.t){
         g(eta.t, eta.t.m1, sigma.t, subset, c, A)
@@ -94,7 +94,7 @@ smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
   eta.k1 = log(c(lambda0, phi0))
   
   post.k = NULL
-  post.k.k1 = 0
+  post.k.k1 = -Inf
   
   while(is.null(eta.k) || (post.k.k1 - post.k) > 2){
     
@@ -103,6 +103,9 @@ smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
     
     post.k = post.k.k1
     post.k.k1 = post.prob(eta.k1, eta.k, sigma.t, data, c, A)
+    if(verbose){
+      print(c(post.k, post.k.k1))
+    }
   }
 
   eta.k
