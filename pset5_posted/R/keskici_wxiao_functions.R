@@ -193,3 +193,13 @@ Q = function(theta, theta.k, data, c, A){
   res
 }
 
+plot.fig5 = function(res, dim, names, indices, filename, ymax){
+  pdf(filename)
+  par(mfrow=c(dim,dim))
+  for(i in 1:length(indices)){
+    plot(res[,indices[i]], type='l', ylim = c(0, ymax), main = names[i], 
+         xlab = "hour of day", ylab ="bytes/sec")
+  }
+  dev.off()
+}
+
