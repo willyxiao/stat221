@@ -92,4 +92,5 @@ for(i in 1:7){
   
 }
 
-fig5.dat = locally_iid_EM(data, 2, A)
+# fig5.dat = locally_iid_EM(data, 2, A)
+fig6.dat = smoothed_EM(data, 2, A)

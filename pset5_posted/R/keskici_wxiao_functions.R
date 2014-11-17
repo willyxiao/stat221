@@ -1,6 +1,7 @@
 rm(list=ls())
 
 library(mvtnorm)
+library(numDeriv)
 
 # order is f,s,l,c. 
 # y = src f, src s, ... dst f, dst s, ... 
@@ -24,43 +25,60 @@ locally_iid_EM = function(data, c, A, w=11){
 }
 
 smoothed_EM <- function(data, c, A, w=11){
+  x.length = ((ncol(data) + 1) / 2)^2
   h = floor(w/2)
 
-  V = 5*diag(lambda0)
+  v = data[,1]
+  x = apply(data, 2, sum)
+  
+  lambda0 = rep(mean(x/nrow(data)), x.length)
+  phi0 = var(v) / mean(v)
+  
+  V = 5*diag(c(lambda0, phi0))
   
   eta.t.m1 = log(c(lambda0, phi0))
-  sigma.t.m1 = phi0*diag(lambda0^2)
+  sigma.t.m1 = phi0*diag(c(lambda0^2, phi0))
+
+  estimates = c()
   
   for(t in 1:nrow(data)){
-      subset = data[max(1, t-h):min(nrow(data), i+h)]
+      subset = data[max(1, t-h):min(nrow(data), t+h),]
       sigma.t = sigma.t.m1 + V
 
-#       g = function(eta.t){
-#         log(dmvnorm(eta.t, eta.k.m1, sigma.t)) + log.lik(subset, exp(eta.t), c, A)
-#       }
-# 
-#       eta.t = optim(eta.t.m1, g, control=c(fnscale=-1))$par
-      eta.t = smoothed_EM.each(subset, c, A)
+      eta.t = smoothed_EM.each(sigma.t, subset, c, A)
+      
+      print(c(t, mean(exp(eta.t[1:x.length]))))
+      estimates = rbind(estimates, eta.t)
+
+      sigma.t.m1 = (-1)*hessian(function(eta.t){
+        g(eta.t, eta.t.m1, sigma.t, subset, c, A)
+      }, eta.t)
+      
       eta.t.m1 = eta.t
       
-      lambda.k = exp(eta.t)[1:(length(eta.t)-1)]
-      phi = eta.t[length(eta.t)]
       
-      m.k = 1/(nrow(data))*apply(subset, 1, function(y){
-        lambda.k + sigma.t%*%t(A)%*%qr.solve(A%*%sigma.t%*%t(A))%*%(y - A%*%lambda.k)
-      })
-      b.k = apply(m.k, 2, sum)
-
-      top.left = diag(phi*c^2*lambda.k^(c-1) + 2*(2-c)*lambda.k - 2*(1-c)*b.k)
-      left = rbind(top.left, c*lambda.k^c)
-      right.col = (2-c)*lambda.k^(1-c)-(1-c)*lambda.k^(-c)*b.k
-      second.der = cbind(left, right.col)
       
-      sigma.t.m1 = qr.solve(sigma.t) + second.dir
+#       lambda.k = exp(eta.t)[1:(length(eta.t)-1)]
+#       phi.k = exp(eta.t[length(eta.t)])
+#       
+#       sigma.k = phi.k*diag(lambda.k^c)
+#       m.k = t(1/(nrow(data))*apply(subset, 1, function(y){
+#         lambda.k + sigma.k%*%t(A)%*%qr.solve(A%*%sigma.k%*%t(A))%*%(y - A%*%lambda.k)
+#       }))
+#       b.k = apply(m.k, 2, sum)
+# 
+#       top.left = diag(phi.k*c^2*lambda.k^(c-1) + 2*(2-c)*lambda.k - 2*(1-c)*b.k)
+#       bottom = c*lambda.k^c
+#       left = rbind
+# #      left = rbind(top.left, c*lambda.k^c)
+#       right.col = c((2-c)*lambda.k^(1-c)-(1-c)*lambda.k^(-c)*b.k, 0)
+#       second.der = cbind(left, right.col)*(eta.t)^2
+#       
+#       sigma.t.m1 = -qr.solve(sigma.t) + second.der
 
   }
   
-  eta.t
+  estimates
 }
 
 smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
@@ -73,7 +91,7 @@ smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
   phi0 = var(v) / mean(v)
   
   eta.k = NULL
-  eta.k1 = c(lambda0, phi0)
+  eta.k1 = log(c(lambda0, phi0))
   
   post.k = NULL
   post.k.k1 = 0
@@ -83,8 +101,8 @@ smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
     eta.k = eta.k1
     eta.k1 = optim(eta.k, g, sigma.t=sigma.t, data=data, c=c, A=A, eta.k.m1=eta.k, control=c(fnscale=-1))$par
     
-    post.k = post.prob.k.k1
-    post.k.k1 = post.prob(eta.k1, eta.k, sigma.t1, data, c, A)
+    post.k = post.k.k1
+    post.k.k1 = post.prob(eta.k1, eta.k, sigma.t, data, c, A)
   }
 
   eta.k
