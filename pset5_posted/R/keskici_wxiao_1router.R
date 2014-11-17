@@ -92,4 +92,4 @@ for(i in 1:7){
   
 }
 
-locally_iid_EM(data, 2, A)
+fig5.dat = locally_iid_EM(data, 2, A)
