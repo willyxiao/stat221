@@ -34,15 +34,36 @@ smoothed_EM <- function(data, c, A, w=11){
   for(t in 1:nrow(data)){
       subset = data[max(1, t-h):min(nrow(data), i+h)]
       sigma.t = sigma.t.m1 + V
-      g = function(eta.t){
-        log(dmvnorm(eta.t, eta.k.m1, sigma.t)) + log.lik(subset, exp(eta.t), c, A)
-      }
-      eta.t = optim(eta.t.m1, g, control=c(fnscale=-1))$par
+
+#       g = function(eta.t){
+#         log(dmvnorm(eta.t, eta.k.m1, sigma.t)) + log.lik(subset, exp(eta.t), c, A)
+#       }
+# 
+#       eta.t = optim(eta.t.m1, g, control=c(fnscale=-1))$par
+      eta.t = smoothed_EM.each(subset, c, A)
       eta.t.m1 = eta.t
+      
+      lambda.k = exp(eta.t)[1:(length(eta.t)-1)]
+      phi = eta.t[length(eta.t)]
+      
+      m.k = 1/(nrow(data))*apply(subset, 1, function(y){
+        lambda.k + sigma.t%*%t(A)%*%qr.solve(A%*%sigma.t%*%t(A))%*%(y - A%*%lambda.k)
+      })
+      b.k = apply(m.k, 2, sum)
+
+      top.left = diag(phi*c^2*lambda.k^(c-1) + 2*(2-c)*lambda.k - 2*(1-c)*b.k)
+      left = rbind(top.left, c*lambda.k^c)
+      right.col = (2-c)*lambda.k^(1-c)-(1-c)*lambda.k^(-c)*b.k
+      second.der = cbind(left, right.col)
+      
+      sigma.t.m1 = qr.solve(sigma.t) + second.dir
+
   }
+  
+  eta.t
 }
 
-smoothed_EM.each = function(data, c, A, verbose=F){
+smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
   x.length = ((ncol(data) + 1) / 2)^2
   
   v = data[,1]
@@ -57,17 +78,10 @@ smoothed_EM.each = function(data, c, A, verbose=F){
   post.k = NULL
   post.k.k1 = 0
   
-#  sigma.t.m1 = NULL
-  sigma.t = SOMETHING
-
   while(is.null(eta.k) || (post.k.k1 - post.k) > 2){
-#    sigma.t.m1 = sigma.t
-    sigma.t1 = sigma.t + V
     
     eta.k = eta.k1
-    eta.k1 = optim(eta.k, g, sigma.t=sigma.t1, data=data, c=c, A=A, eta.k.m1=eta.k, control=c(fnscale=-1))$par
-    
-    sigma.t = #upate sigma.t
+    eta.k1 = optim(eta.k, g, sigma.t=sigma.t, data=data, c=c, A=A, eta.k.m1=eta.k, control=c(fnscale=-1))$par
     
     post.k = post.prob.k.k1
     post.k.k1 = post.prob(eta.k1, eta.k, sigma.t1, data, c, A)
