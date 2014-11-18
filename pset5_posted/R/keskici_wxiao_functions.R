@@ -97,10 +97,8 @@ smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
   post.k.k1 = -Inf
   
   while(is.null(eta.k) || (post.k.k1 - post.k) > 2){
-    
     eta.k = eta.k1
     eta.k1 = optim(eta.k, g, sigma.t=sigma.t, data=data, c=c, A=A, eta.k.m1=eta.k, control=c(fnscale=-1))$par
-    
     post.k = post.k.k1
     post.k.k1 = post.prob(eta.k1, eta.k, sigma.t, data, c, A)
     if(verbose){
@@ -112,11 +110,13 @@ smoothed_EM.each = function(sigma.t, data, c, A, verbose=F){
 }
 
 g = function(eta, eta.k.m1, sigma.t, data, c, A){
-  log(dmvnorm(eta, eta.k.m1, sigma.t)) + Q(eta, exp(eta.k.m1), data, c, A)
+  prior = dmvnorm(eta, eta.k.m1, sigma.t, log=T) 
+  likelihood = Q(eta, exp(eta.k.m1), data, c, A)
+  prior + likelihood
 }
 
 post.prob = function(eta.t, eta.t.m1, sigma.t, data, c, A){
-  log(dmvnorm(eta.t, eta.t.m1, sigma.t)) + log.lik(data, exp(eta.t), c, A)
+  dmvnorm(eta.t, eta.t.m1, sigma.t, log=T) + log.lik(data, exp(eta.t), c, A)
 }
 
 locally_iid_EM.each = function(data, c, A, verbose=F){
@@ -185,7 +185,8 @@ Q = function(theta, theta.k, data, c, A){
     m = lambda.k + big.multiple%*%(row - A%*%lambda.k)
     t(m - lambda)%*%sigma.inverse%*%(m - lambda)
   }))
-  res = -(length(data)/2)*(log(det(sigma)) + tr(sigma.inverse%*%r.k)) - (1/2)*applied.sum
+  #res = -(nrow(data)/2)*(log(det(sigma)) + tr(sigma.inverse%*%r.k)) - (1/2)*applied.sum
+  res = -(nrow(data)/2)*(sum(log(phi*(lambda^c))) + tr(sigma.inverse%*%r.k)) - (1/2)*applied.sum
 #    if(res == Inf){
 #      res = 1e300
 #    } else if (res == -Inf){

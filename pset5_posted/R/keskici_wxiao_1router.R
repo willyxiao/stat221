@@ -92,9 +92,6 @@ for(i in 1:7){
   
 }
 
-# fig5.dat = locally_iid_EM(data, 2, A)
-fig6.dat = smoothed_EM(data, 2, A)
-# =======
 # #1.4
 # fig5.dat = locally_iid_EM(data, 2, A)
 # 
@@ -124,4 +121,25 @@ fig6.dat = smoothed_EM(data, 2, A)
 # indices = c(18, 19, 20, 21, 22, 13, 14, 15, 16, 23, 9, 10, 11, 12, 24, 5, 6, 7, 8, 25, 1, 2, 3, 4, 26)
 # 
 # plot.fig5(res, 5, names, indices, "keskici_wxiao_fig5.pdf", 1e6)
-# >>>>>>> 8ec7fce457efea49e943ade0de9ad9add92cea33
+
+#1.6
+
+#3fig6.dat = smoothed_EM(data, 2, A)
+# res = fig6.dat
+# #add in dest totals
+# for(i in 1:4){
+#   res = cbind(res, res[,i] + res[,i + 4] + res[,i + 8] + res[,i + 12])
+# }
+# #add in total
+# total = res[,1]
+# for(i in 2:16){
+#   total = total + res[, i]
+# }
+# res = cbind(res, total)
+# 
+# #add in origin totals
+# for(i in c(13, 9, 5, 1)){
+#   res = cbind(res, res[,i] + res[,i + 1] + res[,i + 2] + res[,i + 3])
+# }
+# plot.fig5(res, 5, names, indices, "keskici_wxiao_fig6.pdf", 50000)
+# 

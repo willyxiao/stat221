@@ -41,29 +41,79 @@ x16 = (dat[dat[,3] == dest.gw_others,])[,c('time', 'value')]
 #for the window around 11:30
 #and   182 183 184 185 186 187 188 189 190 191 192
 #for the window around 15:30
-means1130 = c()
-vars1130 = c()
-means1530 = c()
-vars1530 = c()
-for(i in 1:16){
-  item = get(sprintf("x%d", i))
-  means1130 = c(means1130, log(mean(item[,2][134:144]), base=10))
-  vars1130 = c(vars1130, log(var(item[,2][134:144]), base = 10))
-  
-  means1530 = c(means1530, log(mean(item[,2][182:192]), base=10))
-  vars1530 = c(vars1530, log(var(item[,2][182:192]), base = 10))
-  
+# means1130 = c()
+# vars1130 = c()
+# means1530 = c()
+# vars1530 = c()
+# for(i in 1:16){
+#   item = get(sprintf("x%d", i))
+#   means1130 = c(means1130, log(mean(item[,2][134:144]), base=10))
+#   vars1130 = c(vars1130, log(var(item[,2][134:144]), base = 10))
+#   
+#   means1530 = c(means1530, log(mean(item[,2][182:192]), base=10))
+#   vars1530 = c(vars1530, log(var(item[,2][182:192]), base = 10))
+#   
+# }
+# pdf("keskici_wxiao_fig4_2router.pdf")
+# par(mfrow=c(1,2))
+# plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
+# abline(lm(vars1130~means1130))
+# 
+# plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
+# abline(lm(vars1530~means1530))
+# dev.off()
+
+
+names2 = c("dst router5", "dst r4-local", "dst switch", "dst r4-others",
+          "dst gw1", "dst gw2", "dst gw3", "dst gw-others", "total",
+          "gw-others->router5", "gw-others->r4-local", "gw-others->switch",
+          "gw-others->r4-others", "gw-others->gw1", "gw-others->gw2",
+          "gw-others->gw3", "gw-others->gw-others", "origin gw-others",
+          "gw3->router5", "gw3->r4-local", "gw3->switch", "gw3->r4-others",
+          "gw3->gw1", "gw3->gw2", "gw3->gw3", "gw3->gw-others", "origin gw-others",
+          "gw2->router5", "gw2->r4-local", "gw2->switch", "gw2->r4-others",
+          "gw2->gw1", "gw2->gw2", "gw2->gw3", "gw2->gw-others", "origin gw2",
+          "gw1->router5", "gw1->r4-local", "gw1->switch", "gw1->r4-others",
+          "gw1->gw1", "gw1->gw2", "gw1->gw3", "gw1->gw-others", "origin gw1",
+          "r4-others->router5", "r4-others->r4-local", "r4-others->switch", "r4-others->r4-others",
+          "r4-others->gw1", "r4-others->gw2", "r4-others->gw3", "r4-others->gw-others", 
+          "origin r4-others", "switch->router5", "switch->r4-local", "switch->switch", "switch->r4-others",
+          "switch->gw1", "switch->gw2", "switch->gw3", "switch->gw-others", "origin switch",
+          "r4-local->router5", "r4-local->r4-local", "r4-local->switch", "r4-local->r4-others",
+          "r4-local->gw1", "r4-local->gw2", "r4-local->gw3", "r4-local->gw-others", "origin r4-local",
+          "router5->router5", "router5->r4-local", "router5->switch", "router5->r4-others", 
+          "router5->gw1", "router5->gw2", "router5->gw3", "router5->gw-others", "origin router5")
+
+#generate A matrix
+A = matrix(0, ncol=64, nrow=15)
+#populate A matrix
+for(i in 1:15){
+  if(i <= 8){
+    start = 8*(i - 1)
+    for(j in 1:8){
+      A[i, start + j] = 1
+    }
+  }
+  else{
+    start = i - 8
+    for(j in 1:8){
+      A[i, start + (j-1)*8] = 1
+    }
+    
+  } 
 }
-pdf("keskici_wxiao_fig4_2router.pdf")
-par(mfrow=c(1,2))
-plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
-abline(lm(vars1130~means1130))
 
-plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
-abline(lm(vars1530~means1530))
-dev.off()
-
+#1.9
+data = x1[,2]
+for(i in 2:15){
+  item = get(sprintf("x%d", i))
+  data = cbind(data, item[,2])
+}
 
 
+# router2.fig5.dat = locally_iid_EM(data, 2, A)
+# save(router.fig5.dat, "r2fig5.RData")
 
+router2.fig6.dat = smoothed_EM(data, 2, A)
+# save(router.fig6.dat, "r2fig6.RData")
 
