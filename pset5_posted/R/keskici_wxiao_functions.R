@@ -55,26 +55,6 @@ smoothed_EM <- function(data, c, A, w=11){
       }, eta.t)
       
       eta.t.m1 = eta.t
-      
-      
-      
-#       lambda.k = exp(eta.t)[1:(length(eta.t)-1)]
-#       phi.k = exp(eta.t[length(eta.t)])
-#       
-#       sigma.k = phi.k*diag(lambda.k^c)
-#       m.k = t(1/(nrow(data))*apply(subset, 1, function(y){
-#         lambda.k + sigma.k%*%t(A)%*%qr.solve(A%*%sigma.k%*%t(A))%*%(y - A%*%lambda.k)
-#       }))
-#       b.k = apply(m.k, 2, sum)
-# 
-#       top.left = diag(phi.k*c^2*lambda.k^(c-1) + 2*(2-c)*lambda.k - 2*(1-c)*b.k)
-#       bottom = c*lambda.k^c
-#       left = rbind
-# #      left = rbind(top.left, c*lambda.k^c)
-#       right.col = c((2-c)*lambda.k^(1-c)-(1-c)*lambda.k^(-c)*b.k, 0)
-#       second.der = cbind(left, right.col)*(eta.t)^2
-#       
-#       sigma.t.m1 = -qr.solve(sigma.t) + second.der
 
   }
   
