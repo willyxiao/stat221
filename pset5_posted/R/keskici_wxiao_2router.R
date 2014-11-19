@@ -84,6 +84,8 @@ names2 = c("dst router5", "dst r4-local", "dst switch", "dst r4-others",
           "router5->router5", "router5->r4-local", "router5->switch", "router5->r4-others", 
           "router5->gw1", "router5->gw2", "router5->gw3", "router5->gw-others", "origin router5")
 
+indices = c(seq(66, 74), seq(57,64), 75, seq(49,56), 76, seq(41,48), 77, seq(33,40), 78,
+            seq(25, 32), 79, seq(17, 24), 80, seq(9, 16), 81, seq(1,8), 82)
 #generate A matrix
 A = matrix(0, ncol=64, nrow=15)
 #populate A matrix
@@ -117,3 +119,24 @@ for(i in 2:15){
 router2.fig6.dat = smoothed_EM(data, 2, A)
 # save(router.fig6.dat, "r2fig6.RData")
 
+
+res.fig5 = router2.fig5.dat
+#add in dest totals
+for(i in 1:8){
+  res.fig5 = cbind(res.fig5, res.fig5[,i] + res.fig5[,i + 8] + res.fig5[,i + 16] + res.fig5[,i + 24] +
+              res.fig5[,i + 32] + res.fig5[,i + 40] + res.fig5[,i + 48] + res.fig5[,i + 56])
+}
+#add in total
+total = res.fig5[,1]
+for(i in 2:64){
+  total = total + res.fig5[, i]
+}
+res.fig5 = cbind(res.fig5, total)
+
+#add in origin totals
+for(i in c(57, 49, 41, 33, 25, 17, 9, 1)){
+  res.fig5 = cbind(res.fig5, res.fig5[,i] + res.fig5[,i + 1] + res.fig5[,i + 2] + res.fig5[,i + 3]
+              + res.fig5[,i + 4] + res.fig5[,i + 5] + res.fig5[,i + 6] + res.fig5[,i + 7])
+}
+
+plot.fig5(res.fig5, 9, names2, indices, "keskici_wxiao_r2_fig5.pdf", 100000)

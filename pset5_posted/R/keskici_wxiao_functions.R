@@ -178,11 +178,12 @@ Q = function(theta, theta.k, data, c, A){
 }
 
 plot.fig5 = function(res, dim, names, indices, filename, ymax){
-  pdf(filename)
+  pdf(filename, width=15, height = 15)
   par(mfrow=c(dim,dim))
+  #par(mar=c(2,2,2,2))
   for(i in 1:length(indices)){
     plot(res[,indices[i]], type='l', ylim = c(0, ymax), main = names[i], 
-         xlab = "hour of day", ylab ="bytes/sec")
+         xlab = "hour of day", ylab ="bytes/sec", cex.lab=0.75)
   }
   dev.off()
 }
