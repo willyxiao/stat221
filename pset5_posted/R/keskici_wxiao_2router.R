@@ -111,9 +111,9 @@ for(i in 2:15){
 }
 
 
-# router2.fig5.dat = locally_iid_EM(data, 2, A)
-# save(router.fig5.dat, "r2fig5.RData")
+#router2.fig5.dat = locally_iid_EM(data, 2, A)
+#save(router2.fig5.dat, file="r2fig5.RData")
 
 router2.fig6.dat = smoothed_EM(data, 2, A)
-# save(router.fig6.dat, "r2fig6.RData")
+save(router2.fig6.dat, file="r2fig6.RData")
 
