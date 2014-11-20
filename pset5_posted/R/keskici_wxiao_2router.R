@@ -41,27 +41,27 @@ x16 = (dat[dat[,3] == dest.gw_others,])[,c('time', 'value')]
 #for the window around 11:30
 #and   182 183 184 185 186 187 188 189 190 191 192
 #for the window around 15:30
-# means1130 = c()
-# vars1130 = c()
-# means1530 = c()
-# vars1530 = c()
-# for(i in 1:16){
-#   item = get(sprintf("x%d", i))
-#   means1130 = c(means1130, log(mean(item[,2][134:144]), base=10))
-#   vars1130 = c(vars1130, log(var(item[,2][134:144]), base = 10))
-#   
-#   means1530 = c(means1530, log(mean(item[,2][182:192]), base=10))
-#   vars1530 = c(vars1530, log(var(item[,2][182:192]), base = 10))
-#   
-# }
-# pdf("keskici_wxiao_fig4_2router.pdf")
-# par(mfrow=c(1,2))
-# plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
-# abline(lm(vars1130~means1130))
-# 
-# plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
-# abline(lm(vars1530~means1530))
-# dev.off()
+means1130 = c()
+vars1130 = c()
+means1530 = c()
+vars1530 = c()
+for(i in 1:16){
+  item = get(sprintf("x%d", i))
+  means1130 = c(means1130, log(mean(item[,2][134:144]), base=10))
+  vars1130 = c(vars1130, log(var(item[,2][134:144]), base = 10))
+  
+  means1530 = c(means1530, log(mean(item[,2][182:192]), base=10))
+  vars1530 = c(vars1530, log(var(item[,2][182:192]), base = 10))
+  
+}
+pdf("keskici_wxiao_fig4_2router.pdf")
+par(mfrow=c(1,2))
+plot(means1130, vars1130, xlab="log10(mean)", ylab="log10(var)", main="Time 11:30")
+abline(lm(vars1130~means1130))
+
+plot(means1530, vars1530, xlab="log10(mean)", ylab="log10(var)", main="Time 15:30")
+abline(lm(vars1530~means1530))
+dev.off()
 
 
 names2 = c("dst router5", "dst r4-local", "dst switch", "dst r4-others",
@@ -106,6 +106,10 @@ for(i in 1:15){
 }
 
 #1.9
+#Note: This part takes a little while to run locally (several hours)
+#Panos said it was ok to not SLURM it if we didn't find it
+#necessary (when producing output we ran the two models in 
+#parallel on our own server)
 data = x1[,2]
 for(i in 2:15){
   item = get(sprintf("x%d", i))
@@ -113,18 +117,15 @@ for(i in 2:15){
 }
 
 
-# router2.fig5.dat = locally_iid_EM(data, 2, A)
-# save(router.fig5.dat, "r2fig5.RData")
-
-router2.fig6.dat = smoothed_EM(data, 2, A)
-# save(router.fig6.dat, "r2fig6.RData")
-
-
+#plot equivalent of figure 5 for 2routerlinkcount dat
+#pset didn't explicitly ask for it but it said to fit
+#locally iid model so we included it
+router2.fig5.dat = locally_iid_EM(data, 2, A)
 res.fig5 = router2.fig5.dat
 #add in dest totals
 for(i in 1:8){
   res.fig5 = cbind(res.fig5, res.fig5[,i] + res.fig5[,i + 8] + res.fig5[,i + 16] + res.fig5[,i + 24] +
-              res.fig5[,i + 32] + res.fig5[,i + 40] + res.fig5[,i + 48] + res.fig5[,i + 56])
+                     res.fig5[,i + 32] + res.fig5[,i + 40] + res.fig5[,i + 48] + res.fig5[,i + 56])
 }
 #add in total
 total = res.fig5[,1]
@@ -136,7 +137,32 @@ res.fig5 = cbind(res.fig5, total)
 #add in origin totals
 for(i in c(57, 49, 41, 33, 25, 17, 9, 1)){
   res.fig5 = cbind(res.fig5, res.fig5[,i] + res.fig5[,i + 1] + res.fig5[,i + 2] + res.fig5[,i + 3]
-              + res.fig5[,i + 4] + res.fig5[,i + 5] + res.fig5[,i + 6] + res.fig5[,i + 7])
+                   + res.fig5[,i + 4] + res.fig5[,i + 5] + res.fig5[,i + 6] + res.fig5[,i + 7])
+}
+plot.fig5(res.fig5, 9, names2, indices, "keskici_wxiao_fig5_2router.pdf", 100000)
+
+
+
+#generate equivalent of figure 6 for 2router_linkcount.dat
+router2.fig6.dat = smoothed_EM(data, 2, A)
+
+res.fig6 = router2.fig6.dat
+#add in dest totals
+for(i in 1:8){
+  res.fig6 = cbind(res.fig6, res.fig6[,i] + res.fig6[,i + 8] + res.fig6[,i + 16] + res.fig6[,i + 24] +
+              res.fig6[,i + 32] + res.fig6[,i + 40] + res.fig6[,i + 48] + res.fig6[,i + 56])
+}
+#add in total
+total = res.fig6[,1]
+for(i in 2:64){
+  total = total + res.fig6[, i]
+}
+res.fig6 = cbind(res.fig6, total)
+
+#add in origin totals
+for(i in c(57, 49, 41, 33, 25, 17, 9, 1)){
+  res.fig6 = cbind(res.fig6, res.fig6[,i] + res.fig6[,i + 1] + res.fig6[,i + 2] + res.fig6[,i + 3]
+              + res.fig6[,i + 4] + res.fig6[,i + 5] + res.fig6[,i + 6] + res.fig6[,i + 7])
 }
 
-plot.fig5(res.fig5, 9, names2, indices, "keskici_wxiao_r2_fig5.pdf", 100000)
+plot.fig5(res.fig6, 9, names2, indices, "keskici_wxiao_fig6_2router.pdf", 100000)
