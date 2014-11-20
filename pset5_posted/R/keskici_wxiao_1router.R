@@ -123,7 +123,7 @@ indices = c(18, 19, 20, 21, 22, 13, 14, 15, 16, 23, 9, 10, 11, 12, 24, 5, 6, 7, 
 plot.fig(res, 5, names, indices, "keskici_wxiao_fig5.pdf", 1e6)
 
 #1.6
-3fig6.dat = smoothed_EM(data, 2, A)
+fig6.dat = smoothed_EM(data, 2, A)
 res = fig6.dat
 #add in dest totals
 for(i in 1:4){
