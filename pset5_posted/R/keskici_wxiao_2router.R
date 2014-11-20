@@ -139,13 +139,11 @@ for(i in c(57, 49, 41, 33, 25, 17, 9, 1)){
   res.fig5 = cbind(res.fig5, res.fig5[,i] + res.fig5[,i + 1] + res.fig5[,i + 2] + res.fig5[,i + 3]
                    + res.fig5[,i + 4] + res.fig5[,i + 5] + res.fig5[,i + 6] + res.fig5[,i + 7])
 }
-plot.fig5(res.fig5, 9, names2, indices, "keskici_wxiao_fig5_2router.pdf", 100000)
-
+plot.fig(res.fig5, 9, names2, indices, "keskici_wxiao_fig5_2router.pdf", 100000)
 
 
 #generate equivalent of figure 6 for 2router_linkcount.dat
 router2.fig6.dat = smoothed_EM(data, 2, A)
-
 res.fig6 = router2.fig6.dat
 #add in dest totals
 for(i in 1:8){
@@ -165,4 +163,4 @@ for(i in c(57, 49, 41, 33, 25, 17, 9, 1)){
               + res.fig6[,i + 4] + res.fig6[,i + 5] + res.fig6[,i + 6] + res.fig6[,i + 7])
 }
 
-plot.fig5(res.fig6, 9, names2, indices, "keskici_wxiao_fig6_2router.pdf", 100000)
+plot.fig(res.fig6, 9, names2, indices, "keskici_wxiao_fig6_2router.pdf", 100000)

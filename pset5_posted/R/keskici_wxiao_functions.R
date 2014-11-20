@@ -177,7 +177,7 @@ Q = function(theta, theta.k, data, c, A){
   res
 }
 
-plot.fig5 = function(res, dim, names, indices, filename, ymax){
+plot.fig = function(res, dim, names, indices, filename, ymax){
   pdf(filename, width=15, height = 15)
   par(mfrow=c(dim,dim))
   #par(mar=c(2,2,2,2))

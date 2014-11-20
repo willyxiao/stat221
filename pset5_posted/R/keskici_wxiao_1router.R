@@ -120,7 +120,7 @@ names = c("destination fddi", "destination switch", "destination local",
           "origin switch", "fddi->fddi", "fddi->switch", "fddi->local", "fddi->corp", "origin fddi")
 indices = c(18, 19, 20, 21, 22, 13, 14, 15, 16, 23, 9, 10, 11, 12, 24, 5, 6, 7, 8, 25, 1, 2, 3, 4, 26)
 
-plot.fig5(res, 5, names, indices, "keskici_wxiao_fig5.pdf", 1e6)
+plot.fig(res, 5, names, indices, "keskici_wxiao_fig5.pdf", 1e6)
 
 #1.6
 3fig6.dat = smoothed_EM(data, 2, A)
@@ -140,5 +140,5 @@ res = cbind(res, total)
 for(i in c(13, 9, 5, 1)){
   res = cbind(res, res[,i] + res[,i + 1] + res[,i + 2] + res[,i + 3])
 }
-plot.fig5(res, 5, names, indices, "keskici_wxiao_fig6.pdf", 50000)
+plot.fig(res, 5, names, indices, "keskici_wxiao_fig6.pdf", 50000)
 
