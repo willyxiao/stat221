@@ -18,7 +18,7 @@
             Q(\theta, \theta^k) &= E(l(\theta|X)|Y, \theta^k) \\
             &= E(-T/2\log{|\Sigma|} - 1/2\sum{(x_t-\lambda)'\Sigma^{-1}(x_t - \lambda)}) \\
             &= -T/2\log{|\Sigma|} - 1/2*\sum{E(m_t^k - \lambda)'\Sigma^{-1}(m_t^k - \lambda)) + tr(\Sigma^{-1}R^{k})} \\
-            &= -T/2(\log{|\Sigma|} + tr(\Sigma^{-1}R^k)) - 1/2\sum_{t=1}^{T}{(m_t^{(k)} - \lambda)'\Sigma^{-1}(m_t^{(k)} - \lambda)}
+            &= -T/2(\log{|\Sigma|} + tr(\Sigma^{-1}R^k)) - 1/2\sum_{t=1}^{T}{(m\_t^{(k)} - \lambda)'\Sigma^{-1}(m_t^{(k)} - \lambda)}
           \end{align*}
           \item Pseudocode:
             \begin{enumerate}[I.]
@@ -56,7 +56,7 @@
         & \text { We just used the hessian function. }
       \end{align*}
       \item INSERT PLOT OF REFINED
-      \item DIFFERENCE
+      \item In general the Tebaldi-West method should be pretty similar to the CaoYu method in producing the final outputs. In many ways, Tebaldi-West will be even better because it doesn't approximate the poisson with a normal model that CaoYu does. The issue; however, is that the Tebladi-West algorithm will take a long time to run (even for the case of the Markov-Gibbs algorithm). In a sense you can think that Tebaldi-West throws a ton of darts at a board to find the maximium likelihood for $x_t$; while CaoYu is starting at the edge of the boarding and walking closer and closer to the best $x_t$ (ie the EM is moving towards the better values).
       \item INSERT PLOTS
     \end{enumerate}
 \end{enumerate}
