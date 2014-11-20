@@ -9,11 +9,17 @@
 \begin{enumerate}[\text{question }1.]
   \item
     \begin{enumerate}[1]
-      \item INSERT KEVIN's PLOT
-      \item NEED TO DO
+      \item INSERT KEVIN'S PLOT
+      \item INSERT KEVIN'S PLOT
       \item
         \begin{enumerate}[a.]
-          \item HAVE TO DO DERIVATIONS
+          \item
+          \begin{align*}
+            Q(\theta, \theta^k) &= E(l(\theta|X)|Y, \theta^k) \\
+            &= E(-T/2\log{|\Sigma|} - 1/2\sum{(x_t-\lambda)'\Sigma^{-1}(x_t - \lambda)}) \\
+            &= -T/2\log{|\Sigma|} - 1/2*\sum{E(m_t^k - \lambda)'\Sigma^{-1}(m_t^k - \lambda)) + tr(\Sigma^{-1}R^{k})} \\
+            &= -T/2(\log{|\Sigma|} + tr(\Sigma^{-1}R^k)) - 1/2\sum_{t=1}^{T}{(m_t^{(k)} - \lambda)'\Sigma^{-1}(m_t^{(k)} - \lambda)}
+          \end{align*}
           \item Pseudocode:
             \begin{enumerate}[I.]
               \item Set $x = \vec{0}$, $v = \vec{0}$
@@ -37,7 +43,21 @@
                 \end{tabbing}
             \end{enumerate}
         \end{enumerate}
-      \item For the local iid model, instead of initializing with all $y_t$ we initialize with $y_t \in [y_{t - w/2}, y_{t+w/2}]$ and we also sum only over those $t \in [t - w/2, t + w/2]$.
+      \item For the local iid model, instead of initializing with all $y_t$ we initialize with $y_t \in [y_{t - w/2}, y_{t+w/2}]$ and we also sum only over those $t \in [t - w/2, t + w/2]$. INSERT PLOT FOR LOCALLY\_IID\_EM.
+      \item The refined model is, after choosing V just \\
+      \begin{align*}
+        p(\eta_t|\widetilde{Y_t}) &= p(\eta_t|\widetilde{Y}_{t-1}, Y_t) \propto p(\eta_t|\widetilde{Y}_{t-1})p(Y_t|\eta_t) \\
+        p(\eta_t|\widetilde{Y}_{t-1}) &\sim N(\hat{\eta}_{t-1}, \hat{\Sigma}_{t-1})
+      \end{align*}
+      Where
+      \begin{align*}
+        \hat{\Sigma}_{t-1} &= g''(\eta_t)^{-1} = -\hat{\Sigma}^{-1}_{t|t-1} + \partial^2{\log{p}}/\partial{\eta_t}^2 \\
+        & \text{ and the second derivative is defined on page 1067. } \\
+        & \text { We just used the hessian function. }
+      \end{align*}
+      \item INSERT PLOT OF REFINED
+      \item DIFFERENCE
+      \item INSERT PLOTS
     \end{enumerate}
 \end{enumerate}
 \end{document}
