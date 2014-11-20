@@ -9,8 +9,13 @@
 \begin{enumerate}[\text{question }1.]
   \item
     \begin{enumerate}[1]
-      \item INSERT KEVIN'S PLOT
-      \item INSERT KEVIN'S PLOT
+      \item Figure 2 Replica. See $keskici\_wxiao\_1router.R$ for code \\
+      \includegraphics[scale=.8]{keskici_wxiao_fig2.pdf}
+      \item Figure 4 replica for $1router\_allcount.dat$ \\
+      \includegraphics[scale=.8]{keskici_wxiao_fig4_1router.pdf}\\
+      Figure 4 Replica for $2router\_linkcount.dat$ \\
+      \includegraphics[scale=.8]{keskici_wxiao_fig4_1router.pdf}
+
       \item
         \begin{enumerate}[a.]
           \item
@@ -43,7 +48,7 @@
                 \end{tabbing}
             \end{enumerate}
         \end{enumerate}
-      \item For the local iid model, instead of initializing with all $y_t$ we initialize with $y_t \in [y_{t - w/2}, y_{t+w/2}]$ and we also sum only over those $t \in [t - w/2, t + w/2]$. INSERT PLOT FOR LOCALLY\_IID\_EM.
+      \item For the local iid model, instead of initializing with all $y_t$ we initialize with $y_t \in [y_{t - w/2}, y_{t+w/2}]$ and we also sum only over those $t \in [t - w/2, t + w/2]$. \\ \includegraphics[scale=.8]{keskici_wxiao_fig5.pdf}
       \item The refined model is, after choosing V just \\
       \begin{align*}
         p(\eta_t|\widetilde{Y_t}) &= p(\eta_t|\widetilde{Y}_{t-1}, Y_t) \propto p(\eta_t|\widetilde{Y}_{t-1})p(Y_t|\eta_t) \\
@@ -55,9 +60,17 @@
         & \text{ and the second derivative is defined on page 1067. } \\
         & \text { We just used the hessian function. }
       \end{align*}
-      \item INSERT PLOT OF REFINED
+      \item See R code for fitting\\
+      \includegraphics[scale=.8]{keskici_wxiao_fig6_1router.pdf}
+      \item There is no 1.7 in the pset...
       \item In general the Tebaldi-West method should be pretty similar to the CaoYu method in producing the final outputs. In many ways, Tebaldi-West will be even better because it doesn't approximate the poisson with a normal model that CaoYu does. The issue; however, is that the Tebladi-West algorithm will take a long time to run (even for the case of the Markov-Gibbs algorithm). In a sense you can think that Tebaldi-West throws a ton of darts at a board to find the maximium likelihood for $x_t$; while CaoYu is starting at the edge of the boarding and walking closer and closer to the best $x_t$ (ie the EM is moving towards the better values).
-      \item INSERT PLOTS
+      \item See R code for fitting.\\
+      Eqivalent of Figure 6 for $2router\_linkcount.dat$\\
+      \includegraphics[scale=.4]{keskici_wxiao_fig6_2router.pdf}\\
+      Equivalent of Figure 5 for $2router\_linkcount.dat$-not oficially asked for but we were asked to fit
+      the locally iid model so seemed natural to include it\\
+      \includegraphics[scale=.4]{keskici_wxiao_fig5_2router.pdf}
+
     \end{enumerate}
 \end{enumerate}
 \end{document}

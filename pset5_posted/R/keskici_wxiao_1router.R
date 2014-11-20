@@ -140,5 +140,5 @@ res = cbind(res, total)
 for(i in c(13, 9, 5, 1)){
   res = cbind(res, res[,i] + res[,i + 1] + res[,i + 2] + res[,i + 3])
 }
-plot.fig(res, 5, names, indices, "keskici_wxiao_fig6.pdf", 50000)
+plot.fig(res, 5, names, indices, "keskici_wxiao_fig6_1router.pdf", 50000)
 
