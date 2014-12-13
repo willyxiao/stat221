@@ -42,8 +42,8 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
 
   A = list(0, 0)
 
-  A[[1]] = matrix(runif(16, -10, 10), nrow=4)
-  A[[2]] = A[[1]] + matrix(rnorm(16, 0, .5), nrow=4)
+  A[[1]] = matrix(runif(16, 0, 40), nrow=4)
+  A[[2]] = A[[1]] + matrix(rnorm(16, 0, 5), nrow=4)
 
   for(j in 1:2){
     pos.def = t(A[[j]])%*%A[[j]]
