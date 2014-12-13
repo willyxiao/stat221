@@ -21,14 +21,6 @@ simulate.data = function(nsamples){
   list(data=data, class=class, U=Us)
 }
 
-symmetric.matrix = function(dim){
-  tmp.matrix = matrix(runif(dim^2, 1, 50), nrow=dim)
-  bottom.left = lower.tri(tmp.matrix, diag=FALSE)
-
-  tmp.matrix[bottom.left] = 0
-  tmp.matrix + t(tmp.matrix)
-}
-
 EPSILON = .01
 
 online.EM = function(lr.fun, data, start.avg=50){ # learning rate...    
