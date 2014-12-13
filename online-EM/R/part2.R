@@ -67,7 +67,6 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
     }
 
     w[1] = tmp[1] / sum(tmp)
-#     w[1] = min(1 - EPSILON, max(EPSILON, w[1]))
     w[2] = 1 - w[1]
     
     lr.rate = lr.fun(i)
@@ -87,6 +86,8 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
   list(w=w, beta=beta, sigma.sq=sigma.sq)
 }
 
-batch.EM = function(){
-  # hannah...
+plot.figure.1 = function(){
+  data = simulate.data(500)
+  plot(data$U[data$class == 1], data$data[data$class ==1], xlab="U", ylab="Z")
+  points(data$U[data$class == 2], data$data[data$class ==2], pch=4, col='red')
 }
