@@ -1,3 +1,5 @@
+library(matrixcalc)
+
 simulate.data = function(nsamples){
   data = rep(0, nsamples)
   class = rep(0, nsamples)
@@ -19,97 +21,73 @@ simulate.data = function(nsamples){
   list(data=data, class=class, U=Us)
 }
 
-online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
-  w = c(.5,.5)
-  w.new = w
-  
-  r = data$data[1]
-  z = c(1,data$U[1], (data$U[1]^2)/10)
-  
-  s.1 = list(.2,.8)
-  s.2 = list(.5*r*z, .5*r*z)
-  s.3 = list(matrix(runif(9,1,10), nrow=3), matrix(runif(9,1,10), nrow=3))
-  s.4 = list(.5*r^2, .5*r^2)
-  
-  for(i in 1:20){
-    r = data$data[i]
-    z = c(1, data$U[i], (data$U[i]^2)/10)
-    
-    for(j in 1:2){
-      lr.rate = lr.fun(i)
-      s.1[[j]] = s.1[[j]] + lr.rate*(w[j] - s.1[[j]])
-      s.2[[j]] = s.2[[j]] + lr.rate*(w[j]*r*z - s.2[[j]])
-      s.3[[j]] = s.3[[j]] + lr.rate*(w[j]*r*z%*%t(z) - s.3[[j]])
-      s.4[[j]] = s.4[[j]] + lr.rate*(w[j]*r^2 - s.4[[j]])
-    }
-  }
+EPSILON = .01
 
+online.EM = function(lr.fun, data, start.avg=50){ # learning rate...    
+#   tmp = runif(1,0,1)
+  tmp = .5
+  
+  s.1 = list(tmp,1 - tmp)
+  s.2 = list(0, 0)
+  s.3 = list(0, 0)
+  s.4 = list(0, 0)
+
+  A = list(0, 0)
+
+  A[[1]] = matrix(runif(16, 0, 40), nrow=4)
+  A[[2]] = A[[1]] + matrix(rnorm(16, 0, 5), nrow=4)
+
+  for(j in 1:2){
+    pos.def = t(A[[j]])%*%A[[j]]
+    s.2[[j]] = pos.def[1:3, 4]
+    s.3[[j]] = pos.def[1:3, 1:3]
+    s.4[[j]] = pos.def[4,4]
+  }
+  
+  w = rep(0,2)
   beta = matrix(0,nrow=2,ncol=3)
   sigma.sq = rep(0,2)
   
   for(j in 1:2){
     w[j] = s.1[[j]]
     beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
-    sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/w[j]    
+    sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]    
   }
-  
-  beta.new = beta
-  sigma.sq.new = sigma.sq
-    
-  for(i in 20:length(data$data)){
+
+  for(i in 1:length(data$data)){    
     r = data$data[i]
     z = c(1, data$U[i], (data$U[i]^2)/10)
     
-    w.1 = (((w[1])/sigma.sq[1])
-            *exp(-(1/2)
-                 *(r - t(beta[1,])%*%z)
-                 /sigma.sq[1]))
-    w.2 = (((w[2])/sigma.sq[2])
-           *exp(-(1/2)
-                *(r - t(beta[2,])%*%z)
-                /sigma.sq[2]))
-    
-    w.new[1] = w.1 / (w.1 + w.2)
-    
-    if(w.new[1] == 1){
-      w.new[1] = .99
-    } else if(w.new[1] == 0){
-      w.new[1] = .01
+    tmp = rep(0,2)
+    for(j in 1:2){
+      tmp[j] = (((w[j])/sqrt(sigma.sq[j]))
+                *exp(-(1/2)
+                     *((r - t(beta[j,])%*%z)^2)
+                     /sigma.sq[j]))
     }
-    
-    w.new[2] = 1 - w.new[1]
-    
-    for(j in 1:2) { # only 2 classes
-      lr.rate = lr.fun(i)
-      s.1[[j]] = s.1[[j]] + lr.rate*(w.new[j] - s.1[[j]])
-      s.2[[j]] = s.2[[j]] + lr.rate*(w.new[j]*r*z - s.2[[j]])
-      s.3[[j]] = s.3[[j]] + lr.rate*(w.new[j]*r*z%*%t(z) - s.3[[j]])
-      s.4[[j]] = s.4[[j]] + lr.rate*(w.new[j]*r^2 - s.4[[j]])
 
-      beta.new[j,] = solve(s.3[[j]])%*%s.2[[j]]
-      sigma.sq.new[j] = (s.4[[j]] - t(beta.new[j,])%*%s.2[[j]])/w.new[j]
-    }
+    w[1] = tmp[1] / sum(tmp)
+    w[2] = 1 - w[1]
     
-    if(i >= start.avg && FALSE){      
-#       lr.rate = lr.fun(i)
-#       w = w + lr.rate*(w.new - w)
-#       beta = beta + lr.rate*(beta.new - beta)
-#       sigma.sq = sigma.sq + lr.rate*(sigma.sq.new - sigma.sq)
-    } else {
-      w = w.new
-      beta = beta.new
-      sigma.sq = sigma.sq.new
+    lr.rate = lr.fun(i)
+    
+    for(j in 1:2) {
+      s.1[[j]] = s.1[[j]] + lr.rate*(w[j] - s.1[[j]])
+      s.2[[j]] = s.2[[j]] + lr.rate*(w[j]*r*z - s.2[[j]])
+      s.3[[j]] = s.3[[j]] + lr.rate*(w[j]*r*z%*%t(z) - s.3[[j]])
+      s.4[[j]] = s.4[[j]] + lr.rate*(w[j]*r^2 - s.4[[j]])
+
+      w[j] = s.1[[j]]
+      beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
+      sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]
     }
-  }  
+  }
   
   list(w=w, beta=beta, sigma.sq=sigma.sq)
 }
 
-batch.EM = function(){
-  # hannah...
+plot.figure.1 = function(){
+  data = simulate.data(500)
+  plot(data$U[data$class == 1], data$data[data$class ==1], xlab="U", ylab="Z")
+  points(data$U[data$class == 2], data$data[data$class ==2], pch=4, col='red')
 }
-
-
-
-# plot(tmp$U[temp$class == 1], tmp$data[tmp$class == 1])
-# points(tmp$U[tmp$class ==2], tmp$data[tmp$class == 2])
