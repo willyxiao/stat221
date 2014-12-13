@@ -29,12 +29,11 @@ symmetric.matrix = function(dim){
   tmp.matrix + t(tmp.matrix)
 }
 
-online.EM = function(lr.fun, data, start.avg=50){ # learning rate...  
-  r = mean(data$data)
-  u = median(data$U)
-  z = c(1,u,(u^2)/10)
-  
-  tmp = runif(1,0,1)
+EPSILON = .01
+
+online.EM = function(lr.fun, data, start.avg=50){ # learning rate...    
+#   tmp = runif(1,0,1)
+
   
   s.1 = list(tmp,1 - tmp)
   s.2 = list(0, 0)
@@ -50,20 +49,6 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
     s.4[[j]] = pos.def[4,4]
   }
   
-  for(i in 1:20){
-    lr.rate = lr.fun(i)
-
-    r = data$data[i]
-    z = c(1, data$U[i], (data$U[i]^2)/10)
-    
-    for(j in 1:2){
-      s.1[[j]] = s.1[[j]] + lr.rate*(s.1[[j]] - s.1[[j]])
-      s.2[[j]] = s.2[[j]] + lr.rate*(s.1[[j]]*r*z - s.2[[j]])
-      s.3[[j]] = s.3[[j]] + lr.rate*(s.1[[j]]*r*z%*%t(z) - s.3[[j]])
-      s.4[[j]] = s.4[[j]] + lr.rate*(s.1[[j]]*r^2 - s.4[[j]])
-    }
-  }
-
   w = rep(0,2)
   beta = matrix(0,nrow=2,ncol=3)
   sigma.sq = rep(0,2)
@@ -74,13 +59,7 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
     sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]    
   }
 
-  browser()
-  
-  w.new = w
-  beta.new = beta
-  sigma.sq.new = sigma.sq
-
-  for(i in 21:length(data$data)){
+  for(i in 1:length(data$data)){    
     r = data$data[i]
     z = c(1, data$U[i], (data$U[i]^2)/10)
     
@@ -91,33 +70,27 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
                      *((r - t(beta[j,])%*%z)^2)
                      /sigma.sq[j]))
     }
-    w.new[1] = tmp[1] / sum(tmp)
-    w.new[2] = 1 - w.new[1]
+    w[1] = tmp[1] / sum(tmp)
+    w[1] = min(1 - EPSILON, max(EPSILON, w[1]))
+    w[2] = 1 - w[1]
+    
+    lr.rate = lr.fun(i)
     
     for(j in 1:2) { # only 2 classes
-      lr.rate = lr.fun(i)
-      s.1[[j]] = s.1[[j]] + lr.rate*(w.new[j] - s.1[[j]])
-      s.2[[j]] = s.2[[j]] + lr.rate*(w.new[j]*r*z - s.2[[j]])
-      s.3[[j]] = s.3[[j]] + lr.rate*(w.new[j]*r*z%*%t(z) - s.3[[j]])
-      s.4[[j]] = s.4[[j]] + lr.rate*(w.new[j]*r^2 - s.4[[j]])
+      s.1[[j]] = s.1[[j]] + lr.rate*(w[j] - s.1[[j]])
+      s.2[[j]] = s.2[[j]] + lr.rate*(w[j]*r*z - s.2[[j]])
+      s.3[[j]] = s.3[[j]] + lr.rate*(w[j]*r*z%*%t(z) - s.3[[j]])
+      s.4[[j]] = s.4[[j]] + lr.rate*(w[j]*r^2 - s.4[[j]])
 
-      beta.new[j,] = solve(s.3[[j]])%*%s.2[[j]]
-      sigma.sq.new[j] = (s.4[[j]] - t(beta.new[j,])%*%s.2[[j]])/s.1[[j]]
+      beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
+      sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]
     }
-    
-    w = w.new
-    beta = beta.new
-    sigma.sq = sigma.sq.new
-  }  
-  
+
+  }
+      
   list(w=w, beta=beta, sigma.sq=sigma.sq)
 }
 
 batch.EM = function(){
   # hannah...
 }
-
-
-
-# plot(tmp$U[temp$class == 1], tmp$data[tmp$class == 1])
-# points(tmp$U[tmp$class ==2], tmp$data[tmp$class == 2])
