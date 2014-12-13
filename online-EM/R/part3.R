@@ -1,7 +1,35 @@
+rm(list = ls())
+source('data_generator.R')
 
+tr = function(M){
+  sum(diag(M))
+}
 
-online.em.each = function(data, c, A, verbose=F){
-  x.length = ((ncol(data) + 1) / 2)^2
+generate.A = function(){
+  #generate A matrix
+  A = matrix(0, ncol=16, nrow=7)
+  #populate A matrix
+  for(i in 1:7){
+    if(i <= 4){
+      start = 4*(i - 1)
+      for(j in 1:4){
+        A[i, start + j] = 1
+      }
+    }
+    else{
+      start = i - 4
+      for(j in 1:4){
+        A[i, start + (j-1)*4] = 1
+      }
+      
+    } 
+  }
+  A
+}
+
+online.em.each = function(data, A, verbose=F){
+#   x.length = ((ncol(data) + 1) / 2)^2
+  x.length = 16
   
   v = data[,1]
   x = apply(data, 2, sum)
@@ -17,13 +45,13 @@ online.em.each = function(data, c, A, verbose=F){
   for(i in 1:ncol(data)){
     theta.k = exp(optim(log(theta.k), 
                          Q,
-                         data=data[,i], c=c, A=A, S=list(m=s.m, R=s.R),
+                         data=data[i,], A=A, S=list(m=s.m, R=s.R),
                          control=c(fnscale=-1))
                    $par)
     
     lr.rate = lr.fun(i)
     
-    s.m = s.m + lr.rate*(s.m.fun(theta.k, A, data[,i]) - s.m)
+    s.m = s.m + lr.rate*(s.m.fun(theta.k, A, data[i,]) - s.m)
     s.R = s.R + lr.rate*(s.R.fun(theta.k, A) - s.R)
   }
   
@@ -32,7 +60,7 @@ online.em.each = function(data, c, A, verbose=F){
 
 s.m.fun = function(theta, A, y) {
   s.m.fun.last = function(lambda, sigma, big.multiple, A, y){
-    lambda + big.multiple%*%(y - A%*%lambda)  
+    lambda + big.multiple%*%(y[1:length(y) - 1] - A%*%lambda)  
   }
   calculate.stat(s.m.fun.last, theta, A, y)
 }
@@ -49,7 +77,7 @@ calculate.stat = function(stat.last.specific, theta, A, y=NULL){
   
   lambda = theta[1:x.length]
   phi = theta[x.length + 1]
-  sigma = phi*diag(lambda^c)
+  sigma = phi*diag(lambda)
   
   big.multiple = sigma%*%t(A)%*%qr.solve(A%*%sigma%*%t(A))
   
@@ -67,9 +95,15 @@ Q = function(theta.log, data, c, A, S){
   lambda = theta[1:x.length]
   phi = theta[x.length + 1]
   
-  sigma = phi*diag(lambda^c)
-  sigma.inverse = solve(sigma)
+  sigma = phi*diag(lambda)
+  sigma.inverse = qr.solve(sigma)
   
   -(1/2)*(log(det(sigma)) + tr(sigma.inverse%*%S$R)) 
   - (1/2)*t(S$m - lambda)%*%sigma.inverse%*%(S$m - lambda)
+}
+
+test = function(){
+  A = generate.A()
+  d = generate.data(10, 1)
+  online.em.each(d, A)
 }
