@@ -75,7 +75,7 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
     }
 
     w[1] = tmp[1] / sum(tmp)
-    w[1] = min(1 - EPSILON, max(EPSILON, w[1]))
+#     w[1] = min(1 - EPSILON, max(EPSILON, w[1]))
     w[2] = 1 - w[1]
     
     lr.rate = lr.fun(i)
@@ -86,11 +86,12 @@ online.EM = function(lr.fun, data, start.avg=50){ # learning rate...
       s.3[[j]] = s.3[[j]] + lr.rate*(w[j]*r*z%*%t(z) - s.3[[j]])
       s.4[[j]] = s.4[[j]] + lr.rate*(w[j]*r^2 - s.4[[j]])
 
+      w[j] = s.1[[j]]
       beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
       sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]
     }
   }
-      
+  
   list(w=w, beta=beta, sigma.sq=sigma.sq)
 }
 
