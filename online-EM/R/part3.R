@@ -104,6 +104,6 @@ Q = function(theta.log, data, c, A, S){
   - (1/2)*t(S$m - lambda)%*%sigma.inverse%*%(S$m - lambda)
 }
 
-test = function(){
-  online.em.each(generate.data(100, 6), generate.A())
+test = function(nsamples){
+  online.em.each(generate.data(nsamples, 2), generate.A())
 }
