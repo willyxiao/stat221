@@ -41,7 +41,7 @@ online.em.each = function(data, A, verbose=F){
   s.m = s.m.fun(theta.k, A, data[1,])
   s.R = s.R.fun(theta.k, A)
 
-  for(i in 1:nrow(data)){
+  for(i in 2:nrow(data)){
     theta.k = exp(optim(log(theta.k), 
                         Q,
                         data=data[i,], A=A, S=list(m=s.m, R=s.R),
@@ -87,7 +87,7 @@ calculate.stat = function(stat.last.specific, theta, A, y=NULL){
 }
 
 lr.fun = function(i){
-  1/(i+1)
+  1/i
 }
 
 Q = function(theta.log, data, c, A, S){  
@@ -105,5 +105,5 @@ Q = function(theta.log, data, c, A, S){
 }
 
 test = function(){
-  online.em.each(generate.data(100, 1), generate.A())
+  online.em.each(generate.data(100, 6), generate.A())
 }
