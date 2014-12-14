@@ -28,29 +28,31 @@ generate.A = function(){
 }
 
 online.em.each = function(data, A, verbose=F){
-#   x.length = ((ncol(data) + 1) / 2)^2
   x.length = 16
   
   v = data[,1]
   x = apply(data, 2, sum)
   
-  s.m = rep(0, x.length)
-  s.R = matrix(0, nrow=x.length, ncol=x.length)
-  
   lambda0 = rep(mean(x/length(data)), x.length)
   phi0 = var(v) / mean(v)
   
   theta.k = c(lambda0, phi0)
+  
+  s.m = s.m.fun(theta.k, A, data[1,])
+  s.R = s.R.fun(theta.k, A)
 
-  for(i in 1:ncol(data)){
+  for(i in 1:nrow(data)){
     theta.k = exp(optim(log(theta.k), 
-                         Q,
-                         data=data[i,], A=A, S=list(m=s.m, R=s.R),
-                         control=c(fnscale=-1))
+                        Q,
+                        data=data[i,], A=A, S=list(m=s.m, R=s.R),
+                        control=c(fnscale=-1),
+                        method='L-BFGS-B',
+                        lower=rep(-20, length(theta.k)),
+                        upper=rep(20, length(theta.k)))
                    $par)
-    
+
+#     print(theta.k[8])
     lr.rate = lr.fun(i)
-    
     s.m = s.m + lr.rate*(s.m.fun(theta.k, A, data[i,]) - s.m)
     s.R = s.R + lr.rate*(s.R.fun(theta.k, A) - s.R)
   }
@@ -60,7 +62,7 @@ online.em.each = function(data, A, verbose=F){
 
 s.m.fun = function(theta, A, y) {
   s.m.fun.last = function(lambda, sigma, big.multiple, A, y){
-    lambda + big.multiple%*%(y[1:length(y) - 1] - A%*%lambda)  
+    lambda + big.multiple%*%(y - A%*%lambda)
   }
   calculate.stat(s.m.fun.last, theta, A, y)
 }
@@ -69,7 +71,7 @@ s.R.fun = function(theta, A){
   s.R.fun.last = function(lambda, sigma, big.multiple, A, y){
     sigma - big.multiple%*%A%*%sigma
   }
-  calculate.stat(s.R.fun.last, theta, A)  
+  calculate.stat(s.R.fun.last, theta, A)
 }
 
 calculate.stat = function(stat.last.specific, theta, A, y=NULL){
@@ -98,12 +100,10 @@ Q = function(theta.log, data, c, A, S){
   sigma = phi*diag(lambda)
   sigma.inverse = qr.solve(sigma)
   
-  -(1/2)*(log(det(sigma)) + tr(sigma.inverse%*%S$R)) 
+  -(1/2)*(log(det(sigma)) + tr(sigma.inverse%*%S$R))
   - (1/2)*t(S$m - lambda)%*%sigma.inverse%*%(S$m - lambda)
 }
 
 test = function(){
-  A = generate.A()
-  d = generate.data(10, 1)
-  online.em.each(d, A)
+  online.em.each(generate.data(100, 1), generate.A())
 }
