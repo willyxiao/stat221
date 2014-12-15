@@ -1,0 +1,8 @@
+*.log
+.DS_Store
+.RHistory
+*.gz
+*.aux
+*.fls
+*.fdb_latexmk
+

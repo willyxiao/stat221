@@ -1,0 +1,57 @@
+\documentclass[12pt]{article}
+
+%%%%%%%%%%%%%%%%%%%
+% Packages/Macros %
+%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}     % Standard packages
+\usepackage{bbold}
+\usepackage[margin=1.2in]{geometry}
+\usepackage{hyperref}
+
+%%%%%%%%%%%
+% Margins %
+%%%%%%%%%%%
+\addtolength{\textwidth}{1.0in}
+\addtolength{\textheight}{1.00in}
+\addtolength{\evensidemargin}{-0.75in}
+\addtolength{\oddsidemargin}{-0.75in}
+\addtolength{\topmargin}{-.50in}
+\setlength\parindent{0pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Theorem/Proof Environments %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtheorem{theorem}{Theorem}
+%%%%%%%%%%%%
+% Document %
+%%%%%%%%%%%%
+\begin{document}
+Stat 221 final project description, Fall 2014 \\
+Edo Airoldi, Panos Toulis
+\section*{Final project on online EM algorithm}
+This work will replicate methods and results in Cappe and Moulines 2011, who presented an overview of computationally efficient variants of the classical EM algorithm that operate online. Optionally, you will pursue even faster implementations of online EM and evaluate it against the aforementioned paper, or on the network traffic data model in the homework.
+
+\section{Literature review (5pts)}
+Read the papers in the bib folder, with the main focus on the Cappe and Moulines paper.
+Write a short technical account of online EM, and the main idea for using 
+stochastic approximate methods in the E-, and M-steps.
+
+\section{Tasks (15pts)}
+\begin{enumerate}
+\item (5pts) \textbf{Implementation \#1}. Implement the online EM algorithm 
+	for the Poisson mixture model of Section 2.4 in the Cappe paper. 
+	Your code implementation should also define a simple simulation 
+	that demonstrates its correctness.
+	You should also define and execute rigorous unit testing of your code.
+\item (5pts)  \textbf{Implementation \#2}. 
+	Implement the regression mixture of Section 4 and replicate Figures 1-4.
+\item (5pts) \textbf{Novelty}. Use the online EM algorithm to fit the network traffic model in the model
+by Cao et. al., as we saw in class -- you can use either the simple or the refined model--,
+	and replicate Figure 5 in that paper.
+\end{enumerate}
+
+\section{Conclusion (5pts)}
+Write a conclusion of your research giving a summary of your theoretical results, 
+and concrete recommendations for the practicioners who wish to use the online EM algorithm.
+
+\end{document}
