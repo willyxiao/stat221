@@ -1,8 +1,8 @@
 rm(list = ls())
 source('data_generator.R')
 
-tr = function(M){
-  sum(diag(M))
+run.test = function(nsamples){
+  online.em.each(generate.data(nsamples, 1), generate.A())
 }
 
 generate.A = function(){
@@ -51,7 +51,6 @@ online.em.each = function(data, A, verbose=F){
                         upper=rep(20, length(theta.k)))
                    $par)
 
-#     print(theta.k[8])
     lr.rate = lr.fun(i)
     s.m = s.m + lr.rate*(s.m.fun(theta.k, A, data[i,]) - s.m)
     s.R = s.R + lr.rate*(s.R.fun(theta.k, A) - s.R)
@@ -104,6 +103,6 @@ Q = function(theta.log, data, c, A, S){
   - (1/2)*t(S$m - lambda)%*%sigma.inverse%*%(S$m - lambda)
 }
 
-test = function(nsamples){
-  online.em.each(generate.data(nsamples, 1), generate.A())
+tr = function(M){
+  sum(diag(M))
 }
