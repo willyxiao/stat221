@@ -96,7 +96,7 @@ plot.figure.1 = function(){
   points(data$U[data$class == 2], data$data[data$class ==2], pch=4, col='red')
 }
 
-plot.figure.2 = function(){
+generate.betas = function(nsamples=100){
   nruns = 500
   true.beta = c(15, 10, -10)
   
@@ -111,25 +111,38 @@ plot.figure.2 = function(){
     for(i in 1:500){
       tmp = matrix(NaN, nrow=1, ncol=1)
       while(is.nan(tmp[1,1])){
-        tmp = online.EM(lr.funs[[f.i]], simulate.data(100))$beta
+        tmp = online.EM(lr.funs[[f.i]], simulate.data(nsamples))$beta
       }
       res = find.best.res(tmp)
       beta.1[i,f.i] = res[1]
       beta.2[i,f.i] = res[2]
       beta.3[i,f.i] = res[3]
+      print(sprintf("Completed %d for function %d", i, f.i))
     }
   }
   
   for(i in 1:500){
     tmp = matrix(NaN, nrow=1, ncol=1)
     while(is.nan(tmp[1,1])){
-      tmp = online.EM(function(i){1/(i+1)^.6}, simulate.data(100), 50)$beta  
+      tmp = online.EM(function(i){1/(i+1)^.6}, simulate.data(nsamples), 50)$beta  
     }    
     res = find.best.res(tmp)
     beta.1[i,3] = res[1]
     beta.2[i,3] = res[2]
     beta.3[i,3] = res[3]
+    print(sprintf("Completed %d for OL06a", i))
   }
+  
+  list(beta.1 = beta.1, beta.2 = beta.2, beta.3 = beta.3)
+}
+
+plot.figure.2 = function(nsamples=100){
+  x = generate.betas(nsamples)
+  produce.plots(x$beta.1, x$beta.2, x$beta.3)
+  x
+}
+
+produce.plots = function(beta.1, beta.2, beta.3){
   boxplot(beta.1, names=names, ylab="beta_2(1)")
   boxplot(beta.2, names=names, ylab="beta_2(2)")
   boxplot(beta.3, names=names, ylab="beta_2(3)")
