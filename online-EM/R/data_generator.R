@@ -132,9 +132,14 @@ for(i in 1:7){
   
 }
 
-data = generate.data(n=500, iter = 1)
-fig5.dat = locally_iid_EM(data, 2, A)
-
+#run normal EM on window "iteration"
+#SLURM job calls this function
+run.normal.em = function(iteration = 1){
+  data = generate.data(n=500, iter = iteration)
+  em.fig5.dat = locally_iid_EM(data, 2, A)
+  filename = sprintf("normal_em_window%d.RData", iteration)
+  save(em.fig5.dat, filename)
+}
 
 #generates data for iteration iter (1-26)
 #dst.crp is not sampled b/c it's determined by
