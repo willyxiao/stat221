@@ -52,17 +52,14 @@ poisson.em = function(data, m){
 
 #testing time
 #trivial example as sanity check
-x = c(1)
-data = simulate.data(c(100), x, 10000)
-test1 = poisson.em(data, 1)
+test1.probs = c(1)
+test1.data = simulate.data(c(100), test1.probs, 100000)
+test1 = poisson.em(test1.data, 1)
 
-x = c(.1, .25, .5)
-data = simulate.data(c(25,40,10,100), c(x, 1-sum(x)), 100000)
-test2 = poisson.em(data, 4)
+test2.probs = c(.5, .3, .2)
+test2.data = simulate.data(c(2, 15, 30), test2.probs, 100000)
+test2 = poisson.em(test2.data, 3)
 
-x = c(.5, .5)
-data = simulate.data(c(10, 2), x, 10000)
-test3 = poisson.em(data, 2)
-
-
-
+test3.probs = c(.75, .25)
+test3.data = simulate.data(c(10, 2), test3.probs, 100000)
+test3 = poisson.em(test3.data, 2)
