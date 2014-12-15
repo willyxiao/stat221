@@ -8,9 +8,9 @@ simulate.data = function(nsamples){
   
   for(i in 1:nsamples){
     U = runif(1, 0, 10)
-    Us[i] = U
     V = rnorm(1, 0, 9)
-    
+
+    Us[i] = U
     if(runif(1, 0, 1) > .5){
       class[i] = 1
       data[i] = 5*U + V
@@ -22,9 +22,7 @@ simulate.data = function(nsamples){
   list(data=data, class=class, U=Us)
 }
 
-INHIBITION = 20
-
-online.EM = function(lr.fun, data, start.avg=NULL){  
+online.EM = function(lr.fun, data, start.avg=NULL, inhibition=20){  
   s = initialize.s()  
   s.1 = s$s.1
   s.2 = s$s.2
@@ -64,7 +62,7 @@ online.EM = function(lr.fun, data, start.avg=NULL){
       s.3[[j]] = new.s[[3]]
       s.4[[j]] = new.s[[4]]
 
-      if(i >= INHIBITION) {
+      if(i >= inhibition) {
         theta = theta.fun(s.1[[j]], s.2[[j]], s.3[[j]], s.4[[j]])
         avg.rate = ifelse(is.null(start.avg) || i < start.avg, 1, 1/(i+1)^.5)
         new.theta = stochastic.update(avg.rate,
@@ -193,6 +191,8 @@ plot.figure.4 = function(nsamples=5000){
   
   betas
 }
+
+# PLOTTING HELPERS
 
 generate.betas = function(nsamples=100){
   nruns = 500
