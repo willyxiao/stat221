@@ -100,8 +100,6 @@ generate.betas = function(nsamples=100){
   nruns = 500
   true.beta = c(15, 10, -10)
   
-  names = c("OL1", "OL06", "OL06a")
-  
   beta.1 = matrix(0, nrow=nruns, ncol=3)
   beta.2 = matrix(0, nrow=nruns, ncol=3)
   beta.3 = matrix(0, nrow=nruns, ncol=3)
@@ -143,6 +141,7 @@ plot.figure.2 = function(nsamples=100){
 }
 
 produce.plots = function(beta.1, beta.2, beta.3){
+  names = c("OL1", "OL06", "OL06a")
   boxplot(beta.1, names=names, ylab="beta_2(1)")
   boxplot(beta.2, names=names, ylab="beta_2(2)")
   boxplot(beta.3, names=names, ylab="beta_2(3)")
