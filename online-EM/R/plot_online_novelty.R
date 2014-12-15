@@ -24,4 +24,4 @@ for(i in c(13, 9, 5, 1)){
 }
 
 #plot online em results
-plot.fig(res, 5, names, indices, "novelty_online_em_500iters.pdf", 1e6)
+plot.fig(res, 5, names, indices, "novelty_online_em.pdf", 1e6)

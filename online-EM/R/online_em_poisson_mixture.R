@@ -42,7 +42,7 @@ poisson.em = function(data, m){
   for(i in 1: length(data)){
     w.bar.iter = w.bar(data[i], w, lambda)
     for(j in 1:m){
-      s.hat[j,] = s.hat[j,] + (1/(2*i)) *(c(w.bar.iter[j], w.bar.iter[j]*data[i]) - s.hat[j,])
+      s.hat[j,] = s.hat[j,] + (1/(i + 1)) *(c(w.bar.iter[j], w.bar.iter[j]*data[i]) - s.hat[j,])
     }
     w = s.hat[,1]
     lambda = s.hat[,2] / s.hat[,1]
@@ -51,16 +51,18 @@ poisson.em = function(data, m){
 }
 
 #testing time
+#trivial example as sanity check
+x = c(1)
+data = simulate.data(c(100), x, 10000)
+test1 = poisson.em(data, 1)
+
 x = c(.1, .25, .5)
 data = simulate.data(c(25,40,10,100), c(x, 1-sum(x)), 100000)
-poisson.em(data, 4)
+test2 = poisson.em(data, 4)
 
 x = c(.5, .5)
 data = simulate.data(c(10, 2), x, 10000)
-poisson.em(data, 2)
+test3 = poisson.em(data, 2)
 
-x = c(1)
-data = simulate.data(c(2), x, 10000)
-poisson.em(data, 1)
 
 
