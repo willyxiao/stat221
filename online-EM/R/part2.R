@@ -26,6 +26,8 @@ simulate.data = function(nsamples){
 INHIBITION = 20
 
 online.EM = function(lr.fun, data, start.avg=NULL){
+  betas = list(matrix(0, nrow=length(data$data), ncol=3), matrix(0, nrow=length(data$data), ncol=3))
+  
   tmp = .5
   
   s.1 = list(tmp,1 - tmp)
@@ -84,10 +86,12 @@ online.EM = function(lr.fun, data, start.avg=NULL){
           sigma.sq[j] = (1 - avg.rate)*sigma.sq[j] + avg.rate*((s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]])
         }
       }
+      
+      betas[[j]][i,] = beta[j,]
     }
   }
 
-  list(w=w, beta=beta, sigma.sq=sigma.sq)
+  list(w=w, beta=beta, sigma.sq=sigma.sq, betas=betas)
 }
 
 plot.figure.1 = function(){
@@ -147,11 +151,53 @@ produce.plots = function(beta.1, beta.2, beta.3){
   boxplot(beta.3, names=names, ylab="beta_2(3)")
 }
 
-find.best.res = function(res){
-  true.beta = c(15,10,-10)
-  if(sum((res[1,] - true.beta)^2) < sum((res[2,] - true.beta)^2)){
-    res[1,]
-  } else{
-    res[2,]
+plot.figure.4 = function(nsamples=5000){
+  beta.1 = matrix(0, nrow=nsamples, ncol=3)
+  beta.2 = matrix(0, nrow=nsamples, ncol=3)
+  beta.3 = matrix(0, nrow=nsamples, ncol=3)
+  
+  lr.funs = c(function(i){1/(i+1)}, function(i){1/(i+1)^.6})
+  
+  for(f.i in 1:length(lr.funs)){
+    res = online.EM(lr.funs[[f.i]], simulate.data(nsamples))$betas
+    
+    index = find.best.res.i(res[[1]][nsamples,], res[[2]][nsamples,])
+    
+    beta.1[,f.i] = res[[index]][,1]
+    beta.2[,f.i] = res[[index]][,2]
+    beta.3[,f.i] = res[[index]][,3]
   }
+  
+  res = online.EM(function(i){1/(i+1)^.6}, simulate.data(nsamples), 1000)$betas
+  index = find.best.res.i(res[[1]][nsamples,], res[[2]][nsamples,])
+  beta.1[,3] = res[[index]][,1]
+  beta.2[,3] = res[[index]][,2]
+  beta.3[,3] = res[[index]][,3]
+  
+  list(beta.1 = beta.1, beta.2 = beta.2, beta.3 = beta.3)
+  
+  plot(1:nsamples, beta.1[,1], type="l", col="red", lty=2, ylim=c(0,30))
+  lines(1:nsamples, beta.1[,2], lty=3)
+  lines(1:nsamples, beta.1[,3], col="blue")
+  
+  plot(1:nsamples, beta.2[,1], type="l", col="red", lty=2, ylim=c(0,20))
+  lines(1:nsamples, beta.2[,2], lty=3)
+  lines(1:nsamples, beta.2[,3], col="blue")
+  
+  plot(1:nsamples, beta.3[,1], type="l", col="red", lty=2, ylim=c(-20,0))
+  lines(1:nsamples, beta.3[,2], lty=3)
+  lines(1:nsamples, beta.3[,3], col="blue")
+}
+
+find.best.res.i = function(a, b){
+  true.beta = c(15,10,-10)
+  if(sum((a - true.beta)^2) < sum((b - true.beta)^2)){
+    1
+  } else {
+    2
+  }
+}
+
+find.best.res = function(res){
+  res[find.best.res.i(res[1,], res[2,]),]
 }
