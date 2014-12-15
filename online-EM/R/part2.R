@@ -100,6 +100,8 @@ plot.figure.2 = function(){
   nruns = 500
   true.beta = c(15, 10, -10)
   
+  names = c("OL1", "OL06", "OL06a")
+  
   beta.1 = matrix(0, nrow=nruns, ncol=3)
   beta.2 = matrix(0, nrow=nruns, ncol=3)
   beta.3 = matrix(0, nrow=nruns, ncol=3)
@@ -128,9 +130,9 @@ plot.figure.2 = function(){
     beta.2[i,3] = res[2]
     beta.3[i,3] = res[3]
   }
-  boxplot(beta.1)
-  boxplot(beta.2)
-  boxplot(beta.3)
+  boxplot(beta.1, names=names, ylab="beta_2(1)")
+  boxplot(beta.2, names=names, ylab="beta_2(2)")
+  boxplot(beta.3, names=names, ylab="beta_2(3)")
 }
 
 find.best.res = function(res){
