@@ -25,7 +25,7 @@ simulate.data = function(nsamples){
 
 INHIBITION = 20
 
-online.EM = function(lr.fun, data, start.avg=50){
+online.EM = function(lr.fun, data, start.avg=NULL){
   tmp = .5
   
   s.1 = list(tmp,1 - tmp)
@@ -46,14 +46,8 @@ online.EM = function(lr.fun, data, start.avg=50){
   }
 
   w = rep(.5,2)
-  beta = rbind(c(0, 4, 0), c(10, 10, 10))
+  beta = rbind(c(0, 4, 0), c(30, 0, -2))
   sigma.sq = rep(200,2)
-  
-#   for(j in 1:2){
-#     w[j] = s.1[[j]]
-#     beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
-#     sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]
-#   }
 
   for(i in 1:length(data$data)){  
     r = data$data[i]
@@ -67,21 +61,28 @@ online.EM = function(lr.fun, data, start.avg=50){
                      /sigma.sq[j]))
     }
     
-    w[1] = tmp[1] / sum(tmp)
-    w[2] = 1 - w[1]
+    tmp[1] = tmp[1] / sum(tmp)
+    tmp[2] = 1 - tmp[1]
     
     lr.rate = lr.fun(i)
     
     for(j in 1:2) {
-      s.1[[j]] = (1 - lr.rate)*s.1[[j]] + lr.rate*w[j]
-      s.2[[j]] = (1 - lr.rate)*s.2[[j]] + lr.rate*(w[j]*r*z)
-      s.3[[j]] = (1 - lr.rate)*s.3[[j]] + lr.rate*(w[j]*z%*%t(z))
-      s.4[[j]] = (1 - lr.rate)*s.4[[j]] + lr.rate*(w[j]*r^2)
+      s.1[[j]] = (1 - lr.rate)*s.1[[j]] + lr.rate*tmp[j]
+      s.2[[j]] = (1 - lr.rate)*s.2[[j]] + lr.rate*(tmp[j]*r*z)
+      s.3[[j]] = (1 - lr.rate)*s.3[[j]] + lr.rate*(tmp[j]*z%*%t(z))
+      s.4[[j]] = (1 - lr.rate)*s.4[[j]] + lr.rate*(tmp[j]*r^2)
 
       if(i >= INHIBITION) {
-        w[j] = s.1[[j]]
-        beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
-        sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]
+        if(is.null(start.avg) || i < start.avg){
+          w[j] = s.1[[j]]
+          beta[j,] = solve(s.3[[j]])%*%s.2[[j]]
+          sigma.sq[j] = (s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]]
+        } else {
+          avg.rate = 1/(i+1)^.5
+          w[j] = (1 - avg.rate)*w[j] + avg.rate*s.1[[j]]
+          beta[j,] = (1 - avg.rate)*beta[j,] + avg.rate*(solve(s.3[[j]])%*%s.2[[j]])
+          sigma.sq[j] = (1 - avg.rate)*sigma.sq[j] + avg.rate*((s.4[[j]] - t(beta[j,])%*%s.2[[j]])/s.1[[j]])
+        }
       }
     }
   }
@@ -97,19 +98,46 @@ plot.figure.1 = function(){
 
 plot.figure.2 = function(){
   nruns = 500
-  beta = list(rep(0, nruns), rep(0, nruns), rep(0, nruns))
+  true.beta = c(15, 10, -10)
+  
+  beta.1 = matrix(0, nrow=nruns, ncol=3)
+  beta.2 = matrix(0, nrow=nruns, ncol=3)
+  beta.3 = matrix(0, nrow=nruns, ncol=3)
   
   lr.funs = c(function(i){1/(i+1)}, function(i){1/(i+1)^.6})
-  for(i in 1:500){
-    for(lr.fun in lr.funs){
-      res = online.EM(lr.fun, simulate.data(100))$beta
-      for(j in 1:3){
-        beta[[j]][i] = res[1,j]
+  for(f.i in 1:length(lr.funs)){
+    for(i in 1:500){
+      tmp = matrix(NaN, nrow=1, ncol=1)
+      while(is.nan(tmp[1,1])){
+        tmp = online.EM(lr.funs[[f.i]], simulate.data(100))$beta
       }
+      res = find.best.res(tmp)
+      beta.1[i,f.i] = res[1]
+      beta.2[i,f.i] = res[2]
+      beta.3[i,f.i] = res[3]
     }
   }
   
-  for(i in 1:3){
-    boxplot(beta[[i]])
+  for(i in 1:500){
+    tmp = matrix(NaN, nrow=1, ncol=1)
+    while(is.nan(tmp[1,1])){
+      tmp = online.EM(function(i){1/(i+1)^.6}, simulate.data(100), 50)$beta  
+    }    
+    res = find.best.res(tmp)
+    beta.1[i,3] = res[1]
+    beta.2[i,3] = res[2]
+    beta.3[i,3] = res[3]
+  }
+  boxplot(beta.1)
+  boxplot(beta.2)
+  boxplot(beta.3)
+}
+
+find.best.res = function(res){
+  true.beta = c(15,10,-10)
+  if(sum((res[1,] - true.beta)^2) < sum((res[2,] - true.beta)^2)){
+    res[1,]
+  } else{
+    res[2,]
   }
 }
