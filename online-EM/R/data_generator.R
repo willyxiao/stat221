@@ -138,7 +138,7 @@ run.normal.em = function(iteration = 1){
   data = generate.data(n=500, iter = iteration)
   em.fig5.dat = locally_iid_EM(data, 2, A)
   filename = sprintf("normal_em_window%d.RData", iteration)
-  save(em.fig5.dat, filename)
+  save(em.fig5.dat, file=filename)
 }
 
 #generates data for iteration iter (1-26)
