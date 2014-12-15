@@ -94,3 +94,22 @@ plot.figure.1 = function(){
   plot(data$U[data$class == 1], data$data[data$class ==1], xlab="U", ylab="Z")
   points(data$U[data$class == 2], data$data[data$class ==2], pch=4, col='red')
 }
+
+plot.figure.2 = function(){
+  nruns = 500
+  beta = list(rep(0, nruns), rep(0, nruns), rep(0, nruns))
+  
+  lr.funs = c(function(i){1/(i+1)}, function(i){1/(i+1)^.6})
+  for(i in 1:500){
+    for(lr.fun in lr.funs){
+      res = online.EM(lr.fun, simulate.data(100))$beta
+      for(j in 1:3){
+        beta[[j]][i] = res[1,j]
+      }
+    }
+  }
+  
+  for(i in 1:3){
+    boxplot(beta[[i]])
+  }
+}
