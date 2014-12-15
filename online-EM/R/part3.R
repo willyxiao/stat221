@@ -105,5 +105,5 @@ Q = function(theta.log, data, c, A, S){
 }
 
 test = function(nsamples){
-  online.em.each(generate.data(nsamples, 2), generate.A())
+  online.em.each(generate.data(nsamples, 1), generate.A())
 }
