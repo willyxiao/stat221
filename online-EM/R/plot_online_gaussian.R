@@ -9,8 +9,41 @@ plot.figure.1 = function(){
 
 plot.figure.2 = function(nsamples=100){
   x = generate.betas(nsamples)
+  load('../hannah/beta2EMFig2.rda')
+  
+  x$beta.1 = cbind(beta2.mat[,1], x$beta.1)
+  x$beta.2 = cbind(beta2.mat[,2], x$beta.2)
+  x$beta.3 = cbind(beta2.mat[,3], x$beta.3)
+  
   produce.plots.fig.2(x$beta.1, x$beta.2, x$beta.3)
   x
+}
+
+plot.figure.3 = function(){
+  load('betas.RData')
+  
+  em.1 = rep(0, 50)
+  em.2 = rep(0, 50)
+  em.3 = rep(0, 50)
+  
+  for(i in 1:50){
+    
+    # 43 is nonexistent for some reason
+    if(i == 43){
+      next
+    }
+    
+    load(sprintf('../hannah/beta2_%d.rda', i))
+    em.1[i] = beta2.mat[1]
+    em.2[i] = beta2.mat[2]
+    em.3[i] = beta2.mat[3]
+  }
+  
+  x$beta.1 = cbind(em.1, x$beta.1)
+  x$beta.2 = cbind(em.2, x$beta.2)
+  x$beta.3 = cbind(em.3, x$beta.3)
+  
+  produce.plots.fig.2(x$beta.1, x$beta.2, x$beta.3, c(10,19), c(7,13), c(-13,-7))
 }
 
 plot.figure.4 = function(nsamples=5000){
@@ -90,11 +123,11 @@ generate.betas = function(nsamples=100){
   list(beta.1 = beta.1, beta.2 = beta.2, beta.3 = beta.3)
 }
 
-produce.plots.fig.2 = function(beta.1, beta.2, beta.3){
-  names = c("OL1", "OL06", "OL06a")
-  boxplot(beta.1, names=names, ylab="beta_2(1)")
-  boxplot(beta.2, names=names, ylab="beta_2(2)")
-  boxplot(beta.3, names=names, ylab="beta_2(3)")
+produce.plots.fig.2 = function(beta.1, beta.2, beta.3, ylim.1=c(-10,45), ylim.2=c(-5,25), ylim.3=c(-25,5)){
+  names = c("EM5", "OL1", "OL06", "OL06a")
+  boxplot(beta.1, names=names, ylab="beta_2(1)", ylim=ylim.1)
+  boxplot(beta.2, names=names, ylab="beta_2(2)", ylim=ylim.2)
+  boxplot(beta.3, names=names, ylab="beta_2(3)", ylim=ylim.3)
 }
 
 find.best.res.i = function(a, b){
