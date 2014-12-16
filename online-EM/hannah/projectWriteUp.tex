@@ -2,12 +2,12 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
-	\addtolength{\oddsidemargin}{-1in}
-	\addtolength{\evensidemargin}{-1in}
-	\addtolength{\textwidth}{1.9in}
+	\addtolength{\oddsidemargin}{-.5in}
+	\addtolength{\evensidemargin}{-.5in}
+	\addtolength{\textwidth}{.5in}
 
-	\addtolength{\topmargin}{-1in}
-	\addtolength{\textheight}{1in}
+	\addtolength{\topmargin}{-.5in}
+	\addtolength{\textheight}{.5in}
 \usepackage{fullpage}
 
 \begin{document}
@@ -30,7 +30,7 @@ where $\gamma_{n+1}$ corresponds to the learning rate. Assuming the complete dat
 \hat{s}_{n+1} &= \hat{s}_{n} + \gamma_{n+1}(\overline{s}(Y_{n+1}; \hat{\theta}_{n}) - \hat{s}_{n}) \nonumber \\
 \hat{\theta}_{n+1} &= \overline{\theta}(\hat{s}_{n+1})
 \end{align}
-These steps are repeated for each $Y_{i}$ until all the data has been cycled through.
+These steps are repeated for each $Y_{i}$ until all the data has been cycled through.\\
 
 The theoretical justification of this approach is largely dependent on the work of Lange (1995). Lange had the insight that the M-step in batch EM can be replaced by a Newton-Raphson step or a stochastic approximation of the Newton steps (under some conditions) giving a recursion for the parameter updates that is "locally equivalent to the EM algorithm at convergence." The corresponding proposed updates are referred to as the online gradient algorithm. Cappe and Mouline show that their online updates can be manipulated to be of the same form as the online gradient algorithm when approaching convergence, so their algorithm has the same convergence performance. 
 
@@ -39,22 +39,84 @@ The theoretical justification of this approach is largely dependent on the work 
 
 \section{Tasks}
 \subsection{Implementation 1}
+In this section, we implement the model for the Poisson mixture model of section 2.4. We largely follow the algorithm directly as given in the paper with learning rate $1/2i$. We ran this model on a number of different combinations of $\lambda$, $M$, and $w$ values. We list here several examples, including a trivial case that demonstrates unit testing. \\
+
+\noindent \underline{\textbf{Example 1: Trivial Unit Testing (M = 1)} }\\ 
+\indent Simulated Model: $\lambda$  = 100, $w = 1$, 100,000 data points\\
+\indent Estimated Parameters: $ \hat{\lambda} = 99.9998, \hat{w} =  1.0$\\
+
+\noindent \underline{\textbf{Example 2: M =3 }}\\
+\indent Simulated Model: $\lambda = (2, 15, 30), w = (0.5, 0.3, 0.2)$\\
+\indent Estimated Parameters: $\hat{\lambda} = (2.0015, 14.9150, 29.9196), \hat{w} = (0.5003, 0.2964, 0.2032)$ \\
+
+\noindent \underline{\textbf{Example 3: M = 2}}|\\
+\indent Simulated Model: $\lambda = (10,2), w = (0.75, 0.25)$\\
+\indent Estimated Parameters: $\hat{\lambda} = (10.0612, 2.0845), \hat{w} = ( 0.7424, 0.2575) $ \\
+
+\noindent Like most models to determine underlying mixture models, this method performs well when there is a lot of seperation between the means and performs poorly when the means are quite similar. Because the method is online, this method also tends to break down if there is one  distribution with a very large or very small mean that has relatively low weight. In those cases, if one of these exteme values does not occur early on, the means of each of the mixtures starts to be set at less extreme values. Then,when an extreme value occurs, the probability of such a value occuring is numerically zero. This causes the existing algorithm to fail. 
 
 \subsection{Implementation 2}
+In this section, we implement the online EM algorithm for a mixture of Gaussian regressions. Figures 1-4 are our replications of Figures 1-4 in the paper. In implementing the Gaussian regression  algorithm, we were able to follow the method in Cappe and Moulines' paper closely, with a few exceptions. Most notably, in the paper, the update for $\overline{s}_{3,j}(r,z;\theta) = \overline{w}_{j}(r,z;\theta)rzz^{T}$; however, this is incorrect, we should update $\overline{s}_{3,j}(r,z;\theta) = \overline{w}_{j}(r,z;\theta)zz^{T}$. This is likely just a typo in the published paper, but it's problematic, since failure to notice this error results in an algorithm that does not converge. Additionally, how to  initialize $M_{j}$, the ($d_{z} + 1)$-dimension matrix block that defines the sufficient statistics, is not specified in the paper. We chose to make $4 \times 4$ random matrices for each j, then set $M = A^{T}A$ for the first iteration. Lastly, the paper does not give any details on how the batch EM implementation is run, but we assume they used a straigtforward implementation since it is just used as comparison. Corresponding, we found the Batch EM values using the  \textit{regmixEM} function in the \textit{mixtools} package. \\
+
+%\begin{figure}[b!]
+%\centering
+%\includegraphics[width = .8\textwidth]{SOMETHING.PDF}\\
+%\caption{Replication of Figure 1 ("500 points drawn from the model: circles, points drawn from the first class, and crosses, points drawn from the second class"), NOTE: The y-label in the published paper is Z, this should be R, since Z is a vector} \label{f1}
+%\end{figure}
+
+
+%\begin{figure}[b!]
+%\centering
+%\includegraphics[width = .8\textwidth]{OURFIGURE1.PDF}\\
+%\caption{Replication of Figure 2 ("Box-and-whisker plots of the three components of $\beta_{2}, estimated from 500 independent runs of length $n = 100$", from left to right (batch EM, online EM  with $\gamma_{i} = 1/i$, online EM with $\gamma_{i} = 1/i^{0.6}$, and online EM with $\gamma_{i} = 1/i^{0.6}$ with averaging starting from the 50th iteration} \label{f2}
+%\end{figure}
+
+%\begin{figure}[b!]
+%\centering
+%\includegraphics[width = .8\textwidth]{OURFIGURE2.PDF}\\
+%\caption{Replication of Figure 2 ("Box-and-whisker plots of the three components of $\beta_{2}, estimated from 500 independent runs of length $n = 100$", from left to right (batch EM, online EM  with $\gamma_{i} = 1/i$, online EM with $\gamma_{i} = 1/i^{0.6}$, and online EM with $\gamma_{i} = 1/i^{0.6}$ with averaging starting from the 50th iteration} \label{f2}
+%\end{figure}
+
+%\begin{figure}[b!]
+%\doublespacing
+%\centering
+%\includegraphics[width = .8\textwidth]{OURFIGURE3.PDF}\\
+%\caption{Replication of Figure 3 ("Same plots as in Figure 2 for signals of length n = 10,000$"), NOTE: We ran batch EM 50 times} \label{f2}
+%\end{figure}
+
+
+%\begin{figure}[b!]
+%\doublespacing
+%\centering
+%\includegraphics[width = .8\textwidth]{OURFIGURE4.PDF}\\
+%\caption{Replication of Figure 4 ("Examples of parameters trajectories for the three components of $\beta_{2}$" where DESCRIPTION OF HOW YOU LABELED THE GRAPH)} \label{f2}
+%\end{figure}
+
+EXPLANATION OF SIMILARITIES AND DIFFERENCES BETWEEN OUR GRAPHS AND THE PAPERS
+
 
 \newpage
 \subsection{Novelty}
-In this section, we apply the online EM method presented by Cappe and Moulines to the network traffic model proposed by Cao et al. However, applying online EM directly to this problem is not feasible, because the goal of the network model analysis is to try and determine changes in the mean overtime of  the number of messages going to and from the various router combinations.  Since at each time point, there is only one count of incoming and outgoing messages, there is only one data point for each time period. In the work of Cao et al., each data point is combined with its surrounding data points to give a window of 15 points to estimate the mean for each time period using EM. Online EM only makes one pass through the data, so in this case each time period's means would be estimated with only 15 iterations of the algorithm. This is unlikely to converge, which is demonstrated by figure X which shows that the time series estimated by online EM do not match those estimated by traditional EM.  (ADD FIGURE AND CONFIRM THAT THIS IS THE CASE)\\
+In this section, we apply the online EM method presented by Cappe and Moulines to the network traffic model proposed by Cao et al. However, applying online EM directly to this problem is not feasible, because the goal of the network model analysis is to try and determine changes in the mean overtime of  the number of messages going to and from the various router combinations.  Since at each time point, there is only one count of incoming and outgoing messages, there is only one data point for each time period. In the work of Cao et al., each data point is combined with its surrounding data points to give a window of 15 points to estimate the mean for each time period using EM. Online EM only makes one pass through the data, so in this case each time period's means would be estimated with only 15 iterations of the algorithm, which is simply not enough to reach convergence at all consistently.\\
 
-So, instead, we augment the data in each window. We do this, by finding the sample mean and variance in each of the windows. Then we draw X (NEED NUMBER) new data points from a normal distribution with mean equal to the observed sample mean and variance equal to observed sample variance. The distribution is truncated such that all values are greater than 0 and selected value are rounded to integers. (We considered the use of a true count model for drawing the augmented data; however, we were not able to find a suitable model. The observed mean and variance were not aproximately equal, making a Poisson model inappropriate and the limited data available did not allow the use of more parameterized models such as the Negative Binomial) Combining the augmented data for each window with the observed data, we then apply the online EM approach posed by Cappe and Moulines to each window. Specifically, we iterated between finding the sufficient statistics $m_{t}$ and $R^{(k)}$ using only the data point from the current iteration and maximizing $Q(\theta | \theta^{(t)})$ where $m_{t}$ and $R^{(k)}$ and  $Q(\theta | \theta^{(t)})$ are as given in the work of Cao et al.\\
+So, instead, we augment the data in each window. We do this, by finding the sample mean and variance in each of the windows. Then we draw new data (KEVIN - CAN YOU WRITE A DESCRIPTION HERE? I'M NOT SURE I'M QUITE FAMILIAR WITH WHAT YOU DID TO EXPLAIN THIS WELL) Combining the augmented data for each window with the observed data, we then apply the online EM approach posed by Cappe and Moulines to each window. Specifically, we iterated between finding the sufficient statistics $m_{t}$ and $R^{(k)}$ using only the data point from the current iteration and maximizing $Q(\theta | \theta^{(t)})$ where $m_{t}$ and $R^{(k)}$ and  $Q(\theta | \theta^{(t)})$ are as given in the work of Cao et al. To display, these results, we build time series of the Poisson means overtime  for each path in the network (see Figure 5) and compare them to the time series obtained for batch EM as described by Cao et a. (see Figure 6). \\
+
+\begin{figure}[b!]
+\centering
+\includegraphics[width = \textwidth]{novelty_online_em.PDF}\\
+\caption{This figure shows the time series obtained using our augmented online EM method. The graphs are quite similar to those obtained using batch EM. For small values the method works poorly, but it does quite well in picking up the general trend.} \label{f2}
+\end{figure}
 
 
-From this analysis, we build the following time series. We conclude (THINGS) \\\
+\begin{figure}[b!]
+\centering
+\includegraphics[width = 1\textwidth]{novelty_normal_em.PDF}\\
+\caption{This figure shows the time series found in the network using the batch EM method given by Cao et al. It is included as a comparison.} \label{f2}
+\end{figure}
 
+From this analysis, we demonstrate that online EM is not appropriate for small data sets, since the algorithm is unlikely to converge. This work also suggests that applying a data augmentation strategy and then applying online EM may be a feasible way to address small data sets that are converging very slowly with typical EM. Potentially, one could augment their data and then  Nevertheless, significant theoretical work would need to be done to determine in what scenarios this method is appropriate and whether such an approach is actually more efficient. IF YOU HAVE ANY OTHER COMMENTS FEEL FREE TO ADD THEM HERE
 
-From this analysis, we demonstrate that online EM is not appropriate for small data sets, since the algorithm is unlikely to converge. This work also suggests that applying a data augmentation strategy and then applying online EM may be a feasible way to address small data sets that are converging very slowly with typical EM. Potentially, one could augment their data and then  Nevertheless, significant theoretical work would need to be done to determine in what scenarios this method is appropriate and whether such an approach is actually more efficient.
-
-\newpage
+\clearpage
 \section{Conclusion}
 The online EM approach proposed by Cappe and Moulines can be a useful and efficient alternative to traditional EM in certain cases. The approach is designed to solve problems that are known to have latent variables and for which a traditional EM approach will break down. The most obvious example of this situation is for large data sets, since it becomes impossible to store and transfer all the data at once. In this situation, online EM is very useful in that it allows a practictioner to use only one data point at a time, rather than to store all the results. \\
 
