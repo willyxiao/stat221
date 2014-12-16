@@ -1,0 +1,36 @@
+source('part3.R')
+
+res = c()
+for(i in 1:26){
+  estimates = online.em.each(generate.data(500, i), A)$m
+  res = rbind(res, c(estimates, NaN)) #add relevant values
+}
+truth = cbind(actual.window.means(), NaN)
+
+#add in dest totals
+for(i in 1:4){
+  res = cbind(res, res[,i] + res[,i + 4] + res[,i + 8] + res[,i + 12])
+  truth = cbind(truth, truth[,i] + truth[,i + 4] + truth[,i + 8] + truth[,i + 12])
+}
+
+#add in total
+total = res[,1]
+truth.total = truth[,1]
+for(i in 2:16){
+  total = total + res[, i]
+  truth.total = truth.total + res[,i]
+}
+res = cbind(res, total)
+truth = cbind(truth, truth.total)
+
+#add in origin totals
+for(i in c(13, 9, 5, 1)){
+  res = cbind(res, res[,i] + res[,i + 1] + res[,i + 2] + res[,i + 3])
+  truth = cbind(truth, truth[,i] + truth[,i + 1] + truth[,i + 2] + truth[,i + 3])  
+}
+
+#plot online em results
+plot.fig(res, 5, names, indices, "novelty_online_em.pdf", 1e6)
+
+#plot "ground truth"
+plot.fig(truth, 5, names, indices, "true_window_means.pdf", 1e6)

@@ -177,13 +177,21 @@ Q = function(theta, theta.k, data, c, A){
   res
 }
 
+names = c("destination fddi", "destination switch", "destination local",
+          "destination corp", "total", "corp->fddi", "corp->switch", "corp->local",
+          "corp->corp", "origin corp", "local->fddi", "local->switch", "local->local", "local->corp",
+          "origin local", "switch->fddi", "switch->switch", "switch->local", "switch->corp",
+          "origin switch", "fddi->fddi", "fddi->switch", "fddi->local", "fddi->corp", "origin fddi")
+indices = c(18, 19, 20, 21, 22, 13, 14, 15, 16, 23, 9, 10, 11, 12, 24, 5, 6, 7, 8, 25, 1, 2, 3, 4, 26)
+
+
 plot.fig = function(res, dim, names, indices, filename, ymax){
   pdf(filename, width=15, height = 15)
   par(mfrow=c(dim,dim))
   #par(mar=c(2,2,2,2))
   for(i in 1:length(indices)){
     plot(res[,indices[i]], type='l', ylim = c(0, ymax), main = names[i], 
-         xlab = "hour of day", ylab ="bytes/sec", cex.lab=0.75)
+         xlab = "window", ylab ="bytes/sec", cex.lab=0.75)
   }
   dev.off()
 }
