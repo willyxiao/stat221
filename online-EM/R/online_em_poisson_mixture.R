@@ -1,8 +1,6 @@
 #simulate data
 simulate.data = function(lambda, w, n){
   m = length(lambda)
-  #helper function to determine which lambda
-  #to use
   data = rep(NA, n)
   for(i in 1:n){
     data[i] = rpois(1, sum(rmultinom(1, 1, w) * lambda))
@@ -10,6 +8,8 @@ simulate.data = function(lambda, w, n){
   data
 }
 
+#plucks quantiles off data to use
+#as initial lambdas
 set.init.lambdas = function(data, m){
   quantiles = seq(1/m, 1, 1/m)
   quantiles = quantiles - 1/(2*m)
@@ -63,3 +63,10 @@ test2 = poisson.em(test2.data, 3)
 test3.probs = c(.75, .25)
 test3.data = simulate.data(c(10, 2), test3.probs, 100000)
 test3 = poisson.em(test3.data, 2)
+
+test.set.init.lambdas = function(){
+  stopifnot(set.init.lambdas(seq(0,100),4) == c(12.5, 37.5, 62.5, 87.5))
+  stopifnot(set.init.lambdas(seq(0,100),1) == 50)
+  stopifnot(set.init.lambdas(seq(0,100),2) == c(25, 75))  
+}
+test.set.init.lambdas()
