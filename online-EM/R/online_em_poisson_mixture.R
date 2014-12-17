@@ -28,7 +28,6 @@ w.bar = function(y, w, lambda){
       nums[i] = .0001
     }
   }
-  
   den = sum(nums)
   nums/den
   
