@@ -2,7 +2,7 @@ source("ps5_functions.R")
 
 res = c()
 for(i in 1:26){
-  filename = sprintf("normal_em_window%d.RData", i)
+  filename = sprintf("../dat/normal_em_window%d.RData", i)
   load(filename) #loads variable em.fig5.dat into memory
   res = rbind(res, colMeans(em.fig5.dat)) #add relevant values
 }

@@ -9,7 +9,7 @@ plot.figure.1 = function(){
 
 plot.figure.2 = function(nsamples=100){
   x = generate.betas(nsamples)
-  load('../hannah/beta2EMFig2.rda')
+  load('../dat/beta2EMFig2.rda')
   
   x$beta.1 = cbind(beta2.mat[,1], x$beta.1)
   x$beta.2 = cbind(beta2.mat[,2], x$beta.2)
@@ -20,7 +20,7 @@ plot.figure.2 = function(nsamples=100){
 }
 
 plot.figure.3 = function(){
-  load('betas.RData')
+  load('../dat/betas.RData')
   
   em.1 = rep(0, 50)
   em.2 = rep(0, 50)
@@ -33,7 +33,7 @@ plot.figure.3 = function(){
       next
     }
     
-    load(sprintf('../hannah/beta2_%d.rda', i))
+    load(sprintf('../dat/beta2_%d.rda', i))
     em.1[i] = beta2.mat[1]
     em.2[i] = beta2.mat[2]
     em.3[i] = beta2.mat[3]
